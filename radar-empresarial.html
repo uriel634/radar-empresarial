@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radar Empresarial | ¿Tienes control real de tu empresa? — VESTRA Consultoría</title>
+    <meta name="description" content="Descubre en 5 minutos si tu empresa tiene fugas de dinero, caos operativo o riesgos ocultos. Pre-diagnóstico gratuito con Score de Control Empresarial personalizado.">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="Radar Empresarial — Descubre el control real de tu empresa">
+    <meta property="og:description" content="Pre-diagnóstico gratuito en 5 minutos. Analiza las 5 dimensiones críticas de tu negocio.">
+    <meta property="og:type" content="website">
+
+    <!-- Schema markup -->
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"Service","name":"Radar Empresarial","provider":{"@type":"Organization","name":"VESTRA Consultoría en Negocios"},"description":"Pre-diagnóstico empresarial gratuito que analiza 5 dimensiones críticas del control empresarial","offers":{"@type":"Offer","price":"0","priceCurrency":"MXN"}}
+    </script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+
+        /* ── Scroll progress ── */
+        #scroll-bar {
+            position: fixed; top: 0; left: 0; height: 3px; z-index: 9999;
+            background: linear-gradient(90deg, #0ea5e9, #38bdf8);
+            width: 0%; transition: width 0.1s linear;
+        }
+
+        /* ── Sticky CTA ── */
+        #sticky-cta {
+            position: fixed; bottom: 0; left: 0; right: 0; z-index: 999;
+            transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+        }
+        #sticky-cta.visible { transform: translateY(0); }
+
+        /* ── Animations ── */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(32px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.92); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+        @keyframes float {
+            0%,100% { transform: translateY(0px); }
+            50%      { transform: translateY(-10px); }
+        }
+        @keyframes pulse-ring {
+            0%   { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(14,165,233,0.4); }
+            70%  { transform: scale(1);    box-shadow: 0 0 0 16px rgba(14,165,233,0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(14,165,233,0); }
+        }
+        @keyframes rotateRadar {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+        }
+        @keyframes shimmer {
+            0%   { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        .fade-up   { animation: fadeUp 0.7s ease-out forwards; }
+        .scale-in  { animation: scaleIn 0.6s ease-out forwards; }
+        .floating  { animation: float 4s ease-in-out infinite; }
+        .pulse-cta { animation: pulse-ring 2.5s ease-in-out infinite; }
+
+        .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.7s ease, transform 0.7s ease; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        /* ── Glass card ── */
+        .glass {
+            background: rgba(15,23,42,0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(148,163,184,0.12);
+        }
+        .glass-light {
+            background: rgba(30,41,59,0.5);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(148,163,184,0.15);
+        }
+
+        /* ── Grid background ── */
+        .grid-bg {
+            background-image:
+                linear-gradient(rgba(14,165,233,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(14,165,233,0.04) 1px, transparent 1px);
+            background-size: 64px 64px;
+        }
+
+        /* ── Gradient text ── */
+        .grad-text {
+            background: linear-gradient(135deg, #38bdf8 0%, #e2e8f0 60%, #7dd3fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .grad-text-accent {
+            background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ── Progress bars ── */
+        .bar-fill {
+            height: 8px; border-radius: 9999px;
+            width: 0; transition: width 1.4s cubic-bezier(0.4,0,0.2,1);
+        }
+
+        /* ── FAQ ── */
+        .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+        .faq-answer.open { max-height: 300px; }
+
+        /* ── Shimmer button ── */
+        .btn-shimmer {
+            background: linear-gradient(90deg, #0284c7, #38bdf8, #0284c7);
+            background-size: 200% 100%;
+            animation: shimmer 3s infinite;
+        }
+
+        /* ── Noise texture overlay ── */
+        body::before {
+            content: '';
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+            opacity: 0.4;
+        }
+
+        /* ── Radar SVG ── */
+        .radar-line { stroke-dasharray: 200; stroke-dashoffset: 200; transition: stroke-dashoffset 1.5s ease; }
+        .radar-line.drawn { stroke-dashoffset: 0; }
+
+        /* ── Score counter ── */
+        @keyframes countUp {
+            from { opacity: 0; transform: scale(0.5); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+        .score-num { animation: countUp 0.4s ease-out forwards; }
+
+        /* Mobile nav */
+        #mobile-menu { display: none; }
+        #mobile-menu.open { display: block; }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #0ea5e9; border-radius: 3px; }
+    </style>
+</head>
+
+<body class="bg-slate-950 text-white overflow-x-hidden">
+    <!-- Scroll progress -->
+    <div id="scroll-bar" role="progressbar" aria-label="Progreso de lectura"></div>
+
+    <!-- ═══════════════════════════════════════
+         NAVIGATION
+    ═══════════════════════════════════════ -->
+    <nav class="fixed top-0 left-0 right-0 z-50 transition-all duration-300" id="navbar">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#" aria-label="VESTRA Consultoría en Negocios - Inicio">
+                <img src="logo-vestra.png" alt="VESTRA" class="h-12 w-auto">
+            </a>
+
+            <!-- Desktop links -->
+            <div class="hidden md:flex items-center space-x-8 text-sm text-slate-400">
+                <a href="#dimensiones" class="hover:text-white transition-colors">Las 5 Dimensiones</a>
+                <a href="#como-funciona" class="hover:text-white transition-colors">Cómo Funciona</a>
+                <a href="#testimonios" class="hover:text-white transition-colors">Casos de Éxito</a>
+                <a href="#faq" class="hover:text-white transition-colors">Preguntas</a>
+            </div>
+
+            <div class="flex items-center space-x-3">
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLSchDQwc6dUWRuAp1lv2kjkS3V44noJzOc0INCVBQ8WCAMlKgg/formResponse"
+                   target="_blank" rel="noopener"
+                   class="btn-shimmer hidden sm:inline-flex items-center px-6 py-2.5 rounded-lg font-semibold text-sm text-white shadow-lg shadow-sky-500/20 hover:shadow-sky-500/40 transition-shadow">
+                    Iniciar Diagnóstico →
+                </a>
+                <!-- Mobile hamburger -->
+                <button class="md:hidden p-2 text-slate-400 hover:text-white" id="menu-btn" aria-label="Menú">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile menu -->
+        <div id="mobile-menu" class="glass border-t border-slate-800 px-6 py-4 space-y-3 text-sm">
+            <a href="#dimensiones" class="block text-slate-300 hover:text-white py-1">Las 5 Dimensiones</a>
+            <a href="#como-funciona" class="block text-slate-300 hover:text-white py-1">Cómo Funciona</a>
+            <a href="#testimonios" class="block text-slate-300 hover:text-white py-1">Casos de Éxito</a>
+            <a href="#faq" class="block text-slate-300 hover:text-white py-1">Preguntas</a>
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLSchDQwc6dUWRuAp1lv2kjkS3V44noJzOc0INCVBQ8WCAMlKgg/formResponse"
+               target="_blank" class="block btn-shimmer text-center py-3 rounded-lg font-bold text-white mt-2">
+                Iniciar mi Diagnóstico →
+            </a>
+        </div>
+    </nav>
+
+    <!-- ═══════════════════════════════════════
+         HERO
+    ═══════════════════════════════════════ -->
+    <header class="relative min-h-screen flex items-center pt-20 grid-bg overflow-hidden">
+        <!-- Ambient glow -->
+        <div class="absolute top-1/3 left-1/4 w-[600px] h-[600px] bg-sky-600/10 rounded-full blur-[120px] pointer-events-none"></div>
+        <div class="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-slate-600/10 rounded-full blur-[100px] pointer-events-none"></div>
+
+        <div class="relative z-10 container mx-auto px-6 py-20">
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+
+                <!-- LEFT: Copy -->
+                <div class="fade-up">
+                    <!-- Urgency badge -->
+                    <div class="inline-flex items-center gap-2 bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-2 rounded-full text-sm font-semibold mb-8">
+                        <span class="w-2 h-2 bg-red-500 rounded-full animate-ping inline-block"></span>
+                        El 73% de las empresas quiebran por falta de control financiero
+                    </div>
+
+                    <h1 class="text-5xl md:text-6xl lg:text-7xl font-black mb-6 leading-[1.05] tracking-tight">
+                        ¿Realmente sabes qué<br>
+                        pasa en tu <span class="grad-text">empresa</span>?
+                    </h1>
+
+                    <p class="text-xl text-slate-300 mb-4 leading-relaxed">
+                        La mayoría de empresarios trabajan <em>dentro</em> de su negocio, no <em>sobre</em> él. Sin visibilidad, toman decisiones a ciegas y pierden entre <strong class="text-white">20-40% de su rentabilidad potencial</strong> cada año.
+                    </p>
+                    <p class="text-lg text-slate-400 mb-10 leading-relaxed">
+                        El <strong class="text-sky-400">Radar Empresarial</strong> es un pre-diagnóstico gratuito de 5 minutos que analiza las 5 dimensiones críticas de tu negocio y te entrega un plan de acción personalizado.
+                    </p>
+
+                    <!-- CTAs -->
+                    <div class="flex flex-col sm:flex-row gap-4 mb-10">
+                        <a href="https://docs.google.com/forms/d/e/1FAIpQLSchDQwc6dUWRuAp1lv2kjkS3V44noJzOc0INCVBQ8WCAMlKgg/formResponse"
+                           target="_blank" rel="noopener"
+                           class="pulse-cta btn-shimmer px-8 py-4 rounded-xl font-bold text-lg text-white shadow-xl shadow-sky-500/25 hover:shadow-sky-500/50 transition-all text-center">
+                            Evaluar mi Empresa Gratis →
+                        </a>
+                        <a href="#como-funciona"
+                           class="flex items-center justify-center gap-2 border-2 border-slate-700 hover:border-sky-500 text-slate-300 hover:text-white px-8 py-4 rounded-xl font-semibold transition-all">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"/></svg>
+                            Ver cómo funciona
+                        </a>
+                    </div>
+
+                    <!-- Micro trust -->
+                    <div class="flex flex-wrap gap-6 text-sm text-slate-400">
+                        <span class="flex items-center gap-2"><svg class="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>100% gratuito</span>
+                        <span class="flex items-center gap-2"><svg class="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>Sin tarjeta de crédito</span>
+                        <span class="flex items-center gap-2"><svg class="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>Resultados inmediatos</span>
+                        <span class="flex items-center gap-2"><svg class="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>+5,000 empresas evaluadas</span>
+                    </div>
+                </div>
+
+                <!-- RIGHT: Score Card -->
+                <div class="relative floating">
+                    <div class="absolute inset-0 bg-gradient-to-r from-sky-500/20 to-slate-500/20 blur-3xl rounded-3xl"></div>
+                    <div class="relative glass rounded-3xl p-8 shadow-2xl">
+
+                        <!-- Header -->
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <div class="text-xs text-slate-500 uppercase tracking-wider mb-1">Tu Score Actual</div>
+                                <div class="text-6xl font-black grad-text-accent" id="hero-score">0%</div>
+                            </div>
+                            <!-- Mini radar SVG -->
+                            <div class="w-20 h-20">
+                                <svg viewBox="0 0 100 100" class="w-full h-full">
+                                    <polygon points="50,10 90,35 75,80 25,80 10,35" fill="none" stroke="rgba(14,165,233,0.15)" stroke-width="1"/>
+                                    <polygon points="50,25 75,40 65,70 35,70 25,40" fill="none" stroke="rgba(14,165,233,0.15)" stroke-width="1"/>
+                                    <polygon points="50,40 60,47 57,60 43,60 40,47" fill="none" stroke="rgba(14,165,233,0.15)" stroke-width="1"/>
+                                    <polygon id="radar-shape" points="50,18 78,38 68,72 32,72 22,38" fill="rgba(14,165,233,0.2)" stroke="#0ea5e9" stroke-width="2" opacity="0"/>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- Bars -->
+                        <div class="space-y-4" id="hero-bars">
+                            <div data-target="75">
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <span class="flex items-center gap-2 text-sm font-medium"><span>💰</span> Finanzas</span>
+                                    <span class="text-xs text-slate-400 bar-pct">0%</span>
+                                </div>
+                                <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                                    <div class="bar-fill bg-gradient-to-r from-emerald-500 to-sky-500"></div>
+                                </div>
+                            </div>
+                            <div data-target="65">
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <span class="flex items-center gap-2 text-sm font-medium"><span>🎯</span> Estrategia</span>
+                                    <span class="text-xs text-slate-400 bar-pct">0%</span>
+                                </div>
+                                <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                                    <div class="bar-fill bg-gradient-to-r from-sky-500 to-indigo-500"></div>
+                                </div>
+                            </div>
+                            <div data-target="82">
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <span class="flex items-center gap-2 text-sm font-medium"><span>📈</span> Ventas</span>
+                                    <span class="text-xs text-slate-400 bar-pct">0%</span>
+                                </div>
+                                <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                                    <div class="bar-fill bg-gradient-to-r from-purple-500 to-sky-400"></div>
+                                </div>
+                            </div>
+                            <div data-target="50">
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <span class="flex items-center gap-2 text-sm font-medium"><span>👥</span> Talento</span>
+                                    <span class="text-xs text-slate-400 bar-pct">0%</span>
+                                </div>
+                                <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                                    <div class="bar-fill bg-gradient-to-r from-orange-500 to-amber-400"></div>
+                                </div>
+                            </div>
+                            <div data-target="62">
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <span class="flex items-center gap-2 text-sm font-medium"><span>⚙️</span> Operaciones</span>
+                                    <span class="text-xs text-slate-400 bar-pct">0%</span>
+                                </div>
+                                <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                                    <div class="bar-fill bg-gradient-to-r from-cyan-500 to-sky-400"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 pt-6 border-t border-slate-700/60 flex items-center justify-between">
+                            <p class="text-xs text-slate-400">Empresas con +85% <span class="text-green-400 font-bold">crecen 3× más rápido</span></p>
+                            <span class="text-2xl">⚡</span>
+                        </div>
+                    </div>
+
+                    <!-- Floating badges -->
+                    <div class="absolute -top-4 -right-4 glass-light rounded-xl px-4 py-2 text-xs font-semibold border border-sky-500/30 text-sky-400">
+                        🔴 Área crítica detectada
+                    </div>
+                    <div class="absolute -bottom-4 -left-4 glass-light rounded-xl px-4 py-2 text-xs font-semibold border border-green-500/30 text-green-400">
+                        ✓ Diagnóstico en tiempo real
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scroll hint -->
+        <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center text-slate-600 text-xs gap-2 animate-bounce">
+            <span>Desplázate</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </div>
+    </header>
+
+    <!-- ═══════════════════════════════════════
+         STATS BAR
+    ═══════════════════════════════════════ -->
+    <section class="border-y border-slate-800 bg-slate-900/80 py-8 reveal" aria-label="Estadísticas">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                <div>
+                    <div class="text-3xl font-black grad-text-accent counter" data-target="5000">0</div>
+                    <div class="text-sm text-slate-500 mt-1">Empresas evaluadas</div>
+                </div>
+                <div>
+                    <div class="text-3xl font-black text-green-400 counter" data-target="15">0</div>
+                    <div class="text-sm text-slate-500 mt-1">Años de experiencia</div>
+                </div>
+                <div>
+                    <div class="text-3xl font-black text-purple-400"><span class="counter" data-target="40">0</span>%</div>
+                    <div class="text-sm text-slate-500 mt-1">Aumento de rentabilidad promedio</div>
+                </div>
+                <div>
+                    <div class="text-3xl font-black text-amber-400"><span class="counter" data-target="5">0</span> min</div>
+                    <div class="text-sm text-slate-500 mt-1">Duración del pre-diagnóstico</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════
+         PROBLEMA — Pain points
+    ═══════════════════════════════════════ -->
+    <section class="py-24 relative overflow-hidden" aria-label="Problemas comunes del empresario">
+        <div class="container mx-auto px-6">
+            <div class="grid lg:grid-cols-2 gap-16 items-start">
+
+                <!-- Pain points -->
+                <div class="reveal">
+                    <div class="inline-block bg-red-500/10 border border-red-500/20 text-red-400 px-3 py-1 rounded-full text-xs font-semibold mb-6 uppercase tracking-wider">
+                        ¿Te suena familiar?
+                    </div>
+                    <h2 class="text-4xl font-black mb-8 leading-tight">
+                        Los síntomas de una empresa <span class="text-red-400">sin control</span>
+                    </h2>
+
+                    <div class="space-y-3">
+                        <label class="flex items-start gap-4 bg-red-500/8 border border-red-500/20 rounded-xl p-4 cursor-pointer hover:bg-red-500/15 transition-colors group">
+                            <input type="checkbox" class="mt-0.5 w-5 h-5 accent-red-500 flex-shrink-0" checked>
+                            <div>
+                                <span class="font-semibold text-white block">Cierras el mes sin saber si ganaste o perdiste</span>
+                                <span class="text-sm text-slate-400">Sin estados financieros claros, operas a ciegas.</span>
+                            </div>
+                        </label>
+                        <label class="flex items-start gap-4 bg-red-500/8 border border-red-500/20 rounded-xl p-4 cursor-pointer hover:bg-red-500/15 transition-colors">
+                            <input type="checkbox" class="mt-0.5 w-5 h-5 accent-red-500 flex-shrink-0" checked>
+                            <div>
+                                <span class="font-semibold text-white block">Tu equipo trabaja, pero no hacia los mismos objetivos</span>
+                                <span class="text-sm text-slate-400">Esfuerzo disperso = resultado mediocre.</span>
+                            </div>
+                        </label>
+                        <label class="flex items-start gap-4 bg-red-500/8 border border-red-500/20 rounded-xl p-4 cursor-pointer hover:bg-red-500/15 transition-colors">
+                            <input type="checkbox" class="mt-0.5 w-5 h-5 accent-red-500 flex-shrink-0">
+                            <div>
+                                <span class="font-semibold text-white block">Trabajas 12 horas diarias y el negocio depende de ti</span>
+                                <span class="text-sm text-slate-400">No tienes empresa, tienes un trabajo disfrazado de negocio.</span>
+                            </div>
+                        </label>
+                        <label class="flex items-start gap-4 bg-red-500/8 border border-red-500/20 rounded-xl p-4 cursor-pointer hover:bg-red-500/15 transition-colors">
+                            <input type="checkbox" class="mt-0.5 w-5 h-5 accent-red-500 flex-shrink-0">
+                            <div>
+                                <span class="font-semibold text-white block">Las crisis te toman por sorpresa constantemente</span>
+                                <span class="text-sm text-slate-400">Sin indicadores, no puedes anticipar nada.</span>
+                            </div>
+                        </label>
+                        <label class="flex items-start gap-4 bg-red-500/8 border border-red-500/20 rounded-xl p-4 cursor-pointer hover:bg-red-500/15 transition-colors">
+                            <input type="checkbox" class="mt-0.5 w-5 h-5 accent-red-500 flex-shrink-0">
+                            <div>
+                                <span class="font-semibold text-white block">No puedes irte de vacaciones sin que todo se caiga</span>
+                                <span class="text-sm text-slate-400">Eres el cuello de botella de tu propio negocio.</span>
+                            </div>
+                        </label>
+                        <label class="flex items-start gap-4 bg-red-500/8 border border-red-500/20 rounded-xl p-4 cursor-pointer hover:bg-red-500/15 transition-colors">
+                            <input type="checkbox" class="mt-0.5 w-5 h-5 accent-red-500 flex-shrink-0">
+                            <div>
+                                <span class="font-semibold text-white block">Vendes más pero ganas lo mismo (o menos)</span>
+                                <span class="text-sm text-slate-400">El crecimiento sin control destruye rentabilidad.</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <p class="text-center text-slate-500 text-sm mt-4 italic">Marca los que aplican a tu empresa →</p>
+                </div>
+
+                <!-- Solution card -->
+                <div class="reveal">
+                    <div class="bg-gradient-to-br from-sky-600/90 to-slate-800/90 rounded-2xl p-8 border border-sky-500/30 shadow-2xl shadow-sky-500/10">
+                        <div class="text-4xl mb-4">💡</div>
+                        <h3 class="text-2xl font-bold mb-3">La buena noticia</h3>
+                        <p class="text-sky-100 mb-6 leading-relaxed">
+                            El problema <strong>no es tu negocio, ni tu industria, ni el mercado.</strong> Es la falta de un sistema de visibilidad y control. Los empresarios con más control no trabajan más horas — trabajan con mejor información.
+                        </p>
+
+                        <div class="bg-white/10 rounded-xl p-5 mb-6 space-y-3">
+                            <h4 class="font-bold text-sm uppercase tracking-wider text-sky-300 mb-3">Con el Radar Empresarial obtienes:</h4>
+                            <div class="flex gap-3 items-start text-sm">
+                                <span class="text-green-400 font-bold text-base flex-shrink-0">✓</span>
+                                <span>Identificar fugas de dinero y recursos en tiempo real</span>
+                            </div>
+                            <div class="flex gap-3 items-start text-sm">
+                                <span class="text-green-400 font-bold text-base flex-shrink-0">✓</span>
+                                <span>Anticipar crisis antes de que impacten tu negocio</span>
+                            </div>
+                            <div class="flex gap-3 items-start text-sm">
+                                <span class="text-green-400 font-bold text-base flex-shrink-0">✓</span>
+                                <span>Decisiones basadas en datos, no en intuición</span>
+                            </div>
+                            <div class="flex gap-3 items-start text-sm">
+                                <span class="text-green-400 font-bold text-base flex-shrink-0">✓</span>
+                                <span>Plan de acción personalizado por dimensión crítica</span>
+                            </div>
+                            <div class="flex gap-3 items-start text-sm">
+                                <span class="text-green-400 font-bold text-base flex-shrink-0">✓</span>
+                                <span>Crecer sin perder el control ni la rentabilidad</span>
+                            </div>
+                        </div>
+
+                        <a href="https://docs.google.com/forms/d/e/1FAIpQLSchDQwc6dUWRuAp1lv2kjkS3V44noJzOc0INCVBQ8WCAMlKgg/formResponse"
+                           target="_blank" rel="noopener"
+                           class="block w-full text-center bg-white text-sky-700 hover:bg-sky-50 px-8 py-4 rounded-xl font-bold text-lg transition-all hover:shadow-xl hover:shadow-white/20 hover:scale-105">
+                            Quiero mi Pre-diagnóstico Gratuito →
+                        </a>
+
+                        <p class="text-center text-sky-200/60 text-xs mt-3">Sin compromisos · 5 minutos · Resultados inmediatos</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════
+         CÓMO FUNCIONA — 3 pasos
+    ═══════════════════════════════════════ -->
+    <section id="como-funciona" class="py-24 bg-slate-900/50 border-y border-slate-800" aria-label="Cómo funciona el Radar Empresarial">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16 reveal">
+                <div class="inline-block bg-sky-500/10 border border-sky-500/20 text-sky-400 px-3 py-1 rounded-full text-xs font-semibold mb-4 uppercase tracking-wider">
+                    Proceso simple
+                </div>
+                <h2 class="text-4xl font-black mb-4">Tres pasos hacia el control total</h2>
+                <p class="text-slate-400 text-lg max-w-2xl mx-auto">Diseñado para empresarios ocupados. Sin terminología técnica, sin procesos burocráticos.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8 relative">
+                <!-- Connector line -->
+                <div class="hidden md:block absolute top-10 left-1/3 right-1/3 h-0.5 bg-gradient-to-r from-sky-500 to-sky-500 opacity-30"></div>
+
+                <div class="reveal glass-light rounded-2xl p-8 text-center relative group hover:border-sky-500/50 transition-all hover:-translate-y-2">
+                    <div class="w-16 h-16 bg-gradient-to-br from-sky-500 to-indigo-600 rounded-2xl flex items-center justify-center text-2xl font-black text-white mx-auto mb-6 shadow-lg shadow-sky-500/30 group-hover:scale-110 transition-transform">1</div>
+                    <h3 class="text-xl font-bold mb-3">Responde 20 preguntas</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">Preguntas prácticas y directas sobre tus 5 áreas críticas. Toma exactamente 5 minutos.</p>
+                    <div class="mt-4 text-xs text-sky-400 font-semibold">⏱ 5 minutos</div>
+                </div>
+
+                <div class="reveal glass-light rounded-2xl p-8 text-center relative group hover:border-sky-500/50 transition-all hover:-translate-y-2" style="animation-delay:0.15s">
+                    <div class="w-16 h-16 bg-gradient-to-br from-sky-500 to-emerald-600 rounded-2xl flex items-center justify-center text-2xl font-black text-white mx-auto mb-6 shadow-lg shadow-sky-500/30 group-hover:scale-110 transition-transform">2</div>
+                    <h3 class="text-xl font-bold mb-3">Recibe tu Score</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">Obtienes tu puntuación por dimensión y un diagnóstico general del nivel de control de tu empresa.</p>
+                    <div class="mt-4 text-xs text-green-400 font-semibold">📊 Resultados inmediatos</div>
+                </div>
+
+                <div class="reveal glass-light rounded-2xl p-8 text-center relative group hover:border-sky-500/50 transition-all hover:-translate-y-2" style="animation-delay:0.3s">
+                    <div class="w-16 h-16 bg-gradient-to-br from-sky-500 to-orange-500 rounded-2xl flex items-center justify-center text-2xl font-black text-white mx-auto mb-6 shadow-lg shadow-sky-500/30 group-hover:scale-110 transition-transform">3</div>
+                    <h3 class="text-xl font-bold mb-3">Plan de acción</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">Recibes un plan personalizado con los pasos concretos para mejorar cada dimensión crítica.</p>
+                    <div class="mt-4 text-xs text-amber-400 font-semibold">🎯 Personalizado para ti</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════
+         LAS 5 DIMENSIONES
+    ═══════════════════════════════════════ -->
+    <section id="dimensiones" class="py-24" aria-label="Las 5 dimensiones del control empresarial">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16 reveal">
+                <div class="inline-block bg-purple-500/10 border border-purple-500/20 text-purple-400 px-3 py-1 rounded-full text-xs font-semibold mb-4 uppercase tracking-wider">
+                    Framework propietario
+                </div>
+                <h2 class="text-4xl font-black mb-4">Las 5 Dimensiones del Control Empresarial</h2>
+                <p class="text-slate-400 text-lg max-w-2xl mx-auto">Desarrolladas con más de 15 años evaluando cientos de empresas en México y Latinoamérica.</p>
+            </div>
+
+            <div class="grid md:grid-cols-5 gap-5">
+                <!-- Finanzas -->
+                <article class="glass-light rounded-2xl p-6 hover:border-emerald-500/50 hover:-translate-y-3 transition-all cursor-default group reveal">
+                    <div class="text-5xl mb-4 group-hover:scale-110 transition-transform inline-block">💰</div>
+                    <h3 class="text-lg font-bold mb-2 text-emerald-400">Finanzas</h3>
+                    <p class="text-slate-400 text-xs leading-relaxed mb-4">Flujo de caja, rentabilidad, costos ocultos y salud financiera real.</p>
+                    <div class="text-xs text-slate-600 font-semibold">20+ indicadores</div>
+                    <div class="mt-3 w-full bg-slate-800 rounded-full h-1">
+                        <div class="h-1 rounded-full bg-emerald-500 w-3/4"></div>
+                    </div>
+                </article>
+
+                <!-- Estrategia -->
+                <article class="glass-light rounded-2xl p-6 hover:border-sky-500/50 hover:-translate-y-3 transition-all cursor-default group reveal" style="animation-delay:0.1s">
+                    <div class="text-5xl mb-4 group-hover:scale-110 transition-transform inline-block">🎯</div>
+                    <h3 class="text-lg font-bold mb-2 text-sky-400">Estrategia</h3>
+                    <p class="text-slate-400 text-xs leading-relaxed mb-4">Claridad de visión, objetivos SMART y planes de acción ejecutables.</p>
+                    <div class="text-xs text-slate-600 font-semibold">20+ indicadores</div>
+                    <div class="mt-3 w-full bg-slate-800 rounded-full h-1">
+                        <div class="h-1 rounded-full bg-sky-500 w-2/3"></div>
+                    </div>
+                </article>
+
+                <!-- Ventas -->
+                <article class="glass-light rounded-2xl p-6 hover:border-purple-500/50 hover:-translate-y-3 transition-all cursor-default group reveal" style="animation-delay:0.2s">
+                    <div class="text-5xl mb-4 group-hover:scale-110 transition-transform inline-block">📈</div>
+                    <h3 class="text-lg font-bold mb-2 text-purple-400">Ventas</h3>
+                    <p class="text-slate-400 text-xs leading-relaxed mb-4">Pipeline, conversión, retención de clientes y previsibilidad de ingresos.</p>
+                    <div class="text-xs text-slate-600 font-semibold">20+ indicadores</div>
+                    <div class="mt-3 w-full bg-slate-800 rounded-full h-1">
+                        <div class="h-1 rounded-full bg-purple-500 w-4/5"></div>
+                    </div>
+                </article>
+
+                <!-- Talento -->
+                <article class="glass-light rounded-2xl p-6 hover:border-orange-500/50 hover:-translate-y-3 transition-all cursor-default group reveal" style="animation-delay:0.3s">
+                    <div class="text-5xl mb-4 group-hover:scale-110 transition-transform inline-block">👥</div>
+                    <h3 class="text-lg font-bold mb-2 text-orange-400">Talento</h3>
+                    <p class="text-slate-400 text-xs leading-relaxed mb-4">Estructura organizacional, roles claros, KPIs individuales y cultura.</p>
+                    <div class="text-xs text-slate-600 font-semibold">20+ indicadores</div>
+                    <div class="mt-3 w-full bg-slate-800 rounded-full h-1">
+                        <div class="h-1 rounded-full bg-orange-500 w-1/2"></div>
+                    </div>
+                </article>
+
+                <!-- Operaciones -->
+                <article class="glass-light rounded-2xl p-6 hover:border-cyan-500/50 hover:-translate-y-3 transition-all cursor-default group reveal" style="animation-delay:0.4s">
+                    <div class="text-5xl mb-4 group-hover:scale-110 transition-transform inline-block">⚙️</div>
+                    <h3 class="text-lg font-bold mb-2 text-cyan-400">Operaciones</h3>
+                    <p class="text-slate-400 text-xs leading-relaxed mb-4">Procesos documentados, escalabilidad, automatización y eficiencia.</p>
+                    <div class="text-xs text-slate-600 font-semibold">20+ indicadores</div>
+                    <div class="mt-3 w-full bg-slate-800 rounded-full h-1">
+                        <div class="h-1 rounded-full bg-cyan-500 w-3/5"></div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════
+         EXPERTO — Uriel Vargas
+    ═══════════════════════════════════════ -->
+    <section class="py-24 bg-slate-900/50 border-y border-slate-800" aria-label="Sobre Uriel Vargas Ch.">
+        <div class="container mx-auto px-6">
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+
+                <!-- Photo -->
+                <div class="relative reveal">
+                    <div class="absolute inset-0 bg-sky-500/15 blur-3xl rounded-full"></div>
+                    <div class="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-slate-700 max-w-sm mx-auto">
+                        <img src="uriel-vargas.jpg" alt="Uriel Vargas Ch., Socio Fundador de VESTRA Consultoría" class="w-full h-auto" loading="lazy">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent"></div>
+                    </div>
+                    <!-- Badge -->
+                    <div class="absolute -bottom-4 right-0 md:-right-6 bg-gradient-to-r from-sky-500 to-indigo-600 text-white px-5 py-3 rounded-xl shadow-xl shadow-sky-500/30">
+                        <div class="text-2xl mb-1">🏆</div>
+                        <div class="text-sm font-bold leading-tight">+15 años<br><span class="text-xs font-normal opacity-90">de experiencia</span></div>
+                    </div>
+                </div>
+
+                <!-- Bio -->
+                <div class="reveal">
+                    <div class="inline-block bg-sky-500/10 border border-sky-500/20 text-sky-400 px-3 py-1 rounded-full text-xs font-semibold mb-5 uppercase tracking-wider">
+                        Tu consultor
+                    </div>
+
+                    <h2 class="text-4xl font-black mb-2">Uriel Vargas Ch.</h2>
+                    <p class="text-sky-400 text-xl font-semibold mb-6">Socio Fundador · VESTRA Consultoría en Negocios</p>
+
+                    <div class="space-y-4 text-slate-300 text-base leading-relaxed mb-8">
+                        <p>He trabajado con más de <strong class="text-white">200 empresas en México y Latinoamérica</strong>, desde startups en etapa temprana hasta negocios con +$50M en facturación. El patrón que se repite siempre es el mismo: el problema no es la falta de talento ni de mercado — es la falta de sistemas de control.</p>
+                        <p>El <strong class="text-sky-400">Radar Empresarial</strong> nació de esa frustración: necesitaba una manera rápida y objetiva de diagnosticar dónde está el verdadero cuello de botella. Hoy es la herramienta con la que iniciamos cada compromiso de consultoría.</p>
+                    </div>
+
+                    <!-- Stats grid -->
+                    <div class="grid grid-cols-3 gap-4 mb-8">
+                        <div class="glass-light rounded-xl p-4 text-center">
+                            <div class="text-2xl font-black grad-text-accent">200+</div>
+                            <div class="text-xs text-slate-500 mt-1">Empresas asesoradas</div>
+                        </div>
+                        <div class="glass-light rounded-xl p-4 text-center">
+                            <div class="text-2xl font-black text-green-400">5 min</div>
+                            <div class="text-xs text-slate-500 mt-1">Diagnóstico express</div>
+                        </div>
+                        <div class="glass-light rounded-xl p-4 text-center">
+                            <div class="text-2xl font-black text-purple-400">100%</div>
+                            <div class="text-xs text-slate-500 mt-1">Gratuito</div>
+                        </div>
+                    </div>
+
+                    <blockquote class="border-l-4 border-sky-500 pl-5 italic text-slate-300 leading-relaxed">
+                        "No puedes mejorar lo que no mides. El primer paso para recuperar el control es saber exactamente dónde estás parado — sin maquillaje, sin suposiciones."
+                        <footer class="mt-2 text-sm text-slate-500 not-italic">— Uriel Vargas Ch.</footer>
+                    </blockquote>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════
+         TESTIMONIOS
+    ═══════════════════════════════════════ -->
+    <section id="testimonios" class="py-24" aria-label="Testimonios de clientes">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16 reveal">
+                <div class="inline-block bg-green-500/10 border border-green-500/20 text-green-400 px-3 py-1 rounded-full text-xs font-semibold mb-4 uppercase tracking-wider">
+                    Casos reales
+                </div>
+                <h2 class="text-4xl font-black mb-4">Empresarios que recuperaron el control</h2>
+                <p class="text-slate-400 text-lg">Historias de transformación con el Radar Empresarial como punto de partida.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+
+                <article class="glass-light rounded-2xl p-7 hover:border-sky-500/50 transition-all hover:-translate-y-1 reveal group">
+                    <div class="flex items-center justify-between mb-5">
+                        <div class="flex gap-1">
+                            <span class="text-amber-400 text-sm">★★★★★</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs text-slate-500">Score Final</span>
+                            <span class="text-xl font-black text-green-400">92%</span>
+                        </div>
+                    </div>
+                    <p class="text-slate-300 mb-6 italic leading-relaxed text-sm">"Descubrimos que perdíamos $50K mensuales en procesos ineficientes. En 6 meses recuperamos el control total y aumentamos el margen en 28%."</p>
+                    <div class="flex items-center gap-3 border-t border-slate-700/60 pt-4">
+                        <div class="w-10 h-10 bg-gradient-to-br from-sky-500 to-indigo-600 rounded-full flex items-center justify-center font-bold text-sm">CM</div>
+                        <div>
+                            <div class="font-semibold text-sm">Carlos Mendoza</div>
+                            <div class="text-xs text-slate-500">CEO · TechFlow Solutions</div>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="glass-light rounded-2xl p-7 hover:border-sky-500/50 transition-all hover:-translate-y-1 reveal group" style="animation-delay:0.15s">
+                    <div class="flex items-center justify-between mb-5">
+                        <div class="flex gap-1">
+                            <span class="text-amber-400 text-sm">★★★★★</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs text-slate-500">Score Final</span>
+                            <span class="text-xl font-black text-green-400">88%</span>
+                        </div>
+                    </div>
+                    <p class="text-slate-300 mb-6 italic leading-relaxed text-sm">"Pasamos de tener caos operativo total a un sistema predecible. Mi equipo ahora sabe exactamente qué hacer y yo por fin puedo tomarme vacaciones."</p>
+                    <div class="flex items-center gap-3 border-t border-slate-700/60 pt-4">
+                        <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-sky-600 rounded-full flex items-center justify-center font-bold text-sm">AM</div>
+                        <div>
+                            <div class="font-semibold text-sm">Ana Martínez</div>
+                            <div class="text-xs text-slate-500">Directora General · Innova MX</div>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="glass-light rounded-2xl p-7 hover:border-sky-500/50 transition-all hover:-translate-y-1 reveal group" style="animation-delay:0.3s">
+                    <div class="flex items-center justify-between mb-5">
+                        <div class="flex gap-1">
+                            <span class="text-amber-400 text-sm">★★★★★</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs text-slate-500">Score Final</span>
+                            <span class="text-xl font-black text-green-400">95%</span>
+                        </div>
+                    </div>
+                    <p class="text-slate-300 mb-6 italic leading-relaxed text-sm">"El Radar nos mostró que nuestro problema no era falta de ventas — sino falta de control financiero. Fue la claridad que necesitaba para tomar las decisiones correctas."</p>
+                    <div class="flex items-center gap-3 border-t border-slate-700/60 pt-4">
+                        <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center font-bold text-sm">RS</div>
+                        <div>
+                            <div class="font-semibold text-sm">Roberto Silva</div>
+                            <div class="text-xs text-slate-500">Fundador · GrowthLab</div>
+                        </div>
+                    </div>
+                </article>
+            </div>
+
+            <!-- Trust logos placeholder -->
+            <div class="mt-16 text-center reveal">
+                <p class="text-slate-600 text-sm mb-6 uppercase tracking-wider">Empresas que confían en VESTRA</p>
+                <div class="flex flex-wrap justify-center gap-8 opacity-30 grayscale">
+                    <div class="w-24 h-8 bg-slate-600 rounded"></div>
+                    <div class="w-28 h-8 bg-slate-600 rounded"></div>
+                    <div class="w-20 h-8 bg-slate-600 rounded"></div>
+                    <div class="w-32 h-8 bg-slate-600 rounded"></div>
+                    <div class="w-24 h-8 bg-slate-600 rounded"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════
+         FAQ
+    ═══════════════════════════════════════ -->
+    <section id="faq" class="py-24 bg-slate-900/50 border-y border-slate-800" aria-label="Preguntas frecuentes">
+        <div class="container mx-auto px-6 max-w-3xl">
+            <div class="text-center mb-14 reveal">
+                <h2 class="text-4xl font-black mb-4">Preguntas frecuentes</h2>
+                <p class="text-slate-400">Todo lo que necesitas saber antes de comenzar.</p>
+            </div>
+
+            <div class="space-y-3 reveal">
+                <div class="glass-light rounded-xl overflow-hidden faq-item">
+                    <button class="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-slate-700/30 transition-colors faq-btn" aria-expanded="false">
+                        <span class="font-semibold">¿El pre-diagnóstico es realmente gratuito?</span>
+                        <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform faq-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div class="faq-answer px-6 pb-5 text-slate-400 text-sm leading-relaxed">
+                        Sí, 100% gratuito. No hay tarjeta de crédito, ni periodo de prueba, ni letra pequeña. El Radar Empresarial es nuestra herramienta de diagnóstico que compartimos libremente porque creemos que todo empresario merece tener claridad sobre su negocio.
+                    </div>
+                </div>
+
+                <div class="glass-light rounded-xl overflow-hidden faq-item">
+                    <button class="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-slate-700/30 transition-colors faq-btn" aria-expanded="false">
+                        <span class="font-semibold">¿Cuánto tiempo toma completarlo?</span>
+                        <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform faq-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div class="faq-answer px-6 pb-5 text-slate-400 text-sm leading-relaxed">
+                        Entre 5 y 8 minutos. Son 20 preguntas directas sobre tu operación diaria. No necesitas preparar nada ni buscar información — responde desde tu experiencia cotidiana.
+                    </div>
+                </div>
+
+                <div class="glass-light rounded-xl overflow-hidden faq-item">
+                    <button class="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-slate-700/30 transition-colors faq-btn" aria-expanded="false">
+                        <span class="font-semibold">¿Para qué tipo de empresa está diseñado?</span>
+                        <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform faq-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div class="faq-answer px-6 pb-5 text-slate-400 text-sm leading-relaxed">
+                        Está diseñado para PyMEs y medianas empresas con entre 5 y 200 empleados en cualquier industria. Es especialmente valioso para empresarios que sienten que su negocio está creciendo pero perdiendo rentabilidad en el proceso.
+                    </div>
+                </div>
+
+                <div class="glass-light rounded-xl overflow-hidden faq-item">
+                    <button class="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-slate-700/30 transition-colors faq-btn" aria-expanded="false">
+                        <span class="font-semibold">¿Qué pasa después de completar el diagnóstico?</span>
+                        <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform faq-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div class="faq-answer px-6 pb-5 text-slate-400 text-sm leading-relaxed">
+                        Recibes tu Score de Control Empresarial con una evaluación por dimensión. Un consultor de VESTRA revisará tus respuestas y se pondrá en contacto contigo para compartirte un plan de acción personalizado. Sin presión, sin compromisos.
+                    </div>
+                </div>
+
+                <div class="glass-light rounded-xl overflow-hidden faq-item">
+                    <button class="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-slate-700/30 transition-colors faq-btn" aria-expanded="false">
+                        <span class="font-semibold">¿Es confidencial mi información?</span>
+                        <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform faq-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div class="faq-answer px-6 pb-5 text-slate-400 text-sm leading-relaxed">
+                        Absolutamente. Tu información es estrictamente confidencial y solo es accesible por el equipo de VESTRA. Nunca compartimos ni vendemos datos de nuestros clientes a terceros.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════
+         CTA FINAL
+    ═══════════════════════════════════════ -->
+    <section class="py-24 relative overflow-hidden" aria-label="Llamada a la acción final">
+        <div class="absolute inset-0 bg-gradient-to-r from-sky-900/40 to-slate-900/40"></div>
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-sky-600/10 rounded-full blur-[100px]"></div>
+
+        <div class="relative z-10 container mx-auto px-6 text-center reveal">
+            <div class="max-w-3xl mx-auto">
+                <div class="inline-flex items-center gap-2 bg-sky-500/10 border border-sky-500/20 text-sky-400 px-4 py-2 rounded-full text-sm font-semibold mb-8">
+                    <span class="w-2 h-2 bg-green-500 rounded-full animate-ping"></span>
+                    +5,000 empresas ya tomaron el control
+                </div>
+
+                <h2 class="text-5xl md:text-6xl font-black mb-6 leading-tight">
+                    Tu empresa merece un <span class="grad-text">diagnóstico real</span>
+                </h2>
+
+                <p class="text-xl text-slate-300 mb-10 max-w-2xl mx-auto leading-relaxed">
+                    Deja de adivinar y empieza a decidir con datos. Completa el pre-diagnóstico ahora y recibe tu Score de Control Empresarial + plan de acción personalizado.
+                </p>
+
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLSchDQwc6dUWRuAp1lv2kjkS3V44noJzOc0INCVBQ8WCAMlKgg/formResponse"
+                   target="_blank" rel="noopener"
+                   class="pulse-cta btn-shimmer inline-flex items-center gap-3 px-12 py-5 rounded-xl font-black text-xl text-white shadow-2xl shadow-sky-500/30 hover:shadow-sky-500/50 transition-all hover:scale-105 mb-6">
+                    Iniciar mi Pre-diagnóstico Empresarial
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                </a>
+
+                <div class="flex flex-wrap justify-center gap-6 text-sm text-slate-500">
+                    <span>⚡ 5 minutos</span>
+                    <span>🔒 100% confidencial</span>
+                    <span>🎯 Plan personalizado</span>
+                    <span>✓ Sin compromisos</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════
+         FOOTER
+    ═══════════════════════════════════════ -->
+    <footer class="border-t border-slate-800/70 py-10 bg-slate-950" role="contentinfo">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                <a href="#" aria-label="VESTRA Consultoría - Inicio">
+                    <img src="logo-vestra.png" alt="VESTRA Consultoría en Negocios" class="h-10 w-auto opacity-80 hover:opacity-100 transition-opacity">
+                </a>
+                <div class="flex gap-6 text-sm text-slate-500">
+                    <a href="#dimensiones" class="hover:text-slate-300 transition-colors">Dimensiones</a>
+                    <a href="#como-funciona" class="hover:text-slate-300 transition-colors">Proceso</a>
+                    <a href="#faq" class="hover:text-slate-300 transition-colors">FAQ</a>
+                </div>
+                <p class="text-slate-600 text-sm text-center">© 2025 VESTRA Consultoría en Negocios. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ═══════════════════════════════════════
+         STICKY CTA (mobile)
+    ═══════════════════════════════════════ -->
+    <div id="sticky-cta" class="glass border-t border-sky-500/20 px-4 py-3 md:hidden" role="complementary">
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSchDQwc6dUWRuAp1lv2kjkS3V44noJzOc0INCVBQ8WCAMlKgg/formResponse"
+           target="_blank" rel="noopener"
+           class="btn-shimmer block w-full text-center py-3.5 rounded-xl font-bold text-white text-base">
+            Diagnóstico Gratuito → 5 minutos
+        </a>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         JAVASCRIPT
+    ═══════════════════════════════════════ -->
+    <script>
+    // ── Scroll progress bar ──
+    window.addEventListener('scroll', () => {
+        const scrolled = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+        document.getElementById('scroll-bar').style.width = scrolled + '%';
+    });
+
+    // ── Navbar glass on scroll ──
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 60) {
+            navbar.classList.add('glass', 'shadow-xl', 'shadow-black/30');
+        } else {
+            navbar.classList.remove('glass', 'shadow-xl', 'shadow-black/30');
+        }
+    });
+
+    // ── Mobile menu ──
+    document.getElementById('menu-btn').addEventListener('click', () => {
+        document.getElementById('mobile-menu').classList.toggle('open');
+    });
+
+    // ── Sticky CTA ──
+    const stickyCta = document.getElementById('sticky-cta');
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 400) stickyCta.classList.add('visible');
+        else stickyCta.classList.remove('visible');
+    });
+
+    // ── Hero bars animation ──
+    function animateHeroBars() {
+        const heroScore = document.getElementById('hero-score');
+        const bars = document.querySelectorAll('#hero-bars > div');
+
+        // Animate score
+        let s = 0;
+        const targets = Array.from(bars).map(b => parseInt(b.dataset.target));
+        const avg = Math.round(targets.reduce((a, b) => a + b, 0) / targets.length);
+        const scoreInterval = setInterval(() => {
+            s++;
+            heroScore.textContent = s + '%';
+            if (s >= avg) clearInterval(scoreInterval);
+        }, 18);
+
+        // Animate bars
+        setTimeout(() => {
+            bars.forEach((bar, i) => {
+                const target = parseInt(bar.dataset.target);
+                const fill = bar.querySelector('.bar-fill');
+                const pct = bar.querySelector('.bar-pct');
+                setTimeout(() => {
+                    fill.style.width = target + '%';
+                    let v = 0;
+                    const t = setInterval(() => {
+                        v++;
+                        pct.textContent = v + '%';
+                        if (v >= target) clearInterval(t);
+                    }, 14);
+                }, i * 120);
+            });
+        }, 400);
+
+        // Show radar shape
+        setTimeout(() => {
+            const shape = document.getElementById('radar-shape');
+            if (shape) shape.setAttribute('opacity', '1');
+        }, 1200);
+    }
+
+    // Run on load
+    window.addEventListener('load', animateHeroBars);
+
+    // ── Intersection Observer for reveal ──
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('active');
+            }
+        });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // ── Counter animation ──
+    const counterObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && !entry.target.dataset.counted) {
+                entry.target.dataset.counted = 'true';
+                const target = parseInt(entry.target.dataset.target);
+                let c = 0;
+                const step = Math.max(1, Math.floor(target / 60));
+                const interval = setInterval(() => {
+                    c = Math.min(c + step, target);
+                    entry.target.textContent = c.toLocaleString('es-MX');
+                    if (c >= target) clearInterval(interval);
+                }, 24);
+            }
+        });
+    }, { threshold: 0.5 });
+
+    document.querySelectorAll('.counter').forEach(el => counterObserver.observe(el));
+
+    // ── FAQ accordion ──
+    document.querySelectorAll('.faq-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const answer = btn.nextElementSibling;
+            const icon = btn.querySelector('.faq-icon');
+            const isOpen = answer.classList.contains('open');
+
+            // Close all
+            document.querySelectorAll('.faq-answer').forEach(a => a.classList.remove('open'));
+            document.querySelectorAll('.faq-icon').forEach(i => i.style.transform = '');
+            document.querySelectorAll('.faq-btn').forEach(b => b.setAttribute('aria-expanded', 'false'));
+
+            if (!isOpen) {
+                answer.classList.add('open');
+                icon.style.transform = 'rotate(180deg)';
+                btn.setAttribute('aria-expanded', 'true');
+            }
+        });
+    });
+
+    // ── Smooth scroll for anchor links ──
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+        a.addEventListener('click', e => {
+            const target = document.querySelector(a.getAttribute('href'));
+            if (target) {
+                e.preventDefault();
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                document.getElementById('mobile-menu').classList.remove('open');
+            }
+        });
+    });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radar Empresarial — Diagnóstico Gratuito | VESTRA</title>
+    <meta name="description" content="Descubre el nivel de control real de tu empresa en 5 minutos. Diagnóstico gratuito con plan de acción personalizado.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+
+        /* ── Transitions ── */
+        .screen { display: none; }
+        .screen.active { display: flex; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.94); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+        @keyframes slideRight {
+            from { transform: translateX(-100%); }
+            to   { transform: translateX(0); }
+        }
+        @keyframes pulse-ring {
+            0%   { box-shadow: 0 0 0 0 rgba(14,165,233,0.5); }
+            70%  { box-shadow: 0 0 0 14px rgba(14,165,233,0); }
+            100% { box-shadow: 0 0 0 0 rgba(14,165,233,0); }
+        }
+        @keyframes spin-slow { to { transform: rotate(360deg); } }
+        @keyframes float {
+            0%,100% { transform: translateY(0); }
+            50%     { transform: translateY(-8px); }
+        }
+        @keyframes shimmer {
+            0%   { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        @keyframes revealBlur {
+            from { filter: blur(8px); opacity: 0.3; }
+            to   { filter: blur(0); opacity: 1; }
+        }
+        @keyframes countUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes drawLine {
+            to { stroke-dashoffset: 0; }
+        }
+
+        .anim-fade-up  { animation: fadeUp 0.55s ease-out forwards; }
+        .anim-fade-in  { animation: fadeIn 0.4s ease-out forwards; }
+        .anim-scale-in { animation: scaleIn 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+        .anim-float    { animation: float 3.5s ease-in-out infinite; }
+        .pulse-btn     { animation: pulse-ring 2.5s ease-in-out infinite; }
+
+        .btn-shimmer {
+            background: linear-gradient(90deg, #0284c7 0%, #38bdf8 50%, #0284c7 100%);
+            background-size: 200% 100%;
+            animation: shimmer 3s linear infinite;
+        }
+
+        /* ── Glass ── */
+        .glass {
+            background: rgba(15,23,42,0.65);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(148,163,184,0.1);
+        }
+        .glass-card {
+            background: rgba(30,41,59,0.55);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(148,163,184,0.12);
+        }
+
+        /* ── Grid bg ── */
+        .grid-bg {
+            background-image:
+                linear-gradient(rgba(14,165,233,0.035) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(14,165,233,0.035) 1px, transparent 1px);
+            background-size: 48px 48px;
+        }
+
+        /* ── Option buttons ── */
+        .option-btn {
+            background: rgba(30,41,59,0.4);
+            border: 1.5px solid rgba(148,163,184,0.12);
+            border-radius: 12px;
+            padding: 14px 18px;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #cbd5e1;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .option-btn:hover {
+            border-color: rgba(14,165,233,0.5);
+            background: rgba(14,165,233,0.08);
+            color: #f1f5f9;
+            transform: translateX(4px);
+        }
+        .option-btn.selected {
+            border-color: #0ea5e9;
+            background: rgba(14,165,233,0.15);
+            color: #f1f5f9;
+        }
+        .option-letter {
+            width: 28px; height: 28px;
+            border-radius: 8px;
+            background: rgba(148,163,184,0.1);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.75rem; font-weight: 700;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+        .option-btn.selected .option-letter {
+            background: #0ea5e9;
+            color: white;
+        }
+
+        /* ── Progress bar ── */
+        #progress-fill {
+            height: 3px;
+            background: linear-gradient(90deg, #0ea5e9, #38bdf8);
+            transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+            border-radius: 9999px;
+        }
+
+        /* ── Radar SVG ── */
+        .radar-polygon {
+            fill: rgba(14,165,233,0.15);
+            stroke: #0ea5e9;
+            stroke-width: 2;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+        .radar-dot {
+            fill: #0ea5e9;
+            opacity: 0;
+            transition: opacity 0.8s ease 0.3s;
+        }
+
+        /* ── Score ring ── */
+        .score-ring {
+            stroke-dasharray: 440;
+            stroke-dashoffset: 440;
+            transition: stroke-dashoffset 1.8s cubic-bezier(0.4,0,0.2,1);
+        }
+
+        /* ── Locked section ── */
+        .locked-section {
+            position: relative;
+            overflow: hidden;
+        }
+        .locked-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(to bottom, transparent 0%, rgba(15,23,42,0.7) 30%, rgba(15,23,42,0.97) 60%);
+            display: flex; align-items: flex-end; justify-content: center;
+            padding-bottom: 32px;
+            z-index: 10;
+        }
+        .blur-content {
+            filter: blur(5px);
+            user-select: none;
+            pointer-events: none;
+        }
+
+        /* ── Input ── */
+        .form-input {
+            width: 100%;
+            background: rgba(30,41,59,0.6);
+            border: 1.5px solid rgba(148,163,184,0.15);
+            border-radius: 12px;
+            padding: 14px 16px;
+            color: white;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+        .form-input:focus { border-color: #0ea5e9; }
+        .form-input::placeholder { color: #475569; }
+
+        /* ── Dimension score badge ── */
+        .dim-badge {
+            width: 44px; height: 44px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        /* ── Scrollbar ── */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #0ea5e9; border-radius: 3px; }
+
+        /* ── Analyzing dots ── */
+        @keyframes dotBounce {
+            0%,80%,100% { transform: scale(0.6); opacity: 0.3; }
+            40%         { transform: scale(1); opacity: 1; }
+        }
+        .dot1 { animation: dotBounce 1.4s ease-in-out infinite; }
+        .dot2 { animation: dotBounce 1.4s ease-in-out infinite 0.2s; }
+        .dot3 { animation: dotBounce 1.4s ease-in-out infinite 0.4s; }
+
+        /* ── Gradient text ── */
+        .grad { background: linear-gradient(135deg,#38bdf8,#e2e8f0); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+
+        /* ── Result card animate ── */
+        .result-reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+        .result-reveal.show { opacity: 1; transform: translateY(0); }
+
+        /* ── Thank you check ── */
+        @keyframes checkDraw {
+            to { stroke-dashoffset: 0; }
+        }
+        .check-path {
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            animation: checkDraw 0.6s ease-out 0.3s forwards;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-950 text-white min-h-screen grid-bg overflow-x-hidden">
+
+    <!-- ══════════════════════════════════
+         TOP NAV
+    ══════════════════════════════════ -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass border-b border-slate-800/50">
+        <div class="container mx-auto px-6 py-3 flex items-center justify-between">
+            <img src="logo-vestra.png" alt="VESTRA" class="h-10 w-auto" onerror="this.style.display='none';document.getElementById('logo-text').style.display='block'">
+            <span id="logo-text" class="hidden text-xl font-black grad">VESTRA</span>
+            <div id="progress-bar-container" class="hidden flex-1 mx-8">
+                <div class="flex justify-between text-xs text-slate-500 mb-1">
+                    <span id="q-label">Pregunta 1 de 20</span>
+                    <span id="section-label" class="text-sky-400 font-semibold">💰 Finanzas</span>
+                </div>
+                <div class="w-full bg-slate-800 rounded-full h-[3px]">
+                    <div id="progress-fill" style="width:5%"></div>
+                </div>
+            </div>
+            <div id="step-indicator" class="text-xs text-slate-500">Diagnóstico · VESTRA</div>
+        </div>
+    </nav>
+
+    <!-- ══════════════════════════════════
+         SCREEN 1: INTRO
+    ══════════════════════════════════ -->
+    <section id="screen-intro" class="screen active min-h-screen flex-col items-center justify-center px-6 pt-20 pb-12">
+        <div class="max-w-2xl mx-auto text-center anim-fade-up">
+            <!-- Icon -->
+            <div class="anim-float inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-gradient-to-br from-sky-500 to-indigo-600 text-5xl mb-8 shadow-2xl shadow-sky-500/30">
+                📡
+            </div>
+
+            <div class="inline-flex items-center gap-2 bg-red-500/10 border border-red-500/25 text-red-400 px-4 py-1.5 rounded-full text-sm font-semibold mb-6">
+                <span class="w-1.5 h-1.5 bg-red-500 rounded-full animate-ping"></span>
+                El 73% de las empresas quiebran por falta de control
+            </div>
+
+            <h1 class="text-5xl md:text-6xl font-black mb-5 leading-tight">
+                Radar <span class="grad">Empresarial</span>
+            </h1>
+            <p class="text-xl text-slate-300 mb-4 leading-relaxed">
+                Descubre en <strong class="text-white">5 minutos</strong> el nivel real de control de tu empresa y dónde estás perdiendo dinero sin saberlo.
+            </p>
+            <p class="text-slate-500 mb-10 text-sm">
+                20 preguntas · 5 dimensiones críticas · Plan de acción incluido
+            </p>
+
+            <!-- What you'll get -->
+            <div class="glass-card rounded-2xl p-6 mb-10 text-left space-y-3">
+                <div class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4">Al finalizar recibirás:</div>
+                <div class="flex items-center gap-3 text-sm">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-500/15 flex items-center justify-center text-emerald-400">📊</div>
+                    <span><strong class="text-white">Score por dimensión</strong> — tu nivel de control en cada área</span>
+                </div>
+                <div class="flex items-center gap-3 text-sm">
+                    <div class="w-8 h-8 rounded-lg bg-sky-500/15 flex items-center justify-center text-sky-400">🎯</div>
+                    <span><strong class="text-white">Áreas críticas detectadas</strong> — dónde está el mayor riesgo</span>
+                </div>
+                <div class="flex items-center gap-3 text-sm">
+                    <div class="w-8 h-8 rounded-lg bg-amber-500/15 flex items-center justify-center text-amber-400">💡</div>
+                    <span><strong class="text-white">2 insights reales</strong> — oportunidades de mejora inmediata</span>
+                </div>
+                <div class="flex items-center gap-3 text-sm">
+                    <div class="w-8 h-8 rounded-lg bg-purple-500/15 flex items-center justify-center text-purple-400">🔒</div>
+                    <span><strong class="text-white">Plan de acción completo</strong> — desbloqueado con tus datos</span>
+                </div>
+            </div>
+
+            <button onclick="startQuiz()"
+                class="pulse-btn btn-shimmer w-full md:w-auto px-12 py-5 rounded-xl font-black text-xl text-white shadow-2xl shadow-sky-500/25 hover:scale-105 transition-transform">
+                Comenzar mi Diagnóstico →
+            </button>
+            <p class="text-slate-600 text-xs mt-4">100% gratuito · Sin tarjeta · Resultados inmediatos</p>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════
+         SCREEN 2: QUIZ
+    ══════════════════════════════════ -->
+    <section id="screen-quiz" class="screen min-h-screen flex-col items-center justify-center px-6 pt-28 pb-12">
+        <div class="max-w-xl w-full mx-auto" id="quiz-container">
+            <!-- Question card rendered by JS -->
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════
+         SCREEN 3: ANALYZING
+    ══════════════════════════════════ -->
+    <section id="screen-analyzing" class="screen min-h-screen flex-col items-center justify-center px-6 pt-20">
+        <div class="max-w-md mx-auto text-center anim-fade-in">
+            <div class="relative inline-block mb-8">
+                <svg class="w-32 h-32 -rotate-90" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(14,165,233,0.1)" stroke-width="6"/>
+                    <circle id="analyzing-ring" cx="50" cy="50" r="42" fill="none" stroke="#0ea5e9" stroke-width="6"
+                        stroke-linecap="round"
+                        style="stroke-dasharray:264; stroke-dashoffset:264; transition: stroke-dashoffset 3.5s cubic-bezier(0.4,0,0.2,1)"/>
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center text-4xl">📡</div>
+            </div>
+
+            <h2 class="text-3xl font-black mb-4">Analizando tu empresa</h2>
+
+            <div id="analyzing-steps" class="space-y-3 mb-8 text-left">
+                <div class="flex items-center gap-3 text-sm text-slate-400 analyzing-step opacity-0">
+                    <div class="w-5 h-5 rounded-full bg-slate-700 flex items-center justify-center step-icon">⏳</div>
+                    <span>Evaluando dimensión financiera...</span>
+                </div>
+                <div class="flex items-center gap-3 text-sm text-slate-400 analyzing-step opacity-0">
+                    <div class="w-5 h-5 rounded-full bg-slate-700 flex items-center justify-center step-icon">⏳</div>
+                    <span>Calculando brecha estratégica...</span>
+                </div>
+                <div class="flex items-center gap-3 text-sm text-slate-400 analyzing-step opacity-0">
+                    <div class="w-5 h-5 rounded-full bg-slate-700 flex items-center justify-center step-icon">⏳</div>
+                    <span>Midiendo rendimiento de ventas...</span>
+                </div>
+                <div class="flex items-center gap-3 text-sm text-slate-400 analyzing-step opacity-0">
+                    <div class="w-5 h-5 rounded-full bg-slate-700 flex items-center justify-center step-icon">⏳</div>
+                    <span>Detectando riesgos de talento...</span>
+                </div>
+                <div class="flex items-center gap-3 text-sm text-slate-400 analyzing-step opacity-0">
+                    <div class="w-5 h-5 rounded-full bg-slate-700 flex items-center justify-center step-icon">⏳</div>
+                    <span>Generando tu Radar personalizado...</span>
+                </div>
+            </div>
+
+            <div class="flex justify-center gap-2">
+                <div class="w-2.5 h-2.5 bg-sky-500 rounded-full dot1"></div>
+                <div class="w-2.5 h-2.5 bg-sky-500 rounded-full dot2"></div>
+                <div class="w-2.5 h-2.5 bg-sky-500 rounded-full dot3"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════
+         SCREEN 4: RESULTS
+    ══════════════════════════════════ -->
+    <section id="screen-results" class="screen min-h-screen flex-col items-start justify-start px-6 pt-24 pb-20">
+        <div class="max-w-3xl w-full mx-auto">
+
+            <!-- Header -->
+            <div class="text-center mb-10 result-reveal" id="r-header">
+                <div class="inline-flex items-center gap-2 bg-sky-500/10 border border-sky-500/20 text-sky-400 px-4 py-1.5 rounded-full text-sm font-semibold mb-5">
+                    📡 Tu Radar Empresarial
+                </div>
+                <h2 class="text-4xl md:text-5xl font-black mb-3">Tu diagnóstico está listo</h2>
+                <p class="text-slate-400">Aquí está tu nivel de control empresarial actual</p>
+            </div>
+
+            <!-- Score + Radar -->
+            <div class="grid md:grid-cols-2 gap-8 mb-8">
+
+                <!-- Score ring -->
+                <div class="glass-card rounded-2xl p-8 flex flex-col items-center justify-center result-reveal" id="r-score">
+                    <div class="relative w-48 h-48 mb-6">
+                        <svg class="w-full h-full -rotate-90" viewBox="0 0 160 160">
+                            <circle cx="80" cy="80" r="70" fill="none" stroke="rgba(148,163,184,0.1)" stroke-width="10"/>
+                            <circle id="score-ring" cx="80" cy="80" r="70" fill="none" stroke-width="10"
+                                stroke-linecap="round" class="score-ring"
+                                style="stroke: url(#scoreGrad)"/>
+                            <defs>
+                                <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stop-color="#0ea5e9"/>
+                                    <stop offset="100%" stop-color="#38bdf8"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center">
+                            <div class="text-5xl font-black grad" id="score-display">0%</div>
+                            <div class="text-xs text-slate-500 mt-1">Nivel de Control</div>
+                        </div>
+                    </div>
+                    <div id="score-label" class="text-center">
+                        <div class="text-lg font-bold" id="score-level">–</div>
+                        <div class="text-sm text-slate-400 mt-1" id="score-desc">–</div>
+                    </div>
+                </div>
+
+                <!-- Radar chart -->
+                <div class="glass-card rounded-2xl p-6 flex flex-col items-center result-reveal" id="r-radar">
+                    <div class="text-sm font-semibold text-slate-400 mb-4 self-start">Mapa de Control</div>
+                    <svg id="radar-svg" viewBox="0 0 260 260" class="w-full max-w-[240px]">
+                        <!-- Grid rings -->
+                        <polygon points="130,30 213,80 213,180 130,230 47,180 47,80" fill="none" stroke="rgba(148,163,184,0.07)" stroke-width="1"/>
+                        <polygon points="130,55 196,92 196,167 130,205 64,167 64,92" fill="none" stroke="rgba(148,163,184,0.07)" stroke-width="1"/>
+                        <polygon points="130,80 179,105 179,155 130,180 81,155 81,105" fill="none" stroke="rgba(148,163,184,0.07)" stroke-width="1"/>
+                        <polygon points="130,105 162,118 162,142 130,155 98,142 98,118" fill="none" stroke="rgba(148,163,184,0.07)" stroke-width="1"/>
+                        <!-- Grid lines -->
+                        <line x1="130" y1="30" x2="130" y2="230" stroke="rgba(148,163,184,0.06)" stroke-width="1"/>
+                        <line x1="47" y1="80" x2="213" y2="180" stroke="rgba(148,163,184,0.06)" stroke-width="1"/>
+                        <line x1="47" y1="180" x2="213" y2="80" stroke="rgba(148,163,184,0.06)" stroke-width="1"/>
+                        <line x1="213" y1="80" x2="47" y2="180" stroke="rgba(148,163,184,0.06)" stroke-width="1"/>
+                        <line x1="213" y1="180" x2="47" y2="80" stroke="rgba(148,163,184,0.06)" stroke-width="1"/>
+                        <!-- Data polygon -->
+                        <polygon id="radar-data" points="130,130 130,130 130,130 130,130 130,130" class="radar-polygon"/>
+                        <!-- Dots -->
+                        <circle id="rd0" cx="130" cy="130" r="5" class="radar-dot"/>
+                        <circle id="rd1" cx="130" cy="130" r="5" class="radar-dot"/>
+                        <circle id="rd2" cx="130" cy="130" r="5" class="radar-dot"/>
+                        <circle id="rd3" cx="130" cy="130" r="5" class="radar-dot"/>
+                        <circle id="rd4" cx="130" cy="130" r="5" class="radar-dot"/>
+                        <!-- Labels -->
+                        <text x="130" y="20" text-anchor="middle" fill="#94a3b8" font-size="10" font-weight="600">💰 Finanzas</text>
+                        <text x="222" y="78" text-anchor="start"  fill="#94a3b8" font-size="10" font-weight="600">🎯 Estrategia</text>
+                        <text x="222" y="188" text-anchor="start" fill="#94a3b8" font-size="10" font-weight="600">📈 Ventas</text>
+                        <text x="128" y="248" text-anchor="middle" fill="#94a3b8" font-size="10" font-weight="600">👥 Talento</text>
+                        <text x="38"  y="188" text-anchor="end"   fill="#94a3b8" font-size="10" font-weight="600">⚙️ Ops</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Dimension scores -->
+            <div class="glass-card rounded-2xl p-6 mb-8 result-reveal" id="r-dims">
+                <div class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-5">Resultados por dimensión</div>
+                <div class="space-y-4" id="dim-scores-list"></div>
+            </div>
+
+            <!-- Insights — PARTIAL value -->
+            <div class="glass-card rounded-2xl p-6 mb-8 result-reveal" id="r-insights">
+                <div class="flex items-center justify-between mb-5">
+                    <div class="text-sm font-semibold text-slate-400 uppercase tracking-wider">Oportunidades detectadas</div>
+                    <div class="text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-1 rounded-full">⚠️ Acción requerida</div>
+                </div>
+                <div id="insights-list" class="space-y-4"></div>
+            </div>
+
+            <!-- LOCKED: Full action plan -->
+            <div class="mb-8 result-reveal" id="r-locked">
+                <div class="locked-section glass-card rounded-2xl p-6">
+                    <div class="blur-content space-y-4">
+                        <div class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4">🔒 Tu Plan de Acción Completo</div>
+                        <div class="h-6 bg-slate-700/50 rounded w-3/4"></div>
+                        <div class="h-4 bg-slate-700/40 rounded w-full"></div>
+                        <div class="h-4 bg-slate-700/40 rounded w-5/6"></div>
+                        <div class="h-4 bg-slate-700/40 rounded w-4/5"></div>
+                        <div class="grid grid-cols-3 gap-3 mt-4">
+                            <div class="h-16 bg-slate-700/40 rounded-xl"></div>
+                            <div class="h-16 bg-slate-700/40 rounded-xl"></div>
+                            <div class="h-16 bg-slate-700/40 rounded-xl"></div>
+                        </div>
+                        <div class="h-6 bg-slate-700/50 rounded w-2/3 mt-2"></div>
+                        <div class="h-4 bg-slate-700/40 rounded w-full"></div>
+                        <div class="h-4 bg-slate-700/40 rounded w-3/4"></div>
+                        <div class="h-4 bg-slate-700/40 rounded w-5/6"></div>
+                        <div class="h-10 bg-sky-700/30 rounded-xl mt-4"></div>
+                    </div>
+                    <div class="locked-overlay">
+                        <div class="text-center">
+                            <div class="text-3xl mb-2">🔒</div>
+                            <div class="text-sm text-slate-300 mb-1 font-semibold">Plan de Acción Completo bloqueado</div>
+                            <div class="text-xs text-slate-500">Completa tus datos para desbloquearlo</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lead capture form -->
+            <div class="glass-card rounded-2xl p-8 result-reveal" id="r-form">
+                <div class="text-center mb-6">
+                    <div class="text-3xl mb-3">🎯</div>
+                    <h3 class="text-2xl font-black mb-2">Recibe tu Plan de Acción Completo</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Uriel revisará tu diagnóstico personalmente y te enviará un plan de acción <strong class="text-white">paso a paso</strong> con las acciones concretas para cada dimensión crítica.
+                    </p>
+                </div>
+
+                <form id="lead-form" class="space-y-4" onsubmit="submitLead(event)">
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-xs text-slate-400 mb-1.5 block font-medium">Nombre completo *</label>
+                            <input type="text" id="f-name" class="form-input" placeholder="Ej. Carlos Mendoza" required>
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400 mb-1.5 block font-medium">Empresa *</label>
+                            <input type="text" id="f-company" class="form-input" placeholder="Nombre de tu empresa" required>
+                        </div>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-xs text-slate-400 mb-1.5 block font-medium">Correo electrónico *</label>
+                            <input type="email" id="f-email" class="form-input" placeholder="tu@empresa.com" required>
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400 mb-1.5 block font-medium">WhatsApp / Teléfono *</label>
+                            <input type="tel" id="f-phone" class="form-input" placeholder="+52 55 1234 5678" required>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 mb-1.5 block font-medium">¿Cuál es tu principal reto ahora mismo?</label>
+                        <select id="f-challenge" class="form-input" style="cursor:pointer">
+                            <option value="" disabled selected style="background:#1e293b">Selecciona una opción</option>
+                            <option value="flujo" style="background:#1e293b">Problemas de flujo de caja</option>
+                            <option value="ventas" style="background:#1e293b">Crecimiento de ventas estancado</option>
+                            <option value="equipo" style="background:#1e293b">Equipo sin dirección clara</option>
+                            <option value="operaciones" style="background:#1e293b">Caos operativo / procesos ineficientes</option>
+                            <option value="escalar" style="background:#1e293b">Quiero escalar pero pierdo control</option>
+                            <option value="otro" style="background:#1e293b">Otro reto</option>
+                        </select>
+                    </div>
+
+                    <button type="submit"
+                        class="pulse-btn btn-shimmer w-full py-4 rounded-xl font-black text-lg text-white shadow-xl shadow-sky-500/20 hover:scale-[1.02] transition-transform">
+                        Desbloquear mi Plan Completo →
+                    </button>
+                </form>
+
+                <div class="flex items-center justify-center gap-6 mt-5 text-xs text-slate-600">
+                    <span>🔒 100% confidencial</span>
+                    <span>⚡ Sin compromisos</span>
+                    <span>✓ Valor inmediato</span>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════
+         SCREEN 5: MINI PLAN (desbloqueado)
+    ══════════════════════════════════ -->
+    <section id="screen-plan" class="screen min-h-screen flex-col items-start justify-start px-6 pt-24 pb-20">
+        <div class="max-w-3xl w-full mx-auto">
+
+            <!-- Header unlock animation -->
+            <div class="text-center mb-10 anim-fade-up">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 text-3xl mb-5 shadow-xl shadow-green-500/30 mx-auto">
+                    🔓
+                </div>
+                <div class="inline-block bg-green-500/10 border border-green-500/20 text-green-400 px-4 py-1.5 rounded-full text-sm font-semibold mb-4">
+                    ✓ Plan desbloqueado para <span id="plan-name">ti</span>
+                </div>
+                <h2 class="text-4xl font-black mb-3">Tu Plan de Acción Inicial</h2>
+                <p class="text-slate-400 max-w-xl mx-auto text-sm leading-relaxed">
+                    Estas son las <strong class="text-white">primeras acciones concretas</strong> para cada dimensión crítica de tu empresa.
+                    Son el punto de partida — el plan profundo lo construimos juntos.
+                </p>
+            </div>
+
+            <!-- Mini plan cards — rendered by JS -->
+            <div id="mini-plan-list" class="space-y-4 mb-10"></div>
+
+            <!-- Separator -->
+            <div class="relative my-10">
+                <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-800"></div></div>
+                <div class="relative flex justify-center">
+                    <span class="bg-slate-950 px-4 text-slate-600 text-sm">¿Qué sigue?</span>
+                </div>
+            </div>
+
+            <!-- Next step CTA -->
+            <div class="glass-card rounded-2xl p-8 text-center anim-scale-in">
+                <div class="text-4xl mb-4">🎯</div>
+                <h3 class="text-2xl font-black mb-3">
+                    Esto es solo el punto de partida
+                </h3>
+                <p class="text-slate-400 text-sm leading-relaxed mb-6 max-w-lg mx-auto">
+                    El plan completo incluye el <strong class="text-white">diagnóstico profundo por área</strong>,
+                    las herramientas específicas para tu industria, los KPIs que debes medir primero
+                    y un roadmap de 90 días con prioridades claras.
+                    <br><br>
+                    Uriel ya tiene tu diagnóstico. Una sesión de <strong class="text-white">30 minutos</strong> es suficiente para diseñarlo juntos — sin costo.
+                </p>
+
+                <button onclick="openWhatsApp()"
+                    class="pulse-btn btn-shimmer w-full md:w-auto px-10 py-4 rounded-xl font-black text-lg text-white shadow-xl shadow-sky-500/25 hover:scale-105 transition-transform mb-4">
+                    Hablar con Uriel y recibir mi plan completo →
+                </button>
+
+                <div class="flex items-center justify-center gap-5 text-xs text-slate-600">
+                    <span>💬 Por WhatsApp</span>
+                    <span>⏱ 30 min sin costo</span>
+                    <span>📅 Esta semana</span>
+                </div>
+
+                <!-- Urgency -->
+                <div class="mt-6 bg-amber-500/8 border border-amber-500/20 rounded-xl p-3 text-xs text-amber-400">
+                    ⏰ Solo <strong>5 sesiones disponibles esta semana</strong> — agenda antes de que se llenen
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════
+         JAVASCRIPT ENGINE
+    ══════════════════════════════════ -->
+    <script>
+    // ══════════════════════════════════════════
+    // DATA: 20 questions, 5 dimensions, 4 each
+    // Score: 1 (worst) → 5 (best) per answer
+    // ══════════════════════════════════════════
+    const DIMENSIONS = [
+        { id: 'finanzas',    label: 'Finanzas',    icon: '💰', color: '#10b981' },
+        { id: 'estrategia',  label: 'Estrategia',  icon: '🎯', color: '#0ea5e9' },
+        { id: 'ventas',      label: 'Ventas',      icon: '📈', color: '#a855f7' },
+        { id: 'talento',     label: 'Talento',     icon: '👥', color: '#f97316' },
+        { id: 'operaciones', label: 'Operaciones', icon: '⚙️', color: '#06b6d4' },
+    ];
+
+    const QUESTIONS = [
+        // ── FINANZAS (0-3)
+        {
+            dim: 0, text: '¿Con qué frecuencia revisas tu estado de resultados (ingresos vs gastos)?',
+            options: ['Nunca lo reviso', 'Una vez al año', 'Mensualmente', 'Semanalmente', 'Tengo un dashboard diario']
+        },
+        {
+            dim: 0, text: '¿Conoces tu margen de utilidad neta actual?',
+            options: ['No sé qué es eso', 'Tengo una idea muy vaga', 'Sí, lo reviso mensualmente', 'Sí, lo monitoreo semanalmente', 'Sí, con precisión en tiempo real']
+        },
+        {
+            dim: 0, text: '¿Tienes un presupuesto anual con seguimiento activo?',
+            options: ['No tengo presupuesto', 'Solo lo planeé mentalmente', 'Tengo uno básico sin seguimiento', 'Sí, con seguimiento mensual', 'Sí, con alertas automáticas de desviación']
+        },
+        {
+            dim: 0, text: '¿Puedes predecir tu flujo de caja con 60 días de anticipación?',
+            options: ['No tengo idea de qué entra o sale', 'Con mucha dificultad', 'A veces, en meses normales', 'Casi siempre', 'Siempre, tengo proyecciones actualizadas']
+        },
+        // ── ESTRATEGIA (4-7)
+        {
+            dim: 1, text: '¿Tu equipo conoce y puede explicar los objetivos del año?',
+            options: ['Nadie los conoce', 'Solo los directivos', 'La mitad del equipo', 'La mayoría sí', 'Todo el equipo, con indicadores claros']
+        },
+        {
+            dim: 1, text: '¿Tienes un plan estratégico documentado para los próximos 12 meses?',
+            options: ['No existe ningún plan', 'Está en mi cabeza', 'Tengo notas sin estructura', 'Sí, documentado pero poco revisado', 'Sí, documentado con KPIs y revisiones mensuales']
+        },
+        {
+            dim: 1, text: '¿Con qué frecuencia revisas el avance de tus metas estratégicas?',
+            options: ['Nunca', 'Solo cuando hay crisis', 'Una vez al año', 'Trimestralmente', 'Mensualmente con el equipo directivo']
+        },
+        {
+            dim: 1, text: '¿Tus decisiones importantes están basadas en datos o en intuición?',
+            options: ['100% intuición', 'Mayormente intuición', 'Mitad y mitad', 'Mayormente datos', 'Casi siempre con datos y métricas concretas']
+        },
+        // ── VENTAS (8-11)
+        {
+            dim: 2, text: '¿Tienes un proceso de ventas documentado que tu equipo sigue?',
+            options: ['No hay proceso definido', 'Cada quien vende como puede', 'Hay lineamientos básicos verbales', 'Sí, documentado y parcialmente seguido', 'Sí, documentado con CRM y métricas de conversión']
+        },
+        {
+            dim: 2, text: '¿Conoces tu tasa de conversión de prospectos a clientes?',
+            options: ['No tengo idea', 'Aproximadamente, sin datos reales', 'Sí, la calculo mensualmente', 'Sí, la monitoreo semanalmente', 'Sí, en tiempo real con alertas']
+        },
+        {
+            dim: 2, text: '¿Puedes predecir tus ingresos del próximo mes con confianza?',
+            options: ['No, cada mes es sorpresa total', 'Con muy poca certeza', 'Solo en meses estables', 'Casi siempre con ±20% de precisión', 'Siempre con alta precisión por mi pipeline']
+        },
+        {
+            dim: 2, text: '¿Tienes estrategias activas para retener y hacer crecer cuentas existentes?',
+            options: ['No, solo busco nuevos clientes', 'Muy ocasionalmente', 'Tengo algunas ideas sin estructura', 'Sí, con seguimiento básico', 'Sí, con programa formal de retención y upselling']
+        },
+        // ── TALENTO (12-15)
+        {
+            dim: 3, text: '¿Cada persona en tu equipo tiene un rol, responsabilidades y KPIs claros?',
+            options: ['Nadie tiene claridad de su rol', 'Solo los mandos altos', 'Algunos sí, otros no', 'La mayoría sí', 'Todo el equipo con descripción de puesto y KPIs']
+        },
+        {
+            dim: 3, text: '¿Tu empresa puede operar normalmente sin ti durante 2 semanas?',
+            options: ['Se caería todo', 'Habría crisis importantes', 'Funcionaría con dificultades', 'Funcionaría bastante bien', 'Opera igual o mejor — tengo equipo autónomo']
+        },
+        {
+            dim: 3, text: '¿Con qué frecuencia realizas evaluaciones de desempeño formales?',
+            options: ['Nunca', 'Solo cuando hay problemas', 'Una vez al año', 'Semestralmente', 'Trimestral o mensualmente con retroalimentación']
+        },
+        {
+            dim: 3, text: '¿Tienes un proceso de incorporación (onboarding) para nuevos empleados?',
+            options: ['No, aprenden solos', 'Les explico yo en persona sin estructura', 'Hay algo básico no documentado', 'Sí, documentado pero mejorable', 'Sí, proceso completo con recursos digitales']
+        },
+        // ── OPERACIONES (16-19)
+        {
+            dim: 4, text: '¿Tus procesos principales están documentados y actualizados?',
+            options: ['Ninguno está documentado', 'Menos del 25% está documentado', 'Entre el 25-50% documentado', 'Entre el 50-75% documentado', 'Más del 75% documentado y en uso real']
+        },
+        {
+            dim: 4, text: '¿Usas indicadores (KPIs) para medir la eficiencia operativa?',
+            options: ['No uso ningún indicador', 'Solo métricas financieras básicas', 'Tengo algunos KPIs sin seguimiento regular', 'Sí, los reviso mensualmente', 'Sí, dashboard activo con alertas automáticas']
+        },
+        {
+            dim: 4, text: '¿Cuánto tiempo invierte tu equipo en tareas repetitivas que podrían automatizarse?',
+            options: ['Más del 60% del tiempo', 'Entre 40-60% del tiempo', 'Entre 20-40% del tiempo', 'Entre 10-20% del tiempo', 'Menos del 10%, tenemos automatización activa']
+        },
+        {
+            dim: 4, text: '¿Podrías duplicar tu volumen de operaciones sin contratar más personal?',
+            options: ['Imposible, ya estamos saturados', 'Con mucha dificultad y caos', 'Quizás un 20% más', 'Sí, hasta un 50% más', 'Sí, nuestros sistemas escalan fácilmente']
+        },
+    ];
+
+    // ══════════════════════════════════════════
+    // INSIGHTS ENGINE — partial value, hooks
+    // ══════════════════════════════════════════
+    const INSIGHTS = {
+        finanzas: [
+            { threshold: 3, icon: '🔴', title: 'Fuga financiera sin visibilidad', text: 'Sin estados financieros frecuentes, es imposible detectar dónde se escapa el dinero. La mayoría de empresas en esta situación tienen entre 15-25% de ingresos no capturados por falta de control.' },
+            { threshold: 3, icon: '⚠️', title: 'Flujo de caja impredecible', text: 'No poder proyectar a 60 días expone a tu empresa a crisis de liquidez que se pueden prevenir. Este es el síntoma #1 que precede al cierre de PyMEs.' },
+            { threshold: 4, icon: '📊', title: 'Presupuesto sin seguimiento real', text: 'Tener presupuesto sin seguimiento es igual a no tenerlo. Las desviaciones no detectadas a tiempo se convierten en problemas estructurales.' },
+        ],
+        estrategia: [
+            { threshold: 3, icon: '🔴', title: 'Equipo navegando sin brújula', text: 'Cuando el equipo no conoce los objetivos, cada persona toma decisiones según su criterio. El esfuerzo no se multiplica — se cancela.' },
+            { threshold: 3, icon: '⚠️', title: 'Estrategia "en la mente del dueño"', text: 'Un plan no documentado no existe para el equipo. Sin claridad estratégica compartida, la empresa reacciona a los problemas en lugar de prevenirlos.' },
+            { threshold: 4, icon: '📊', title: 'Decisiones basadas en intuición', text: 'La intuición sirve para empezar, los datos sirven para escalar. Sin métricas claras, estás apostando tu empresa a corazonadas.' },
+        ],
+        ventas: [
+            { threshold: 3, icon: '🔴', title: 'Proceso de ventas no replicable', text: 'Si tus ventas dependen de personas clave y no de un sistema, cada empleado que se va se lleva clientes y conocimiento. El pipeline es impredecible.' },
+            { threshold: 3, icon: '⚠️', title: 'Ingresos impredecibles mes a mes', text: 'Sin visibilidad del pipeline, no puedes planear contrataciones, inversiones ni crecimiento. Estás operando en modo reactivo permanente.' },
+            { threshold: 4, icon: '📊', title: 'Cuentas existentes sin capitalizar', text: 'Vender a un cliente existente cuesta 5-7x menos que adquirir uno nuevo. Sin estrategia de retención, estás dejando dinero en la mesa cada mes.' },
+        ],
+        talento: [
+            { threshold: 3, icon: '🔴', title: 'Empresa "rehén" del dueño', text: 'Si no puedes ausentarte 2 semanas, no tienes empresa — tienes un trabajo de tiempo completo. Este es el principal bloqueador de crecimiento en PyMEs.' },
+            { threshold: 3, icon: '⚠️', title: 'Roles ambiguos = conflictos y errores', text: 'Sin descripciones claras de puesto y KPIs, los empleados llenan el vacío de autoridad creando fricción interna y tomando decisiones que no les corresponden.' },
+            { threshold: 4, icon: '📊', title: 'Sin evaluaciones = sin mejora', text: 'El equipo no puede mejorar sin retroalimentación estructurada. La rotación de personal es hasta 3x mayor en empresas sin procesos formales de evaluación.' },
+        ],
+        operaciones: [
+            { threshold: 3, icon: '🔴', title: 'Procesos en la cabeza de las personas', text: 'Cuando los procesos no están documentados, cada salida de un empleado genera una crisis. La empresa no puede escalar sin sistemas que funcionen independientemente de las personas.' },
+            { threshold: 3, icon: '⚠️', title: 'Alto costo de tareas repetitivas', text: 'Identificamos que tu equipo dedica una porción significativa del tiempo a tareas automatizables. Esto representa un costo de oportunidad directo que se puede resolver.' },
+            { threshold: 4, icon: '📊', title: 'Escalabilidad limitada', text: 'Sin sistemas operativos eficientes, cada unidad de crecimiento requiere una unidad proporcional de personal y costo. El crecimiento deja de ser rentable.' },
+        ],
+    };
+
+    // ══════════════════════════════════════════
+    // STATE
+    // ══════════════════════════════════════════
+    let currentQ = 0;
+    let answers = [];
+    let scores = { finanzas: 0, estrategia: 0, ventas: 0, talento: 0, operaciones: 0 };
+
+    // ══════════════════════════════════════════
+    // NAVIGATION
+    // ══════════════════════════════════════════
+    function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        window.scrollTo(0,0);
+    }
+
+    // ══════════════════════════════════════════
+    // START
+    // ══════════════════════════════════════════
+    function startQuiz() {
+        currentQ = 0;
+        answers = [];
+        document.getElementById('progress-bar-container').classList.remove('hidden');
+        document.getElementById('step-indicator').style.display = 'none';
+        showScreen('screen-quiz');
+        renderQuestion();
+    }
+
+    // ══════════════════════════════════════════
+    // RENDER QUESTION
+    // ══════════════════════════════════════════
+    function renderQuestion() {
+        const q = QUESTIONS[currentQ];
+        const dim = DIMENSIONS[q.dim];
+        const pct = Math.round(((currentQ + 1) / QUESTIONS.length) * 100);
+
+        // Progress bar
+        document.getElementById('progress-fill').style.width = pct + '%';
+        document.getElementById('q-label').textContent = `Pregunta ${currentQ + 1} de ${QUESTIONS.length}`;
+        document.getElementById('section-label').textContent = `${dim.icon} ${dim.label}`;
+
+        const letters = ['A','B','C','D','E'];
+
+        const html = `
+            <div class="anim-fade-up">
+                <!-- Dim badge -->
+                <div class="flex items-center gap-2 mb-6">
+                    <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold" style="background:${dim.color}18; color:${dim.color}; border:1px solid ${dim.color}30">
+                        ${dim.icon} ${dim.label}
+                    </div>
+                    <span class="text-xs text-slate-600">Dimensión ${q.dim + 1} de 5</span>
+                </div>
+
+                <!-- Question number + text -->
+                <div class="mb-8">
+                    <div class="text-xs text-slate-600 mb-2 font-mono">${String(currentQ + 1).padStart(2,'0')} / 20</div>
+                    <h2 class="text-xl md:text-2xl font-bold text-white leading-snug">${q.text}</h2>
+                </div>
+
+                <!-- Options -->
+                <div class="space-y-2.5" id="options-list">
+                    ${q.options.map((opt, i) => `
+                        <button class="option-btn" onclick="selectOption(${i + 1})" data-value="${i+1}">
+                            <div class="option-letter">${letters[i]}</div>
+                            <span>${opt}</span>
+                        </button>
+                    `).join('')}
+                </div>
+
+                <!-- Nav -->
+                <div class="flex items-center justify-between mt-8">
+                    <button onclick="prevQuestion()" class="${currentQ === 0 ? 'invisible' : ''} text-slate-500 hover:text-white text-sm transition-colors flex items-center gap-1">
+                        ← Anterior
+                    </button>
+                    <button id="next-btn" onclick="nextQuestion()" disabled
+                        class="opacity-40 cursor-not-allowed bg-slate-700 text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition-all"
+                        id="next-btn">
+                        Siguiente →
+                    </button>
+                </div>
+            </div>
+        `;
+
+        document.getElementById('quiz-container').innerHTML = html;
+
+        // Restore previous answer if going back
+        if (answers[currentQ] !== undefined) {
+            const btn = document.querySelector(`[data-value="${answers[currentQ]}"]`);
+            if (btn) {
+                btn.classList.add('selected');
+                enableNext();
+            }
+        }
+    }
+
+    function selectOption(value) {
+        // Visual
+        document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+        document.querySelector(`[data-value="${value}"]`).classList.add('selected');
+        answers[currentQ] = value;
+        enableNext();
+
+        // Auto-advance after brief delay
+        setTimeout(() => {
+            if (currentQ < QUESTIONS.length - 1) nextQuestion();
+            else goToAnalyzing();
+        }, 380);
+    }
+
+    function enableNext() {
+        const btn = document.getElementById('next-btn');
+        if (!btn) return;
+        btn.disabled = false;
+        btn.classList.remove('opacity-40', 'cursor-not-allowed', 'bg-slate-700');
+        btn.classList.add('btn-shimmer', 'hover:scale-105');
+    }
+
+    function nextQuestion() {
+        if (answers[currentQ] === undefined) return;
+        if (currentQ < QUESTIONS.length - 1) {
+            currentQ++;
+            renderQuestion();
+        } else {
+            goToAnalyzing();
+        }
+    }
+
+    function prevQuestion() {
+        if (currentQ > 0) { currentQ--; renderQuestion(); }
+    }
+
+    // ══════════════════════════════════════════
+    // ANALYZING SCREEN
+    // ══════════════════════════════════════════
+    function goToAnalyzing() {
+        computeScores();
+        showScreen('screen-analyzing');
+        document.getElementById('progress-bar-container').classList.add('hidden');
+
+        // Animate ring
+        setTimeout(() => {
+            document.getElementById('analyzing-ring').style.strokeDashoffset = '0';
+        }, 100);
+
+        // Animate steps
+        const steps = document.querySelectorAll('.analyzing-step');
+        steps.forEach((step, i) => {
+            setTimeout(() => {
+                step.style.opacity = '1';
+                step.style.transition = 'opacity 0.4s ease';
+                step.querySelector('.step-icon').textContent = '✅';
+                step.style.color = '#94a3b8';
+            }, 400 + i * 550);
+        });
+
+        // Show results after animation
+        setTimeout(() => showResults(), 400 + steps.length * 550 + 600);
+    }
+
+    // ══════════════════════════════════════════
+    // COMPUTE SCORES
+    // ══════════════════════════════════════════
+    function computeScores() {
+        const keys = ['finanzas','estrategia','ventas','talento','operaciones'];
+        const counts = [0,0,0,0,0];
+        const totals = [0,0,0,0,0];
+
+        QUESTIONS.forEach((q, i) => {
+            totals[q.dim] += (answers[i] || 1);
+            counts[q.dim]++;
+        });
+
+        keys.forEach((k, i) => {
+            const raw = totals[i] / (counts[i] * 5);
+            scores[k] = Math.round(raw * 100);
+        });
+    }
+
+    // ══════════════════════════════════════════
+    // SHOW RESULTS
+    // ══════════════════════════════════════════
+    function showResults() {
+        showScreen('screen-results');
+        document.getElementById('step-indicator').style.display = 'block';
+        document.getElementById('step-indicator').textContent = '';
+
+        const overall = Math.round(Object.values(scores).reduce((a,b) => a+b, 0) / 5);
+
+        // Staggered reveal
+        const reveals = document.querySelectorAll('.result-reveal');
+        reveals.forEach((el, i) => {
+            setTimeout(() => el.classList.add('show'), 200 + i * 200);
+        });
+
+        // Animate score ring
+        setTimeout(() => {
+            const circumference = 440;
+            const offset = circumference - (overall / 100) * circumference;
+            document.getElementById('score-ring').style.strokeDashoffset = offset;
+
+            // Count up score
+            let s = 0;
+            const si = setInterval(() => {
+                s++;
+                document.getElementById('score-display').textContent = s + '%';
+                if (s >= overall) clearInterval(si);
+            }, 22);
+
+            // Score label
+            const { level, desc, color } = getScoreLabel(overall);
+            document.getElementById('score-level').textContent = level;
+            document.getElementById('score-level').style.color = color;
+            document.getElementById('score-desc').textContent = desc;
+        }, 500);
+
+        // Radar chart
+        setTimeout(() => drawRadar(), 700);
+
+        // Dimension bars
+        renderDimScores();
+
+        // Insights
+        renderInsights();
+    }
+
+    function getScoreLabel(score) {
+        if (score >= 80) return { level: '🟢 Control Sólido',   desc: 'Tu empresa está bien gestionada. Hay oportunidades de optimización.',                    color: '#22c55e' };
+        if (score >= 60) return { level: '🟡 En Desarrollo',     desc: 'Tienes bases, pero hay áreas que están limitando tu crecimiento.',                        color: '#eab308' };
+        if (score >= 40) return { level: '🟠 En Riesgo',         desc: 'Varias dimensiones críticas necesitan atención urgente.',                                  color: '#f97316' };
+        return                  { level: '🔴 Zona Crítica',       desc: 'Tu empresa está en riesgo. Se requiere intervención inmediata.',                           color: '#ef4444' };
+    }
+
+    // ══════════════════════════════════════════
+    // RADAR CHART
+    // ══════════════════════════════════════════
+    function drawRadar() {
+        // 5 axes: Finanzas(top), Estrategia(top-right), Ventas(bottom-right), Talento(bottom), Ops(top-left)
+        const cx = 130, cy = 130, maxR = 100;
+        const angles = [-90, -18, 54, 126, 198]; // degrees for 5 axes
+
+        const dimKeys = ['finanzas','estrategia','ventas','talento','operaciones'];
+        const points = dimKeys.map((k, i) => {
+            const r = (scores[k] / 100) * maxR;
+            const rad = (angles[i] * Math.PI) / 180;
+            return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+        });
+
+        const pts = points.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+        const poly = document.getElementById('radar-data');
+        poly.setAttribute('points', pts);
+        setTimeout(() => {
+            poly.style.opacity = '1';
+            document.querySelectorAll('.radar-dot').forEach((d,i) => {
+                d.setAttribute('cx', points[i].x.toFixed(1));
+                d.setAttribute('cy', points[i].y.toFixed(1));
+                setTimeout(() => { d.style.opacity = '1'; }, i * 80);
+            });
+        }, 100);
+    }
+
+    // ══════════════════════════════════════════
+    // DIMENSION SCORE BARS
+    // ══════════════════════════════════════════
+    function renderDimScores() {
+        const dimKeys = ['finanzas','estrategia','ventas','talento','operaciones'];
+        const list = document.getElementById('dim-scores-list');
+        list.innerHTML = dimKeys.map((k, i) => {
+            const dim = DIMENSIONS[i];
+            const score = scores[k];
+            const { color: labelColor } = getBarColor(score);
+            return `
+                <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <div class="flex items-center gap-2 text-sm font-medium">
+                            <span>${dim.icon}</span>
+                            <span>${dim.label}</span>
+                        </div>
+                        <span class="text-sm font-bold" style="color:${labelColor}">${score}%</span>
+                    </div>
+                    <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
+                        <div class="h-2.5 rounded-full transition-all duration-1000 ease-out"
+                            style="width:0%; background:${dim.color}; transition-delay:${i*120}ms"
+                            data-target="${score}">
+                        </div>
+                    </div>
+                    ${score < 60 ? `<div class="text-xs mt-1" style="color:${labelColor}">⚠️ Área crítica — requiere atención prioritaria</div>` : ''}
+                </div>
+            `;
+        }).join('');
+
+        // Animate bars
+        setTimeout(() => {
+            list.querySelectorAll('[data-target]').forEach(bar => {
+                bar.style.width = bar.dataset.target + '%';
+            });
+        }, 300);
+    }
+
+    function getBarColor(score) {
+        if (score >= 80) return { color: '#22c55e' };
+        if (score >= 60) return { color: '#eab308' };
+        if (score >= 40) return { color: '#f97316' };
+        return { color: '#ef4444' };
+    }
+
+    // ══════════════════════════════════════════
+    // INSIGHTS — strategic value but incomplete
+    // ══════════════════════════════════════════
+    function renderInsights() {
+        const dimKeys = ['finanzas','estrategia','ventas','talento','operaciones'];
+        const list = document.getElementById('insights-list');
+        let html = '';
+        let count = 0;
+        const maxInsights = 3; // limit to create curiosity gap
+
+        dimKeys.forEach(k => {
+            if (count >= maxInsights) return;
+            const score = scores[k];
+            const insights = INSIGHTS[k];
+            insights.forEach(insight => {
+                if (count >= maxInsights) return;
+                const scoreThresh = insight.threshold * 20; // convert 1-5 scale
+                if (score < scoreThresh) {
+                    html += `
+                        <div class="flex gap-4 p-4 rounded-xl bg-slate-800/50 border border-slate-700/50">
+                            <div class="text-2xl flex-shrink-0">${insight.icon}</div>
+                            <div>
+                                <div class="font-semibold text-white mb-1 text-sm">${insight.title}</div>
+                                <div class="text-slate-400 text-xs leading-relaxed">${insight.text}</div>
+                            </div>
+                        </div>
+                    `;
+                    count++;
+                }
+            });
+        });
+
+        if (count === 0) {
+            html = `<div class="text-center text-slate-400 py-4">
+                <div class="text-3xl mb-2">🏆</div>
+                <div class="font-semibold">Excelente nivel de control</div>
+                <div class="text-sm mt-1">Tu empresa está por encima del promedio. Tu plan completo incluye estrategias de optimización avanzada.</div>
+            </div>`;
+        } else {
+            // Teaser for locked content
+            html += `
+                <div class="flex gap-3 p-4 rounded-xl bg-sky-500/5 border border-sky-500/15 mt-2">
+                    <div class="text-xl flex-shrink-0">🔒</div>
+                    <div class="text-sm text-slate-400">
+                        <span class="text-sky-400 font-semibold">+${Math.max(0, count + 2)} oportunidades adicionales</span> detectadas en tu diagnóstico —
+                        incluyendo estimaciones de impacto económico y los pasos exactos para resolverlas.
+                        <span class="text-white font-semibold"> Desbloquea tu plan completo abajo.</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        list.innerHTML = html;
+    }
+
+    // ══════════════════════════════════════════
+    // MINI PLAN CONTENT — acción concreta por dim
+    // ══════════════════════════════════════════
+    const MINI_PLAN = {
+        finanzas: {
+            icon: '💰', color: '#10b981',
+            high: {
+                title: 'Optimiza tu visibilidad financiera',
+                action: 'Automatiza tu reporte semanal conectando tu banco con una hoja de cálculo. El siguiente nivel es detectar los 3 costos que más crecieron vs el año pasado y cuestionarlos uno a uno.'
+            },
+            low: {
+                title: 'Implementa tu primer tablero financiero esta semana',
+                action: 'Abre una hoja de cálculo y registra cada viernes: ingresos del período, gastos del período y saldo final. Solo esas 3 cifras. Hazlo 4 semanas seguidas sin excepción. Ese hábito vale más que cualquier software — te dará la visibilidad mínima para dejar de operar a ciegas.'
+            }
+        },
+        estrategia: {
+            icon: '🎯', color: '#0ea5e9',
+            high: {
+                title: 'Lleva tu estrategia al siguiente nivel',
+                action: 'Tus objetivos existen — ahora asegúrate de que cada decisión del día a día esté alineada con ellos. Introduce una pregunta semanal en tu equipo: "¿Lo que hicimos esta semana nos acerca a nuestras 3 prioridades del trimestre?"'
+            },
+            low: {
+                title: 'Define tus 3 prioridades del trimestre en una sola reunión',
+                action: 'Convoca a tu equipo clave esta semana por 2 horas. Define exactamente 3 prioridades para los próximos 90 días — no 10, no 5, solo 3. Escríbelas en una hoja visible para todos. La claridad forzada elimina el ruido y alinea al equipo sin necesidad de micromanagement.'
+            }
+        },
+        ventas: {
+            icon: '📈', color: '#a855f7',
+            high: {
+                title: 'Sistematiza tu motor de ventas',
+                action: 'Tienes un proceso que funciona — documéntalo paso a paso esta semana para que cualquier persona nueva pueda replicarlo. Un proceso en papel es un activo; en la cabeza de alguien es un riesgo.'
+            },
+            low: {
+                title: 'Analiza tus últimos 10 cierres en 30 minutos',
+                action: 'Busca tus últimas 10 ventas cerradas y responde: ¿cómo inició cada una?, ¿cuánto tardó en cerrar?, ¿qué objeción fue la más común? Ese ejercicio de 30 minutos te revelará el patrón de tus mejores ventas y te dará la base para construir un proceso replicable sin depender de la improvisación.'
+            }
+        },
+        talento: {
+            icon: '👥', color: '#f97316',
+            high: {
+                title: 'Construye un equipo verdaderamente autónomo',
+                action: 'El siguiente paso es asegurarte de que cada persona tenga un "número" del que sea responsable — un KPI que ellos mismos monitoreen. Cuando el equipo se mide solo, tú dejas de ser el semáforo de todo.'
+            },
+            low: {
+                title: 'Escribe una descripción de puesto para cada miembro esta semana',
+                action: 'Una página por persona: qué hace, qué NO hace, y cómo sabes si lo está haciendo bien (máximo 3 indicadores). Compártela con cada uno en una conversación de 15 minutos. Esa conversación resolverá el 40% de los conflictos silenciosos que hoy frenan a tu equipo — y empezará a liberarte a ti.'
+            }
+        },
+        operaciones: {
+            icon: '⚙️', color: '#06b6d4',
+            high: {
+                title: 'Convierte tus procesos en ventaja competitiva',
+                action: 'Identifica el proceso más documentado que tienes y evalúa si puede automatizarse parcialmente. Cada hora que tu equipo deja de hacer tareas repetitivas es una hora que produce valor real.'
+            },
+            low: {
+                title: 'Documenta tu proceso más repetido esta semana',
+                action: 'Identifica la actividad que más se repite en tu empresa (puede ser facturación, atención a clientes, entrega de servicio) y escríbela en 5 a 7 pasos en papel. Sin tecnicismos, como si le explicaras a alguien nuevo. Un proceso documentado es un problema que deja de depender de ti — y el primer paso para poder escalar.'
+            }
+        },
+    };
+
+    // ══════════════════════════════════════════
+    // RENDER MINI PLAN
+    // ══════════════════════════════════════════
+    function renderMiniPlan() {
+        const dimKeys = ['finanzas','estrategia','ventas','talento','operaciones'];
+        const list = document.getElementById('mini-plan-list');
+
+        list.innerHTML = dimKeys.map((k, idx) => {
+            const plan    = MINI_PLAN[k];
+            const score   = scores[k];
+            const content = score < 65 ? plan.low : plan.high;
+            const { color: barColor } = getBarColor(score);
+            const isLow   = score < 65;
+
+            return `
+                <div class="glass-card rounded-2xl p-6 anim-fade-up" style="animation-delay:${idx * 100}ms">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0"
+                            style="background:${plan.color}18; border:1px solid ${plan.color}30">
+                            ${plan.icon}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between gap-2 mb-1 flex-wrap">
+                                <span class="font-bold text-white text-sm">${content.title}</span>
+                                <span class="text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0"
+                                    style="color:${barColor}; background:${barColor}18; border:1px solid ${barColor}30">
+                                    ${score}% ${isLow ? '⚠️' : '✓'}
+                                </span>
+                            </div>
+                            <p class="text-slate-400 text-sm leading-relaxed">${content.action}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // ══════════════════════════════════════════
+    // WHATSAPP — abre cuando el cliente lo decide
+    // ══════════════════════════════════════════
+    let _waUrl = '';
+
+    function buildWhatsAppUrl(name, company, email, phone, challenge) {
+        const challengeLabels = {
+            flujo: 'Problemas de flujo de caja', ventas: 'Crecimiento de ventas estancado',
+            equipo: 'Equipo sin dirección clara', operaciones: 'Caos operativo / procesos ineficientes',
+            escalar: 'Quiero escalar pero pierdo control', otro: 'Otro reto', '': 'No especificado',
+        };
+
+        const dimKeys    = ['finanzas','estrategia','ventas','talento','operaciones'];
+        const overall    = Math.round(Object.values(scores).reduce((a,b) => a+b, 0) / 5);
+        const { level }  = getScoreLabel(overall);
+        const criticals  = dimKeys.filter(k => scores[k] < 60)
+            .map(k => DIMENSIONS[dimKeys.indexOf(k)].label).join(', ') || 'Ninguna';
+
+        const waMsg =
+`🚨 *NUEVO LEAD — Radar VESTRA*
+
+👤 *${name}* | ${company}
+📊 Score: *${overall}% — ${level}*
+⚠️ Críticas: ${criticals}
+💬 Reto: ${challengeLabels[challenge]}
+
+📧 Revisa tu correo para el reporte completo.`;
+
+        return `https://wa.me/525520654337?text=${encodeURIComponent(waMsg)}`;
+    }
+
+    function openWhatsApp() {
+        if (_waUrl) window.open(_waUrl, '_blank');
+    }
+
+    // ══════════════════════════════════════════
+    // EMAILJS — reporte completo a Uriel
+    // ══════════════════════════════════════════
+
+    // ─── CONFIGURACIÓN EmailJS ───────────────
+    // 1. Crea cuenta gratis en emailjs.com
+    // 2. Conecta tu correo (Gmail/Outlook)
+    // 3. Crea un template y pega los valores abajo
+    const EMAILJS_PUBLIC_KEY  = 'TU_PUBLIC_KEY';   // Account → API Keys
+    const EMAILJS_SERVICE_ID  = 'TU_SERVICE_ID';   // Email Services → Service ID
+    const EMAILJS_TEMPLATE_ID = 'TU_TEMPLATE_ID';  // Email Templates → Template ID
+    // ────────────────────────────────────────
+
+    function sendEmailReport(name, company, email, phone, challenge) {
+        const challengeLabels = {
+            flujo: 'Problemas de flujo de caja', ventas: 'Crecimiento de ventas estancado',
+            equipo: 'Equipo sin dirección clara', operaciones: 'Caos operativo / procesos ineficientes',
+            escalar: 'Quiero escalar pero pierdo control', otro: 'Otro reto', '': 'No especificado',
+        };
+
+        const dimKeys   = ['finanzas','estrategia','ventas','talento','operaciones'];
+        const dimIcons  = ['💰','🎯','📈','👥','⚙️'];
+        const dimLabels = ['Finanzas','Estrategia','Ventas','Talento','Operaciones'];
+        const overall   = Math.round(Object.values(scores).reduce((a,b) => a+b, 0) / 5);
+        const { level } = getScoreLabel(overall);
+
+        // Tabla de scores
+        const scoresTable = dimKeys.map((k,i) => {
+            const s    = scores[k];
+            const flag = s < 60 ? '🔴 CRÍTICO' : s < 75 ? '🟡 Atención' : '🟢 Bien';
+            return `${dimIcons[i]} ${dimLabels[i]}: ${s}% — ${flag}`;
+        }).join('\n');
+
+        // Respuestas exactas en áreas de oportunidad
+        const detailedAnswers = dimKeys.map((k, dIdx) => {
+            const dimQ = QUESTIONS.filter(q => q.dim === dIdx);
+            const lines = dimQ.map(q => {
+                const qIdx   = QUESTIONS.indexOf(q);
+                const ansVal = answers[qIdx];
+                const ansText = ansVal ? q.options[ansVal - 1] : '—';
+                const warn   = ansVal <= 2 ? ' ⚠️' : '';
+                return `   • ${q.text}\n     Respuesta: "${ansText}"${warn}`;
+            }).join('\n');
+            return `${dimIcons[dIdx]} ${dimLabels[dIdx]} (${scores[k]}%)\n${lines}`;
+        }).join('\n\n');
+
+        // Mini plan mostrado al cliente
+        const miniPlanShown = dimKeys.map((k,i) => {
+            const plan    = MINI_PLAN[k];
+            const content = scores[k] < 65 ? plan.low : plan.high;
+            return `${dimIcons[i]} ${dimLabels[i]}: ${content.title}\n   "${content.action}"`;
+        }).join('\n\n');
+
+        emailjs.init(EMAILJS_PUBLIC_KEY);
+        emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+            to_email:        'uriel.vargas@vestra.mx',
+            to_name:         'Uriel',
+            client_name:     name,
+            client_company:  company,
+            client_email:    email,
+            client_phone:    phone,
+            client_challenge: challengeLabels[challenge],
+            overall_score:   overall + '%',
+            score_level:     level,
+            scores_table:    scoresTable,
+            detailed_answers: detailedAnswers,
+            mini_plan_shown: miniPlanShown,
+            reply_to:        email,
+        }).catch(err => console.warn('EmailJS:', err));
+    }
+
+    // ══════════════════════════════════════════
+    // SUBMIT LEAD → mini plan + email + whatsapp
+    // ══════════════════════════════════════════
+    function submitLead(e) {
+        e.preventDefault();
+
+        const name      = document.getElementById('f-name').value.trim();
+        const company   = document.getElementById('f-company').value.trim();
+        const email     = document.getElementById('f-email').value.trim();
+        const phone     = document.getElementById('f-phone').value.trim();
+        const challenge = document.getElementById('f-challenge').value;
+
+        // URL corta de WhatsApp (aviso inmediato)
+        _waUrl = buildWhatsAppUrl(name, company, email, phone, challenge);
+
+        // Enviar reporte completo por correo
+        sendEmailReport(name, company, email, phone, challenge);
+
+        // Nombre en el encabezado del plan
+        document.getElementById('plan-name').textContent = name.split(' ')[0];
+
+        // Mini plan personalizado
+        renderMiniPlan();
+
+        // Mostrar pantalla del plan
+        showScreen('screen-plan');
+    }
+    </script>
+</body>
+</html>
