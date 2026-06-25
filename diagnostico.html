@@ -306,7 +306,7 @@
             <span id="logo-text" class="hidden text-xl font-black grad">VESTRA</span>
             <div id="progress-bar-container" class="hidden flex-1 mx-8">
                 <div class="flex justify-between text-xs text-slate-500 mb-1">
-                    <span id="q-label">Pregunta 1 de 20</span>
+                    <span id="q-label">Pregunta 1 de 21</span>
                     <span id="section-label" class="text-sky-400 font-semibold">💰 Finanzas</span>
                 </div>
                 <div class="w-full bg-slate-800 rounded-full h-[3px]">
@@ -339,7 +339,7 @@
                 Descubre en <strong class="text-white">5 minutos</strong> el nivel real de control de tu empresa y dónde estás perdiendo dinero sin saberlo.
             </p>
             <p class="text-slate-500 mb-10 text-sm">
-                20 preguntas · 5 dimensiones críticas · Plan de acción incluido
+                21 preguntas · 5 dimensiones críticas · Plan de acción incluido
             </p>
 
             <!-- What you'll get -->
@@ -681,7 +681,7 @@
     ══════════════════════════════════ -->
     <script>
     // ══════════════════════════════════════════
-    // DATA: 20 questions, 5 dimensions, 4 each
+    // DATA: 21 questions, 5 dimensions (Ventas has 5, rest have 4)
     // Score: 1 (worst) → 5 (best) per answer
     // ══════════════════════════════════════════
     const DIMENSIONS = [
@@ -749,7 +749,12 @@
             dim: 2, text: '¿Tienes estrategias activas para retener y hacer crecer cuentas existentes?',
             options: ['No, solo busco nuevos clientes', 'Muy ocasionalmente', 'Tengo algunas ideas sin estructura', 'Sí, con seguimiento básico', 'Sí, con programa formal de retención y upselling']
         },
-        // ── TALENTO (12-15)
+        {
+            dim: 2, text: '¿Qué tan clara y consistente es tu propuesta de valor frente a la competencia?',
+            help: 'Lo que te hace diferente y por qué un cliente te elige a ti y no a otro proveedor.',
+            options: ['No tengo claro qué me diferencia', 'Tengo una idea pero no la comunico siempre igual', 'La tengo definida pero mi equipo no la transmite igual', 'Está clara y mi equipo la comunica de forma similar', 'Está documentada y se refleja en todo lo que comunicamos']
+        },
+        // ── TALENTO (13-16)
         {
             dim: 3, text: '¿Cada persona en tu equipo tiene un rol, responsabilidades y KPIs claros?',
             help: 'KPI = el número con el que se mide si esa persona está haciendo bien su trabajo.',
@@ -874,7 +879,7 @@
 
                 <!-- Question number + text -->
                 <div class="mb-8">
-                    <div class="text-xs text-slate-600 mb-2 font-mono">${String(currentQ + 1).padStart(2,'0')} / 20</div>
+                    <div class="text-xs text-slate-600 mb-2 font-mono">${String(currentQ + 1).padStart(2,'0')} / ${QUESTIONS.length}</div>
                     <h2 class="text-xl md:text-2xl font-bold text-white leading-snug">
                         ${q.text}${q.help ? `<span class="help-tip" onclick="event.stopPropagation(); this.classList.toggle('active')">
                             <span class="help-icon">?</span>
