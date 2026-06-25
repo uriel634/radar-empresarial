@@ -130,6 +130,67 @@
             color: white;
         }
 
+        /* ── Help tooltip ── */
+        .help-tip {
+            position: relative;
+            display: inline-flex;
+            vertical-align: middle;
+            margin-left: 8px;
+        }
+        .help-icon {
+            width: 19px; height: 19px;
+            border-radius: 50%;
+            background: rgba(148,163,184,0.12);
+            border: 1px solid rgba(148,163,184,0.3);
+            color: #94a3b8;
+            font-size: 0.7rem;
+            font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+        .help-tip:hover .help-icon,
+        .help-tip.active .help-icon {
+            background: rgba(14,165,233,0.2);
+            border-color: #0ea5e9;
+            color: #38bdf8;
+        }
+        .help-bubble {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            width: 250px;
+            max-width: 78vw;
+            background: rgba(15,23,42,0.97);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(148,163,184,0.2);
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 0.75rem;
+            line-height: 1.45;
+            font-weight: 400;
+            color: #cbd5e1;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+            z-index: 40;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-4px);
+            transition: opacity 0.15s ease, transform 0.15s ease;
+        }
+        .help-tip:hover .help-bubble,
+        .help-tip.active .help-bubble {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+        .scale-legend {
+            font-size: 0.72rem;
+            color: #64748b;
+            margin-top: 10px;
+            font-weight: 400;
+        }
+
         /* ── Progress bar ── */
         #progress-fill {
             height: 3px;
@@ -634,11 +695,12 @@
     const QUESTIONS = [
         // ── FINANZAS (0-3)
         {
-            dim: 0, text: '¿Con qué frecuencia revisas tu estado de resultados (ingresos vs gastos)?',
+            dim: 0, freq: true, text: '¿Con qué frecuencia revisas tu estado de resultados (ingresos vs gastos)?',
             options: ['Nunca lo reviso', 'Una vez al año', 'Mensualmente', 'Semanalmente', 'Tengo un dashboard diario']
         },
         {
             dim: 0, text: '¿Conoces tu margen de utilidad neta actual?',
+            help: 'Lo que realmente te queda después de restar TODOS los gastos, no solo el costo del producto.',
             options: ['No sé qué es eso', 'Tengo una idea muy vaga', 'Sí, lo reviso mensualmente', 'Sí, lo monitoreo semanalmente', 'Sí, con precisión en tiempo real']
         },
         {
@@ -647,6 +709,7 @@
         },
         {
             dim: 0, text: '¿Puedes predecir tu flujo de caja con 60 días de anticipación?',
+            help: 'Saber con anticipación si vas a tener dinero en la cuenta para cubrir nómina, proveedores y gastos.',
             options: ['No tengo idea de qué entra o sale', 'Con mucha dificultad', 'A veces, en meses normales', 'Casi siempre', 'Siempre, tengo proyecciones actualizadas']
         },
         // ── ESTRATEGIA (4-7)
@@ -659,11 +722,12 @@
             options: ['No existe ningún plan', 'Está en mi cabeza', 'Tengo notas sin estructura', 'Sí, documentado pero poco revisado', 'Sí, documentado con KPIs y revisiones mensuales']
         },
         {
-            dim: 1, text: '¿Con qué frecuencia revisas el avance de tus metas estratégicas?',
+            dim: 1, freq: true, text: '¿Con qué frecuencia revisas el avance de tus metas estratégicas?',
             options: ['Nunca', 'Solo cuando hay crisis', 'Una vez al año', 'Trimestralmente', 'Mensualmente con el equipo directivo']
         },
         {
             dim: 1, text: '¿Tus decisiones importantes están basadas en datos o en intuición?',
+            help: 'Ej.: subir un precio mirando tus números reales, no porque "se siente que ya tocaba".',
             options: ['100% intuición', 'Mayormente intuición', 'Mitad y mitad', 'Mayormente datos', 'Casi siempre con datos y métricas concretas']
         },
         // ── VENTAS (8-11)
@@ -673,10 +737,12 @@
         },
         {
             dim: 2, text: '¿Conoces tu tasa de conversión de prospectos a clientes?',
+            help: 'De cada 10 personas que te piden cotización o preguntan, cuántas terminan comprando.',
             options: ['No tengo idea', 'Aproximadamente, sin datos reales', 'Sí, la calculo mensualmente', 'Sí, la monitoreo semanalmente', 'Sí, en tiempo real con alertas']
         },
         {
             dim: 2, text: '¿Puedes predecir tus ingresos del próximo mes con confianza?',
+            help: 'Si hoy puedes estimar con confianza cuánto vas a vender el mes que entra.',
             options: ['No, cada mes es sorpresa total', 'Con muy poca certeza', 'Solo en meses estables', 'Casi siempre con ±20% de precisión', 'Siempre con alta precisión por mi pipeline']
         },
         {
@@ -686,6 +752,7 @@
         // ── TALENTO (12-15)
         {
             dim: 3, text: '¿Cada persona en tu equipo tiene un rol, responsabilidades y KPIs claros?',
+            help: 'KPI = el número con el que se mide si esa persona está haciendo bien su trabajo.',
             options: ['Nadie tiene claridad de su rol', 'Solo los mandos altos', 'Algunos sí, otros no', 'La mayoría sí', 'Todo el equipo con descripción de puesto y KPIs']
         },
         {
@@ -693,7 +760,7 @@
             options: ['Se caería todo', 'Habría crisis importantes', 'Funcionaría con dificultades', 'Funcionaría bastante bien', 'Opera igual o mejor — tengo equipo autónomo']
         },
         {
-            dim: 3, text: '¿Con qué frecuencia realizas evaluaciones de desempeño formales?',
+            dim: 3, freq: true, text: '¿Con qué frecuencia realizas evaluaciones de desempeño formales?',
             options: ['Nunca', 'Solo cuando hay problemas', 'Una vez al año', 'Semestralmente', 'Trimestral o mensualmente con retroalimentación']
         },
         {
@@ -707,10 +774,12 @@
         },
         {
             dim: 4, text: '¿Usas indicadores (KPIs) para medir la eficiencia operativa?',
+            help: 'Indicadores que te dicen si la operación va bien: tiempos de entrega, errores, retrabajos, etc.',
             options: ['No uso ningún indicador', 'Solo métricas financieras básicas', 'Tengo algunos KPIs sin seguimiento regular', 'Sí, los reviso mensualmente', 'Sí, dashboard activo con alertas automáticas']
         },
         {
             dim: 4, text: '¿Cuánto tiempo invierte tu equipo en tareas repetitivas que podrían automatizarse?',
+            help: 'Trabajo manual y repetitivo (capturar lo mismo dos veces, llenar a mano) que un sistema podría hacer solo.',
             options: ['Más del 60% del tiempo', 'Entre 40-60% del tiempo', 'Entre 20-40% del tiempo', 'Entre 10-20% del tiempo', 'Menos del 10%, tenemos automatización activa']
         },
         {
@@ -806,7 +875,15 @@
                 <!-- Question number + text -->
                 <div class="mb-8">
                     <div class="text-xs text-slate-600 mb-2 font-mono">${String(currentQ + 1).padStart(2,'0')} / 20</div>
-                    <h2 class="text-xl md:text-2xl font-bold text-white leading-snug">${q.text}</h2>
+                    <h2 class="text-xl md:text-2xl font-bold text-white leading-snug">
+                        ${q.text}${q.help ? `<span class="help-tip" onclick="event.stopPropagation(); this.classList.toggle('active')">
+                            <span class="help-icon">?</span>
+                            <span class="help-bubble">${q.help}</span>
+                        </span>` : ''}
+                    </h2>
+                    <div class="scale-legend">${q.freq
+                        ? '1 = Nunca&nbsp;&nbsp;·&nbsp;&nbsp;3 = De vez en cuando&nbsp;&nbsp;·&nbsp;&nbsp;5 = De forma regular y constante'
+                        : '1 = No existe / nunca&nbsp;&nbsp;·&nbsp;&nbsp;3 = Existe pero informal&nbsp;&nbsp;·&nbsp;&nbsp;5 = Documentado y se mide'}</div>
                 </div>
 
                 <!-- Options -->
@@ -880,6 +957,11 @@
     function prevQuestion() {
         if (currentQ > 0) { currentQ--; renderQuestion(); }
     }
+
+    // Close any open help tooltip when tapping/clicking elsewhere
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.help-tip.active').forEach(t => t.classList.remove('active'));
+    });
 
     // ══════════════════════════════════════════
     // ANALYZING SCREEN
@@ -1226,6 +1308,22 @@
         const criticals  = dimKeys.filter(k => scores[k] < 60)
             .map(k => DIMENSIONS[dimKeys.indexOf(k)].label).join(', ') || 'Ninguna';
 
+        // Generar URL del reporte visual
+        const baseUrl = 'https://uriel634.github.io/radar-empresarial/reporte.html';
+        const reportParams = new URLSearchParams({
+            n:   name,
+            e:   company,
+            em:  email,
+            t:   phone,
+            r:   challengeLabels[challenge],
+            fin: scores.finanzas,
+            est: scores.estrategia,
+            ven: scores.ventas,
+            tal: scores.talento,
+            ops: scores.operaciones,
+        });
+        const reportUrl = `${baseUrl}?${reportParams.toString()}`;
+
         const waMsg =
 `🚨 *NUEVO LEAD — Radar VESTRA*
 
@@ -1234,7 +1332,8 @@
 ⚠️ Críticas: ${criticals}
 💬 Reto: ${challengeLabels[challenge]}
 
-📧 Revisa tu correo para el reporte completo.`;
+👁 *Ver reporte completo:*
+${reportUrl}`;
 
         return `https://wa.me/525520654337?text=${encodeURIComponent(waMsg)}`;
     }
