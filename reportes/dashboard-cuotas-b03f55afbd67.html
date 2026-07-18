@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard Cumplimiento de Cuota DL — Corte 25 Abr 2026</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root{
+  --navy:#0D1B3E; --blue:#1A3A6B; --accent:#2563EB; --green:#059669; --yellow:#D97706; --red:#DC2626;
+  --gray-bg:#F1F5F9; --gray-text:#64748B; --teal:#0F766E; --purple:#7C3AED; --border:#E2E8F0; --ink:#1E293B;
+}
+*{box-sizing:border-box;}
+body{ margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif; color:var(--ink); background:#F8FAFC; }
+.sr-only{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; }
+.wrap{ max-width:1260px; margin:0 auto; padding:22px 20px 60px; }
+.topbar{ display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:14px; margin-bottom:18px; }
+.topbar h1{ font-size:20px; margin:0 0 3px 0; color:var(--navy); font-weight:800; letter-spacing:-.01em; }
+.topbar .sub{ font-size:12.5px; color:var(--gray-text); }
+.kpis{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:16px; }
+.kpi{ background:#fff; border-radius:12px; padding:16px 18px; border:1px solid var(--border); display:flex; align-items:center; gap:14px; }
+.kpi .lbl{ font-size:11px; color:var(--gray-text); text-transform:uppercase; letter-spacing:.04em; font-weight:600; }
+.kpi .val{ font-size:24px; font-weight:800; color:var(--navy); margin-top:2px; line-height:1.1; }
+.insights{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:22px; }
+@media (max-width:900px){ .insights{ grid-template-columns:1fr 1fr; } }
+@media (max-width:600px){ .insights{ grid-template-columns:1fr; } }
+.insight-card{ background:#fff; border:1px solid var(--border); border-left:4px solid var(--accent); border-radius:10px; padding:11px 14px; }
+.insight-card .itag{ font-size:10px; text-transform:uppercase; letter-spacing:.05em; font-weight:800; color:var(--gray-text); margin-bottom:3px; }
+.insight-card .ititle{ font-size:13.5px; font-weight:800; color:var(--navy); line-height:1.3; }
+.insight-card .isub{ font-size:11.5px; color:var(--gray-text); margin-top:2px; }
+.tabs{ display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
+.tab-btn{ background:#fff; border:1px solid var(--border); color:var(--navy); font-size:13px; font-weight:700;
+  padding:9px 18px; border-radius:999px; cursor:pointer; transition:.15s ease; }
+.tab-btn:hover{ background:var(--gray-bg); }
+.tab-btn.active{ background:var(--navy); color:#fff; border-color:var(--navy); }
+.panel{ display:none; animation:fadein .2s ease; }
+.panel.active{ display:block; }
+@keyframes fadein{ from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);} }
+.pillrow{ display:flex; gap:6px; margin-bottom:12px; flex-wrap:wrap; align-items:center; }
+.pillrow .grp-label{ font-size:11px; color:var(--gray-text); text-transform:uppercase; letter-spacing:.04em; font-weight:700; margin-right:4px; }
+.pill{ background:#fff; border:1px solid var(--border); color:var(--gray-text); font-size:12px; font-weight:700;
+  padding:5px 12px; border-radius:8px; cursor:pointer; transition:.12s ease; }
+.pill:hover{ border-color:var(--accent); color:var(--accent); }
+.pill.active{ background:var(--accent); color:#fff; border-color:var(--accent); }
+.chip{ background:#fff; border:1.5px solid var(--border); color:var(--ink); font-size:11.5px; font-weight:600;
+  padding:5px 11px 5px 8px; border-radius:999px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition:.12s ease; }
+.chip .dot{ width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.chip.sel{ border-color:currentColor; background:#F8FAFC; box-shadow:inset 0 0 0 1px currentColor; }
+.chip:hover{ border-color:#94A3B8; }
+.search-box{ font-size:12.5px; padding:6px 10px; border-radius:8px; border:1px solid var(--border); width:220px; }
+.chip.disabled{ opacity:.4; cursor:not-allowed; }
+.comp-counter{ font-size:11.5px; color:var(--gray-text); margin-bottom:14px; }
+.comp-counter b{ color:var(--navy); }
+.comp-cards{ display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:12px; margin-bottom:18px; }
+.comp-card{ background:#fff; border:1px solid var(--border); border-top:3px solid var(--accent); border-radius:10px; padding:13px 14px; }
+.comp-card .cc-name{ font-size:12.5px; font-weight:800; color:var(--navy); display:flex; align-items:center; gap:6px; margin-bottom:2px; }
+.comp-card .cc-sub{ font-size:10.5px; color:var(--gray-text); margin-bottom:8px; }
+.comp-card .cc-val{ font-size:20px; font-weight:800; color:var(--navy); margin-bottom:6px; }
+.comp-card .cc-spark{ width:100%; }
+.comp-card .cc-spark svg{ width:100%; height:36px; display:block; }
+details.card{ padding:14px 18px; }
+details.card summary{ cursor:pointer; font-size:12.5px; font-weight:700; color:var(--accent); list-style:none; outline:none; }
+details.card summary::-webkit-details-marker{ display:none; }
+details.card summary:before{ content:"▸ "; }
+details.card[open] summary:before{ content:"▾ "; }
+.empty-hint{ font-size:12.5px; color:var(--gray-text); background:var(--gray-bg); border-radius:8px; padding:16px; text-align:center; }
+.inv-pct-table th{ font-size:9.5px; }
+.inv-pct-table .inv-pct-main{ font-weight:800; color:var(--navy); background:var(--gray-bg); }
+.inv-pct-table .inv-pct-cell{ font-variant-numeric:tabular-nums; }
+.inv-pct-table .inv-pct-total{ font-weight:800; color:var(--navy); }
+.inv-pct-table tr:hover td{ background:#F8FAFC; }
+.inv-pct-table .inv-pct-main, .inv-pct-table .inv-pct-total{ background:var(--gray-bg) !important; }
+.grid2{ display:grid; grid-template-columns:1.15fr 1fr; gap:16px; align-items:start; }
+@media (max-width:860px){ .grid2{ grid-template-columns:1fr; } .kpis{ grid-template-columns:1fr; } }
+.card{ background:#fff; border:1px solid var(--border); border-radius:12px; padding:16px 18px; margin-bottom:16px; }
+.card h3{ font-size:12.5px; margin:0 0 12px 0; color:var(--navy); text-transform:uppercase; letter-spacing:.04em; font-weight:800; }
+.card h3 .hint{ font-size:10.5px; text-transform:none; letter-spacing:0; color:var(--gray-text); font-weight:500; margin-left:8px; }
+table{ width:100%; border-collapse:collapse; font-size:12px; }
+th{ text-align:right; font-size:10px; color:var(--gray-text); text-transform:uppercase; padding:6px 5px; border-bottom:2px solid var(--border); font-weight:700; }
+th:first-child, td:first-child{ text-align:left; }
+td{ padding:6px 5px; border-bottom:1px solid var(--border); }
+tr:last-child td{ border-bottom:none; }
+tr.total-row td{ font-weight:800; background:var(--gray-bg); }
+.badge{ display:inline-block; padding:3px 9px; border-radius:999px; font-weight:800; font-size:11px; color:#fff; min-width:50px; text-align:center; }
+.dept-dot{ display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:6px; }
+.foot-note{ font-size:11px; color:var(--gray-text); margin-top:12px; font-style:italic; line-height:1.5; }
+.info-note{ font-size:12px; background:#EFF6FF; border:1px solid #BFDBFE; color:#1E40AF; border-radius:8px; padding:10px 12px; margin-bottom:14px; line-height:1.5; }
+.warn-note{ font-size:12px; background:#FFFBEB; border:1px solid #FDE68A; color:#92400E; border-radius:8px; padding:10px 12px; margin-bottom:14px; line-height:1.5; }
+.rank-item{ display:flex; align-items:center; gap:10px; padding:7px 2px; border-bottom:1px solid var(--border); font-size:12.5px; }
+.rank-item:last-child{ border-bottom:none; }
+.rank-item .rank-num{ width:20px; color:var(--gray-text); font-weight:700; font-size:11px; text-align:right; }
+.rank-item .name{ flex:1; min-width:0; font-weight:700; color:var(--navy); }
+.rank-item .dept-tag{ font-size:10.5px; color:var(--gray-text); font-weight:500; }
+.bar-bg{ width:110px; height:7px; background:var(--gray-bg); border-radius:4px; overflow:hidden; flex-shrink:0; }
+.bar-fg{ height:100%; border-radius:4px; transition:width .4s ease; }
+.chart-wrap{ width:100%; }
+.chart-wrap svg{ width:100%; height:auto; display:block; }
+.axis-label{ font-size:10px; fill:var(--gray-text); }
+.legend{ display:flex; gap:14px; font-size:11.5px; color:var(--gray-text); margin-top:8px; flex-wrap:wrap; }
+.legend span{ display:inline-flex; align-items:center; gap:5px; }
+.legend i{ width:10px; height:10px; border-radius:2px; display:inline-block; }
+.empty-msg{ color:var(--gray-text); font-size:12.5px; padding:20px 0; text-align:center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h2 class="sr-only">Dashboard interactivo de cumplimiento de cuota, ventas por departamento y vendedor, enero a abril 2026, corte 25 de abril</h2>
+  <div class="topbar">
+    <div>
+      <h1>Reporte de Ventas &amp; Cumplimiento de Cuota — DL</h1>
+      <div class="sub">Periodo: Ene-Abr 2026 &middot; Corte: 25 de abril &middot; Status: Surtido | Autorizado | Tomar Medidas</div>
+    </div>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi"><div><div class="lbl">% Cumplimiento global</div><div class="val" id="kpi-pct">—</div></div></div>
+    <div class="kpi"><div><div class="lbl">Venta acumulada</div><div class="val" id="kpi-venta">—</div></div></div>
+    <div class="kpi"><div><div class="lbl">Cuota acumulada</div><div class="val" id="kpi-cuota">—</div></div></div>
+  </div>
+
+  <div class="insights" id="insights-row"></div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="deptos">Departamentos</button>
+    <button class="tab-btn" data-tab="comparativo">Comparativo</button>
+    <button class="tab-btn" data-tab="tendencia">Tendencia mensual</button>
+    <button class="tab-btn" data-tab="vendedores">Vendedores</button>
+    <button class="tab-btn" data-tab="inventario">Inventario</button>
+    <button class="tab-btn" data-tab="cobranza">Por Cobrar</button>
+  </div>
+
+  <div class="panel active" id="panel-deptos">
+    <div class="pillrow"><span class="grp-label">Periodo</span><div id="pills-mes-depto"></div></div>
+    <div class="grid2">
+      <div class="card"><h3>Venta real vs cuota por departamento</h3><div class="chart-wrap" id="chart-depto"></div>
+        <div class="legend"><span><i style="background:var(--accent)"></i>Venta real</span><span><i style="background:#CBD5E1"></i>Cuota</span></div>
+      </div>
+      <div class="card"><h3>Detalle por departamento</h3><div id="tabla-depto"></div></div>
+    </div>
+    <div class="foot-note">Verde ≥100% &middot; Amarillo 80-99% &middot; Rojo &lt;80% &middot; Matriz dividido en ALFOMBRAS/LOSETAS según archivo de cuotas &middot; 'General 0007' excluido de cuotas.</div>
+  </div>
+
+  <div class="panel" id="panel-comparativo">
+    <div class="pillrow"><span class="grp-label">Comparar</span><div id="pills-dim-comp"></div>
+      <span class="grp-label" style="margin-left:14px;">Métrica</span><div id="pills-metric-comp"></div></div>
+    <div class="pillrow" id="row-search-comp" style="display:none;"><input class="search-box" id="search-comp" placeholder="Buscar vendedor..."></div>
+    <div class="pillrow" id="pills-items-comp"></div>
+    <div class="comp-counter" id="comp-counter"></div>
+
+    <div class="comp-cards" id="comp-cards"></div>
+
+    <details class="card comp-overlay-details">
+      <summary>Ver comparación superpuesta (todas las líneas en una sola gráfica)</summary>
+      <div style="margin-top:12px;">
+        <div class="chart-wrap" id="chart-comp"></div>
+        <div class="legend" id="legend-comp"></div>
+        <div class="foot-note">Pasa el cursor sobre un nombre de la leyenda para resaltar su línea.</div>
+      </div>
+    </details>
+
+    <details class="card comp-table-details">
+      <summary>Ver tabla con detalle mes a mes</summary>
+      <div id="tabla-comp" style="margin-top:12px;"></div>
+    </details>
+  </div>
+
+  <div class="panel" id="panel-tendencia">
+    <div class="pillrow"><span class="grp-label">Vista</span><div id="pills-tend-metric"></div></div>
+    <div class="info-note" id="tend-note"></div>
+    <div class="card"><h3>Tendencia mensual — total general</h3><div class="chart-wrap" id="chart-tendencia"></div>
+      <div class="legend" id="legend-tend"></div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-vendedores">
+    <div class="pillrow"><span class="grp-label">Departamento</span><div id="pills-dept-vend"></div></div>
+    <div class="pillrow"><span class="grp-label">Ordenar por</span><div id="pills-metric-vend"></div></div>
+    <div class="warn-note" id="vend-warn" style="display:none;">Las "unidades desplazadas" suman la columna de cantidad del ERP tal cual — mezcla m², piezas, rollos, litros, etc. Útil como referencia relativa de movimiento de inventario por vendedor, no como una medida física uniforme.</div>
+    <div class="grid2">
+      <div class="card"><h3>Ranking <span id="vend-rank-title">% cumplimiento acumulado</span></h3><div id="rank-list" style="max-height:440px; overflow:auto;"></div></div>
+      <div class="card"><h3>Top 12 vendedores</h3><div class="chart-wrap" id="chart-vend"></div></div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-inventario">
+    <div class="pillrow"><span class="grp-label">Agrupar por</span><div id="pills-group-inv"></div>
+      <span class="grp-label" style="margin-left:14px;">Periodo</span><div id="pills-mes-inv"></div></div>
+    <div class="card"><h3>Ventas por <span id="inv-group-title">categoría de producto</span> <span class="hint">% de mezcla departamental sobre el total de cada fila</span></h3>
+      <div id="chart-inv"></div>
+      <div class="legend" id="legend-inv"></div>
+    </div>
+    <div class="foot-note">Categoría = columna 'linea' &middot; Grupo Primario = columna 'gpo' del ERP (clasificación comercial PR1-PR9). Incluye 'General 0007' (no excluido en esta vista).</div>
+  </div>
+
+  <div class="panel" id="panel-cobranza">
+    <div class="pillrow"><span class="grp-label">Periodo</span><div id="pills-mes-cobranza"></div></div>
+    <div class="kpis" style="grid-template-columns:repeat(2,1fr);">
+      <div class="kpi"><div><div class="lbl">A/C MX (periodo)</div><div class="val" id="cob-kpi-ac">—</div></div></div>
+      <div class="kpi"><div><div class="lbl">Por cobrar (periodo)</div><div class="val" id="cob-kpi-cobrar">—</div></div></div>
+    </div>
+    <div class="grid2">
+      <div class="card"><h3>Por cobrar por departamento <span class="hint">saldo pendiente de cobro</span></h3><div class="chart-wrap" id="chart-cobranza"></div></div>
+      <div class="card"><h3>Detalle por departamento</h3><div id="tabla-cobranza"></div></div>
+    </div>
+    <div class="foot-note">A/C MX = anticipo/abono a cuenta ya cobrado &middot; POR COBRAR = saldo pendiente sobre el pedido &middot; Mismo universo de venta real (Surtido | Autorizado | Tomar Medidas) &middot; Matriz dividido en ALFOMBRAS/LOSETAS según archivo de cuotas.</div>
+  </div>
+</div>
+
+<script>
+const DATA = {"fechaCorte": "2026-04-25", "meses": ["ENE", "FEB", "MAR", "ABR"], "diasCorte": 25, "diasMes": 30, "mesCorte": "ABR", "resumen": {"total": {"months": {"ENE": {"venta": 16613604.11, "cuota": 22409554.33, "pct": 0.7413625396574128}, "FEB": {"venta": 12563926.34, "cuota": 17584779.62, "pct": 0.7144773266721234}, "MAR": {"venta": 24096296.54, "cuota": 26665281.0, "pct": 0.9036580766741271}, "ABR": {"venta": 9696891.18, "cuota": 20761913.84, "pct": 0.4670518936890341}}, "acum": {"venta": 62970718.16, "cuota": 87421528.8, "pct": 0.7203113355750742}}, "depts": [{"dept": "ALFOMBRAS", "months": {"ENE": {"venta": 6226789.96, "cuota": 5268489.17, "pct": 1.1818929039191517}, "FEB": {"venta": 4438653.6, "cuota": 5137653.65, "pct": 0.8639456656591767}, "MAR": {"venta": 6629200.28, "cuota": 7759520.62, "pct": 0.8543311642261264}, "ABR": {"venta": 3906619.96, "cuota": 4471155.14, "pct": 0.8737384055812337}}, "acum": {"venta": 21201263.81, "cuota": 22636818.57, "pct": 0.9365831925429763}}, {"dept": "LOSETAS", "months": {"ENE": {"venta": 4316529.85, "cuota": 3747289.1, "pct": 1.151907346997603}, "FEB": {"venta": 4373016.35, "cuota": 3647383.17, "pct": 1.198946243855476}, "MAR": {"venta": 4050643.5, "cuota": 4644892.66, "pct": 0.8720639633274655}, "ABR": {"venta": 2874718.33, "cuota": 3024357.38, "pct": 0.9505220359165341}}, "acum": {"venta": 15614908.03, "cuota": 15063922.3, "pct": 1.036576511281996}}, {"dept": "E COMERCE", "months": {"ENE": {"venta": 487534.65, "cuota": 1274899.9, "pct": 0.38241013937832485}, "FEB": {"venta": 793682.24, "cuota": 1212961.91, "pct": 0.6543340215866371}, "MAR": {"venta": 833338.06, "cuota": 1637447.47, "pct": 0.5089250655905162}, "ABR": {"venta": 655742.51, "cuota": 1383673.29, "pct": 0.4739142676845791}}, "acum": {"venta": 2770297.47, "cuota": 5508982.57, "pct": 0.5028691654966897}}, {"dept": "DISTRIBUIDORES", "months": {"ENE": {"venta": 1132758.1, "cuota": 2128275.64, "pct": 0.5322421947028476}, "FEB": {"venta": 1251126.03, "cuota": 1929418.07, "pct": 0.6484473447686526}, "MAR": {"venta": 5458665.31, "cuota": 2668014.22, "pct": 2.04596559661257}, "ABR": {"venta": 1066141.08, "cuota": 4325291.21, "pct": 0.2464900121264045}}, "acum": {"venta": 8908690.52, "cuota": 11050999.14, "pct": 0.8061434448006098}}, {"dept": "PROYECTOS", "months": {"ENE": {"venta": 1600600.95, "cuota": 7118740.26, "pct": 0.22484328634094045}, "FEB": {"venta": 1080727.91, "cuota": 3235482.22, "pct": 0.33402375325010053}, "MAR": {"venta": 2467819.25, "cuota": 6685969.25, "pct": 0.36910418812904805}, "ABR": {"venta": 714362.22, "cuota": 4380968.46, "pct": 0.16306034238379305}}, "acum": {"venta": 5863510.34, "cuota": 21421160.19, "pct": 0.27372515242305223}}, {"dept": "EURO FLOORS", "months": {"ENE": {"venta": 2849390.61, "cuota": 2871860.27, "pct": 0.9921759195829711}, "FEB": {"venta": 626720.2, "cuota": 2421880.61, "pct": 0.258774193407693}, "MAR": {"venta": 4656630.13, "cuota": 3269436.78, "pct": 1.4242912298786894}, "ABR": {"venta": 479307.07, "cuota": 3176468.36, "pct": 0.1508930711359624}}, "acum": {"venta": 8612048.01, "cuota": 11739646.02, "pct": 0.733586684832703}}]}, "vendedores": [{"vendedor": "JORGE BERNAL", "dept": "ALFOMBRAS", "months": {"ENE": {"venta": 702553.76, "cuota": 1019919.92, "pct": 0.6888322727097319}, "FEB": {"venta": 753584.88, "cuota": 970369.53, "pct": 0.7765957837359925}, "MAR": {"venta": 1669008.28, "cuota": 1579233.58, "pct": 1.0568470044888152}, "ABR": {"venta": 605212.73, "cuota": 790670.45, "pct": 0.7654424510162997}}, "acum": {"venta": 3730359.64, "cuota": 4360193.48, "pct": 0.8555491092668025}, "unidades_acum": 25968.21}, {"vendedor": "MARCOS BORENSTEIN", "dept": "ALFOMBRAS", "months": {"ENE": {"venta": 0.0, "cuota": 1699.87, "pct": 0.0}, "FEB": {"venta": 0.0, "cuota": 1617.28, "pct": 0.0}, "MAR": {"venta": 0.0, "cuota": 2183.26, "pct": 0.0}, "ABR": {"venta": 0.0, "cuota": 1317.78, "pct": 0.0}}, "acum": {"venta": 0.0, "cuota": 6818.2, "pct": 0.0}, "unidades_acum": 0.0}, {"vendedor": "MARY TORRES", "dept": "ALFOMBRAS", "months": {"ENE": {"venta": 3934915.1, "cuota": 3139868.44, "pct": 1.2532101814420484}, "FEB": {"venta": 2483491.83, "cuota": 3177507.21, "pct": 0.7815849544160408}, "MAR": {"venta": 3890768.32, "cuota": 4844129.9, "pct": 0.8031923994083653}, "ABR": {"venta": 2410589.26, "cuota": 2372011.35, "pct": 1.0162637960326468}}, "acum": {"venta": 12719764.51, "cuota": 13533516.9, "pct": 0.9398713280715469}, "unidades_acum": 100959.6}, {"vendedor": "MOISES ROMANO", "dept": "ALFOMBRAS", "months": {"ENE": {"venta": 0.0, "cuota": 1699.87, "pct": 0.0}, "FEB": {"venta": 0.0, "cuota": 1617.28, "pct": 0.0}, "MAR": {"venta": 0.0, "cuota": 2183.26, "pct": 0.0}, "ABR": {"venta": 0.0, "cuota": 1317.78, "pct": 0.0}}, "acum": {"venta": 0.0, "cuota": 6818.2, "pct": 0.0}, "unidades_acum": 47042.0}, {"vendedor": "VICTOR DIAZ", "dept": "ALFOMBRAS", "months": {"ENE": {"venta": 1589321.1, "cuota": 1105301.07, "pct": 1.437907864954535}, "FEB": {"venta": 1201576.89, "cuota": 986542.35, "pct": 1.2179678779176248}, "MAR": {"venta": 1069423.69, "cuota": 1331790.61, "pct": 0.8029968663046932}, "ABR": {"venta": 890817.97, "cuota": 1305837.77, "pct": 0.6821811987065737}}, "acum": {"venta": 4751139.66, "cuota": 4729471.8, "pct": 1.0045814539656432}, "unidades_acum": 32114.44}, {"vendedor": "ANGEL MORALES", "dept": "LOSETAS", "months": {"ENE": {"venta": 1222629.95, "cuota": 1189906.57, "pct": 1.0275007987445905}, "FEB": {"venta": 1755499.28, "cuota": 1199039.62, "pct": 1.4640878058653328}, "MAR": {"venta": 1146026.25, "cuota": 1528284.3, "pct": 0.7498776516732054}, "ABR": {"venta": 887210.2, "cuota": 1064207.71, "pct": 0.8336814236465625}}, "acum": {"venta": 5011365.68, "cuota": 4981438.21, "pct": 1.0060077981549986}, "unidades_acum": 64869.24}, {"vendedor": "BRENDA RIOS", "dept": "LOSETAS", "months": {"ENE": {"venta": 956523.56, "cuota": 900929.26, "pct": 1.0617077328264488}, "FEB": {"venta": 1122585.51, "cuota": 925919.61, "pct": 1.2124006161900576}, "MAR": {"venta": 1090847.59, "cuota": 1157129.55, "pct": 0.942718635634277}, "ABR": {"venta": 633004.73, "cuota": 698425.56, "pct": 0.9063309804972558}}, "acum": {"venta": 3802961.39, "cuota": 3682403.99, "pct": 1.032738776719059}, "unidades_acum": 30285.69}, {"vendedor": "MARY MARTINEZ", "dept": "LOSETAS", "months": {"ENE": {"venta": 1008343.75, "cuota": 812064.91, "pct": 1.241703385798599}, "FEB": {"venta": 737561.15, "cuota": 695431.49, "pct": 1.0605806031313045}, "MAR": {"venta": 979880.08, "cuota": 938803.22, "pct": 1.0437545026254185}, "ABR": {"venta": 538190.12, "cuota": 645660.04, "pct": 0.8335502961916693}}, "acum": {"venta": 3263975.1, "cuota": 3091959.66, "pct": 1.055633145601486}, "unidades_acum": 24217.86}, {"vendedor": "VIRIDIANA PUEBLA", "dept": "LOSETAS", "months": {"ENE": {"venta": 1129032.58, "cuota": 844388.36, "pct": 1.3371010768956537}, "FEB": {"venta": 757370.4, "cuota": 826992.44, "pct": 0.9158129673532753}, "MAR": {"venta": 833889.58, "cuota": 1020675.59, "pct": 0.8169976744231925}, "ABR": {"venta": 816313.29, "cuota": 616064.06, "pct": 1.3250461110048501}}, "acum": {"venta": 3536605.85, "cuota": 3308120.45, "pct": 1.0690680428495367}, "unidades_acum": 30656.19}, {"vendedor": "ALEXANDRA VARGAS", "dept": "E COMERCE", "months": {"ENE": {"venta": 253701.25, "cuota": 637449.95, "pct": 0.39799398404105935}, "FEB": {"venta": 422161.67, "cuota": 606480.95, "pct": 0.6960839622051008}, "MAR": {"venta": 355768.29, "cuota": 818723.73, "pct": 0.43454009320445447}, "ABR": {"venta": 369341.74, "cuota": 494169.03, "pct": 0.7473996029619254}}, "acum": {"venta": 1400972.94, "cuota": 2556823.67, "pct": 0.5479349056836572}, "unidades_acum": 13498.04}, {"vendedor": "CARLOS GARCIA", "dept": "E COMERCE", "months": {"ENE": {"venta": 124578.3, "cuota": 637449.95, "pct": 0.19543229145032132}, "FEB": {"venta": 6505.34, "cuota": 606480.95, "pct": 0.01072636817551431}, "MAR": {"venta": 824.76, "cuota": 818723.73, "pct": 0.0010073727742459886}, "ABR": {"venta": 0.0, "cuota": 494169.03, "pct": 0.0}}, "acum": {"venta": 131908.4, "cuota": 2556823.67, "pct": 0.05159073109124615}, "unidades_acum": 1065.38}, {"vendedor": "DANIELA", "dept": "E COMERCE", "months": {"ENE": {"venta": 109255.1, "cuota": 0.0, "pct": null}, "FEB": {"venta": 365015.24, "cuota": 0.0, "pct": null}, "MAR": {"venta": 476745.01, "cuota": 0.0, "pct": null}, "ABR": {"venta": 286400.78, "cuota": 197667.61, "pct": 1.4489008663872402}}, "acum": {"venta": 1237416.13, "cuota": 197667.61, "pct": 6.260085351970454}, "unidades_acum": 12388.88}, {"vendedor": "JOSE ROMANO", "dept": "E COMERCE", "months": {"ENE": {"venta": 0.0, "cuota": 0.0, "pct": null}, "FEB": {"venta": 0.0, "cuota": 0.0, "pct": null}, "MAR": {"venta": 0.0, "cuota": 0.0, "pct": null}, "ABR": {"venta": 0.0, "cuota": 197667.61, "pct": 0.0}}, "acum": {"venta": 0.0, "cuota": 197667.61, "pct": 0.0}, "unidades_acum": 0.0}, {"vendedor": "MAURICIO CAMACHO", "dept": "DISTRIBUIDORES", "months": {"ENE": {"venta": 300.0, "cuota": 424966.63, "pct": 0.0007059358935527048}, "FEB": {"venta": 3124.53, "cuota": 404320.64, "pct": 0.007727850927551909}, "MAR": {"venta": 2086.86, "cuota": 545815.82, "pct": 0.0038233834774768316}, "ABR": {"venta": 0.0, "cuota": 329446.02, "pct": 0.0}}, "acum": {"venta": 5511.39, "cuota": 1704549.11, "pct": 0.003233343033162746}, "unidades_acum": 32.41}, {"vendedor": "ROXANA ROSAS", "dept": "DISTRIBUIDORES", "months": {"ENE": {"venta": 609753.14, "cuota": 603452.62, "pct": 1.01044079042888}, "FEB": {"venta": 559897.55, "cuota": 574135.3, "pct": 0.9752013941751773}, "MAR": {"venta": 4713794.73, "cuota": 838439.58, "pct": 5.622104231056049}, "ABR": {"venta": 175421.1, "cuota": 3169215.65, "pct": 0.055351583388544394}}, "acum": {"venta": 6058866.53, "cuota": 5185243.16, "pct": 1.1684826231183363}, "unidades_acum": 19384.59}, {"vendedor": "TELEVISA VALERIA", "dept": "DISTRIBUIDORES", "months": {"ENE": {"venta": 24516.02, "cuota": 297476.64, "pct": 0.08241326017372229}, "FEB": {"venta": 69499.78, "cuota": 283024.45, "pct": 0.24556103623509096}, "MAR": {"venta": 58196.78, "cuota": 382071.08, "pct": 0.15231925687077313}, "ABR": {"venta": 320731.73, "cuota": 230612.21, "pct": 1.390783786385379}}, "acum": {"venta": 472944.31, "cuota": 1193184.38, "pct": 0.39637152129688535}, "unidades_acum": 2055.0}, {"vendedor": "VALERIA GARCIA", "dept": "DISTRIBUIDORES", "months": {"ENE": {"venta": 498188.94, "cuota": 802379.74, "pct": 0.6208892244151221}, "FEB": {"venta": 618604.17, "cuota": 667937.69, "pct": 0.9261405406871327}, "MAR": {"venta": 684586.93, "cuota": 901687.74, "pct": 0.7592283933139513}, "ABR": {"venta": 569988.25, "cuota": 596017.32, "pct": 0.9563283288426763}}, "acum": {"venta": 2371368.29, "cuota": 2968022.49, "pct": 0.798972480005598}, "unidades_acum": 22119.69}, {"vendedor": "LAURA EUSTAQUIO", "dept": "PROYECTOS", "months": {"ENE": {"venta": 1377714.38, "cuota": 5737598.7, "pct": 0.24012038069210637}, "FEB": {"venta": 25331.7, "cuota": 1921440.15, "pct": 0.013183703478399814}, "MAR": {"venta": 0.0, "cuota": 4912067.83, "pct": 0.0}, "ABR": {"venta": 36520.12, "cuota": 3297700.67, "pct": 0.01107441859906336}}, "acum": {"venta": 1439566.2, "cuota": 15868807.34, "pct": 0.09071672289949835}, "unidades_acum": 17043.04}, {"vendedor": "NESSIM ROMANO", "dept": "PROYECTOS", "months": {"ENE": {"venta": 201823.22, "cuota": 297476.64, "pct": 0.6784506452681287}, "FEB": {"venta": 954812.08, "cuota": 283024.45, "pct": 3.37360288019791}, "MAR": {"venta": 1311012.32, "cuota": 382071.08, "pct": 3.431330975135651}, "ABR": {"venta": 677842.1, "cuota": 473792.66, "pct": 1.4306724474266495}}, "acum": {"venta": 3145489.72, "cuota": 1436364.82, "pct": 2.1898961010070037}, "unidades_acum": 4628.16}, {"vendedor": "PAULA PANDO", "dept": "PROYECTOS", "months": {"ENE": {"venta": 0.0, "cuota": 297476.64, "pct": 0.0}, "FEB": {"venta": 0.0, "cuota": 283024.45, "pct": 0.0}, "MAR": {"venta": 0.0, "cuota": 382071.08, "pct": 0.0}, "ABR": {"venta": 0.0, "cuota": 0.0, "pct": null}}, "acum": {"venta": 0.0, "cuota": 962572.16, "pct": 0.0}, "unidades_acum": 0.0}, {"vendedor": "PROYECTOS  ROXANA ", "dept": "PROYECTOS", "months": {"ENE": {"venta": 0.0, "cuota": 786188.27, "pct": 0.0}, "FEB": {"venta": 0.0, "cuota": 747993.18, "pct": 0.0}, "MAR": {"venta": 0.0, "cuota": 1009759.27, "pct": 0.0}, "ABR": {"venta": 0.0, "cuota": 609475.14, "pct": 0.0}}, "acum": {"venta": 0.0, "cuota": 3153415.86, "pct": 0.0}, "unidades_acum": 0.0}, {"vendedor": "JOSE RK", "dept": "PROYECTOS", "months": {"ENE": {"venta": 0.0, "cuota": 0.0, "pct": null}, "FEB": {"venta": 0.0, "cuota": 0.0, "pct": null}, "MAR": {"venta": 989027.99, "cuota": 0.0, "pct": null}, "ABR": {"venta": 0.0, "cuota": 0.0, "pct": null}}, "acum": {"venta": 989027.99, "cuota": 0.0, "pct": null}, "unidades_acum": 1339.2}, {"vendedor": "JOSE ROMANO", "dept": "PROYECTOS", "months": {"ENE": {"venta": 21063.35, "cuota": 0.0, "pct": null}, "FEB": {"venta": 100584.13, "cuota": 0.0, "pct": null}, "MAR": {"venta": 167778.94, "cuota": 0.0, "pct": null}, "ABR": {"venta": 0.0, "cuota": 0.0, "pct": null}}, "acum": {"venta": 289426.43, "cuota": 0.0, "pct": null}, "unidades_acum": 1252.73}, {"vendedor": "GABRIELA LOPEZ", "dept": "EURO FLOORS", "months": {"ENE": {"venta": 147381.97, "cuota": 637449.95, "pct": 0.23120556212428015}, "FEB": {"venta": 1792.29, "cuota": 606480.95, "pct": 0.0029552334484577794}, "MAR": {"venta": 0.0, "cuota": 818723.73, "pct": 0.0}, "ABR": {"venta": 0.0, "cuota": 494169.03, "pct": 0.0}}, "acum": {"venta": 149174.27, "cuota": 2556823.67, "pct": 0.05834358800643475}, "unidades_acum": 139.94}, {"vendedor": "JORGE ALVA", "dept": "EURO FLOORS", "months": {"ENE": {"venta": 2140797.56, "cuota": 947675.59, "pct": 2.2589983042183768}, "FEB": {"venta": 82689.15, "cuota": 901635.02, "pct": 0.09171022461961229}, "MAR": {"venta": 521753.11, "cuota": 1217169.29, "pct": 0.42866108490946886}, "ABR": {"venta": 2729.98, "cuota": 1740083.71, "pct": 0.0015688778551512306}}, "acum": {"venta": 2747969.79, "cuota": 4806563.61, "pct": 0.5717119372853422}, "unidades_acum": 3368.93}, {"vendedor": "JOSE RK", "dept": "EURO FLOORS", "months": {"ENE": {"venta": 3766.61, "cuota": 0.0, "pct": null}, "FEB": {"venta": 39106.88, "cuota": 0.0, "pct": null}, "MAR": {"venta": 2672015.24, "cuota": 0.0, "pct": null}, "ABR": {"venta": 0.0, "cuota": 197667.61, "pct": 0.0}}, "acum": {"venta": 2714888.73, "cuota": 197667.61, "pct": 13.734615885945747}, "unidades_acum": 2219.75}, {"vendedor": "VALERIA INZUNZA", "dept": "EURO FLOORS", "months": {"ENE": {"venta": 557444.46, "cuota": 1286734.73, "pct": 0.4332240758960225}, "FEB": {"venta": 503131.88, "cuota": 913764.64, "pct": 0.5506142993957072}, "MAR": {"venta": 1462861.79, "cuota": 1233543.76, "pct": 1.1859018195719813}, "ABR": {"venta": 476577.09, "cuota": 744548.01, "pct": 0.6400891318577923}}, "acum": {"venta": 3000015.22, "cuota": 4178591.14, "pct": 0.7179489737975533}, "unidades_acum": 2891.38}], "inventario": {"depts": ["Distribuidores (Mayoreo)", "E-Commerce", "General se cambiara al 0007", "Matriz", "Proyectos", "Sucursal Interlomas"], "cats": [{"months": {"ENE": {"Distribuidores (Mayoreo)": 24406.54, "E-Commerce": 0.0, "General se cambiara al 0007": 0.0, "Matriz": 194932.05, "Proyectos": 72590.79, "Sucursal Interlomas": 2720209.03, "TOTAL": 3012138.41}, "FEB": {"Distribuidores (Mayoreo)": 157927.48, "E-Commerce": 968.74, "General se cambiara al 0007": 0.0, "Matriz": 260332.83, "Proyectos": 982428.99, "Sucursal Interlomas": 437595.42, "TOTAL": 1839253.46}, "MAR": {"Distribuidores (Mayoreo)": 3576006.13, "E-Commerce": 0.0, "General se cambiara al 0007": 0.0, "Matriz": 326617.72, "Proyectos": 2262682.86, "Sucursal Interlomas": 4016261.22, "TOTAL": 10181567.94}, "ABR": {"Distribuidores (Mayoreo)": 25282.69, "E-Commerce": 0.0, "General se cambiara al 0007": 0.0, "Matriz": 209012.91, "Proyectos": 537987.25, "Sucursal Interlomas": 464682.04, "TOTAL": 1236964.89}}, "acum": {"Distribuidores (Mayoreo)": 3783622.84, "E-Commerce": 968.74, "General se cambiara al 0007": 0.0, "Matriz": 990895.5, "Proyectos": 3855689.89, "Sucursal Interlomas": 7638747.72, "TOTAL": 16269924.7}, "categoria": "PORCELANATO"}, {"months": {"ENE": {"Distribuidores (Mayoreo)": 240365.25, "E-Commerce": 184829.49, "General se cambiara al 0007": 0.0, "Matriz": 2223647.78, "Proyectos": 235781.44, "Sucursal Interlomas": 0.0, "TOTAL": 2884623.96}, "FEB": {"Distribuidores (Mayoreo)": 256813.47, "E-Commerce": 221531.48, "General se cambiara al 0007": 0.0, "Matriz": 2725507.87, "Proyectos": 47126.84, "Sucursal Interlomas": 0.0, "TOTAL": 3250979.66}, "MAR": {"Distribuidores (Mayoreo)": 465560.2, "E-Commerce": 273425.36, "General se cambiara al 0007": 0.0, "Matriz": 2228620.5, "Proyectos": 142791.65, "Sucursal Interlomas": 32665.4, "TOTAL": 3143063.12}, "ABR": {"Distribuidores (Mayoreo)": 245937.64, "E-Commerce": 198730.85, "General se cambiara al 0007": 3492.82, "Matriz": 1538432.52, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 1986593.83}}, "acum": {"Distribuidores (Mayoreo)": 1208676.56, "E-Commerce": 878517.18, "General se cambiara al 0007": 3492.82, "Matriz": 8716208.67, "Proyectos": 425699.93, "Sucursal Interlomas": 32665.4, "TOTAL": 11265260.56}, "categoria": "PISO VINILICO"}, {"months": {"ENE": {"Distribuidores (Mayoreo)": 70204.57, "E-Commerce": 116688.02, "General se cambiara al 0007": 0.0, "Matriz": 3028552.72, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 3215445.31}, "FEB": {"Distribuidores (Mayoreo)": 197590.93, "E-Commerce": 144850.84, "General se cambiara al 0007": 0.0, "Matriz": 2310952.6, "Proyectos": 0.0, "Sucursal Interlomas": 41953.48, "TOTAL": 2695347.85}, "MAR": {"Distribuidores (Mayoreo)": 137926.03, "E-Commerce": 105678.1, "General se cambiara al 0007": 0.0, "Matriz": 2253146.07, "Proyectos": 0.0, "Sucursal Interlomas": 3807.78, "TOTAL": 2500557.98}, "ABR": {"Distribuidores (Mayoreo)": 127393.22, "E-Commerce": 171632.82, "General se cambiara al 0007": 0.0, "Matriz": 1734812.69, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 2033838.73}}, "acum": {"Distribuidores (Mayoreo)": 533114.75, "E-Commerce": 538849.78, "General se cambiara al 0007": 0.0, "Matriz": 9327464.08, "Proyectos": 0.0, "Sucursal Interlomas": 45761.26, "TOTAL": 10445189.86}, "categoria": "MURO INTERIOR"}, {"months": {"ENE": {"Distribuidores (Mayoreo)": 239551.29, "E-Commerce": 29793.27, "General se cambiara al 0007": 0.0, "Matriz": 2720426.19, "Proyectos": 11645.82, "Sucursal Interlomas": 0.0, "TOTAL": 3001416.56}, "FEB": {"Distribuidores (Mayoreo)": 305291.14, "E-Commerce": 252798.51, "General se cambiara al 0007": 0.0, "Matriz": 1014311.69, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 1572401.34}, "MAR": {"Distribuidores (Mayoreo)": 314564.38, "E-Commerce": 157942.31, "General se cambiara al 0007": 0.0, "Matriz": 2263251.81, "Proyectos": 0.0, "Sucursal Interlomas": 2009.98, "TOTAL": 2737768.48}, "ABR": {"Distribuidores (Mayoreo)": 339043.47, "E-Commerce": 104596.83, "General se cambiara al 0007": 0.0, "Matriz": 1493511.28, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 1937151.57}}, "acum": {"Distribuidores (Mayoreo)": 1198450.28, "E-Commerce": 545130.91, "General se cambiara al 0007": 0.0, "Matriz": 7491500.97, "Proyectos": 11645.82, "Sucursal Interlomas": 2009.98, "TOTAL": 9248737.95}, "categoria": "ALFOMBRA"}, {"months": {"ENE": {"Distribuidores (Mayoreo)": 0.0, "E-Commerce": 0.0, "General se cambiara al 0007": 0.0, "Matriz": 393264.13, "Proyectos": 1050514.02, "Sucursal Interlomas": 103054.9, "TOTAL": 1546833.05}, "FEB": {"Distribuidores (Mayoreo)": 0.0, "E-Commerce": 0.0, "General se cambiara al 0007": 0.0, "Matriz": 339316.82, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 339316.82}, "MAR": {"Distribuidores (Mayoreo)": 0.0, "E-Commerce": 0.0, "General se cambiara al 0007": 0.0, "Matriz": 1097037.06, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 1097037.06}, "ABR": {"Distribuidores (Mayoreo)": 0.0, "E-Commerce": 0.0, "General se cambiara al 0007": 0.0, "Matriz": 121776.52, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 121776.52}}, "acum": {"Distribuidores (Mayoreo)": 0.0, "E-Commerce": 0.0, "General se cambiara al 0007": 0.0, "Matriz": 1951394.53, "Proyectos": 1050514.02, "Sucursal Interlomas": 103054.9, "TOTAL": 3104963.45}, "categoria": "MADERA"}, {"months": {"ENE": {"Distribuidores (Mayoreo)": 34303.1, "E-Commerce": 48702.57, "General se cambiara al 0007": 0.0, "Matriz": 402512.34, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 485518.01}, "FEB": {"Distribuidores (Mayoreo)": 48291.99, "E-Commerce": 16926.02, "General se cambiara al 0007": 0.0, "Matriz": 318670.58, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 383888.6}, "MAR": {"Distribuidores (Mayoreo)": 164658.6, "E-Commerce": 97475.38, "General se cambiara al 0007": 0.0, "Matriz": 638078.24, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 900212.22}, "ABR": {"Distribuidores (Mayoreo)": 230471.03, "E-Commerce": 129139.82, "General se cambiara al 0007": 0.0, "Matriz": 368077.91, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 727688.75}}, "acum": {"Distribuidores (Mayoreo)": 477724.73, "E-Commerce": 292243.79, "General se cambiara al 0007": 0.0, "Matriz": 1727339.08, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 2497307.59}, "categoria": "PASTOS"}, {"months": {"ENE": {"Distribuidores (Mayoreo)": 18788.13, "E-Commerce": 26177.73, "General se cambiara al 0007": 0.0, "Matriz": 442973.0, "Proyectos": 51086.0, "Sucursal Interlomas": 17464.82, "TOTAL": 556489.69}, "FEB": {"Distribuidores (Mayoreo)": 28386.96, "E-Commerce": 44527.99, "General se cambiara al 0007": 0.0, "Matriz": 465846.63, "Proyectos": 25353.75, "Sucursal Interlomas": 98210.63, "TOTAL": 662325.97}, "MAR": {"Distribuidores (Mayoreo)": 49868.78, "E-Commerce": 25272.72, "General se cambiara al 0007": 0.0, "Matriz": 396386.13, "Proyectos": 8199.08, "Sucursal Interlomas": 40630.08, "TOTAL": 520356.79}, "ABR": {"Distribuidores (Mayoreo)": 3927.92, "E-Commerce": 18376.45, "General se cambiara al 0007": 0.0, "Matriz": 271260.49, "Proyectos": 0.0, "Sucursal Interlomas": 11870.02, "TOTAL": 305434.89}}, "acum": {"Distribuidores (Mayoreo)": 100971.79, "E-Commerce": 114354.9, "General se cambiara al 0007": 0.0, "Matriz": 1576466.25, "Proyectos": 84638.83, "Sucursal Interlomas": 168175.56, "TOTAL": 2044607.33}, "categoria": "ADHESIVO"}, {"months": {"ENE": {"Distribuidores (Mayoreo)": 484529.37, "E-Commerce": 0.0, "General se cambiara al 0007": 0.0, "Matriz": 40715.64, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 525245.01}, "FEB": {"Distribuidores (Mayoreo)": 34171.35, "E-Commerce": 0.0, "General se cambiara al 0007": 0.0, "Matriz": 31523.88, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 65695.23}, "MAR": {"Distribuidores (Mayoreo)": 668790.49, "E-Commerce": 305.95, "General se cambiara al 0007": 0.0, "Matriz": 22284.64, "Proyectos": 37357.45, "Sucursal Interlomas": 128161.11, "TOTAL": 856899.64}, "ABR": {"Distribuidores (Mayoreo)": 17773.21, "E-Commerce": 0.0, "General se cambiara al 0007": 0.0, "Matriz": 32507.46, "Proyectos": 176374.97, "Sucursal Interlomas": 0.0, "TOTAL": 226655.63}}, "acum": {"Distribuidores (Mayoreo)": 1205264.42, "E-Commerce": 305.95, "General se cambiara al 0007": 0.0, "Matriz": 127031.62, "Proyectos": 213732.41, "Sucursal Interlomas": 128161.11, "TOTAL": 1674495.51}, "categoria": "CERAMICA"}, {"months": {"ENE": {"Distribuidores (Mayoreo)": 0.0, "E-Commerce": 11109.16, "General se cambiara al 0007": 0.0, "Matriz": 301873.1, "Proyectos": 51999.11, "Sucursal Interlomas": 1926.15, "TOTAL": 366907.51}, "FEB": {"Distribuidores (Mayoreo)": 11049.87, "E-Commerce": 68380.54, "General se cambiara al 0007": 0.0, "Matriz": 269727.56, "Proyectos": 21916.25, "Sucursal Interlomas": 21329.08, "TOTAL": 392403.3}, "MAR": {"Distribuidores (Mayoreo)": 16283.12, "E-Commerce": 69941.2, "General se cambiara al 0007": 0.0, "Matriz": 286564.09, "Proyectos": 16788.22, "Sucursal Interlomas": 17618.72, "TOTAL": 407195.35}, "ABR": {"Distribuidores (Mayoreo)": 40557.97, "E-Commerce": 6867.75, "General se cambiara al 0007": 3097.21, "Matriz": 179375.73, "Proyectos": 0.0, "Sucursal Interlomas": 2755.0, "TOTAL": 232653.66}}, "acum": {"Distribuidores (Mayoreo)": 67890.96, "E-Commerce": 156298.64, "General se cambiara al 0007": 3097.21, "Matriz": 1037540.48, "Proyectos": 90703.57, "Sucursal Interlomas": 43628.95, "TOTAL": 1399159.82}, "categoria": "COLOCACION"}, {"months": {"ENE": {"Distribuidores (Mayoreo)": 0.0, "E-Commerce": 32088.34, "General se cambiara al 0007": 0.0, "Matriz": 301630.45, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 333718.79}, "FEB": {"Distribuidores (Mayoreo)": 0.0, "E-Commerce": 0.0, "General se cambiara al 0007": 0.0, "Matriz": 337943.96, "Proyectos": 0.0, "Sucursal Interlomas": 14338.44, "TOTAL": 352282.4}, "MAR": {"Distribuidores (Mayoreo)": 0.0, "E-Commerce": 1324.06, "General se cambiara al 0007": 0.0, "Matriz": 271407.1, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 272731.16}, "ABR": {"Distribuidores (Mayoreo)": 5878.67, "E-Commerce": 1858.98, "General se cambiara al 0007": 0.0, "Matriz": 197394.97, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 205132.63}}, "acum": {"Distribuidores (Mayoreo)": 5878.67, "E-Commerce": 35271.38, "General se cambiara al 0007": 0.0, "Matriz": 1108376.49, "Proyectos": 0.0, "Sucursal Interlomas": 14338.44, "TOTAL": 1163864.97}, "categoria": "FOLLAJE"}, {"months": {"ENE": {"Distribuidores (Mayoreo)": 2419.63, "E-Commerce": 1344.28, "General se cambiara al 0007": 0.0, "Matriz": 239037.12, "Proyectos": 11174.28, "Sucursal Interlomas": 0.0, "TOTAL": 253975.31}, "FEB": {"Distribuidores (Mayoreo)": 4234.35, "E-Commerce": 20810.01, "General se cambiara al 0007": 0.0, "Matriz": 205677.37, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 230721.73}, "MAR": {"Distribuidores (Mayoreo)": 21130.78, "E-Commerce": 50112.0, "General se cambiara al 0007": 0.0, "Matriz": 322070.84, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 393313.63}, "ABR": {"Distribuidores (Mayoreo)": 18029.49, "E-Commerce": 0.0, "General se cambiara al 0007": 0.0, "Matriz": 261860.85, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 279890.33}}, "acum": {"Distribuidores (Mayoreo)": 45814.25, "E-Commerce": 72266.28, "General se cambiara al 0007": 0.0, "Matriz": 1028646.18, "Proyectos": 11174.28, "Sucursal Interlomas": 0.0, "TOTAL": 1157900.99}, "categoria": "LAMINADO"}, {"months": {"ENE": {"Distribuidores (Mayoreo)": 0.0, "E-Commerce": 0.0, "General se cambiara al 0007": 0.0, "Matriz": 0.0, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 0.0}, "FEB": {"Distribuidores (Mayoreo)": 887.99, "E-Commerce": 0.0, "General se cambiara al 0007": 0.0, "Matriz": 266605.44, "Proyectos": 0.0, "Sucursal Interlomas": 7450.51, "TOTAL": 274943.94}, "MAR": {"Distribuidores (Mayoreo)": 36309.86, "E-Commerce": 28861.14, "General se cambiara al 0007": 0.0, "Matriz": 203425.37, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 268596.36}, "ABR": {"Distribuidores (Mayoreo)": 2567.71, "E-Commerce": 19818.73, "General se cambiara al 0007": 0.0, "Matriz": 142091.09, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 164477.53}}, "acum": {"Distribuidores (Mayoreo)": 39765.55, "E-Commerce": 48679.86, "General se cambiara al 0007": 0.0, "Matriz": 612121.91, "Proyectos": 0.0, "Sucursal Interlomas": 7450.51, "TOTAL": 708017.83}, "categoria": "MURO EXTERIOR"}, {"months": {"ENE": {"Distribuidores (Mayoreo)": 12316.57, "E-Commerce": 35201.33, "General se cambiara al 0007": 0.0, "Matriz": 139650.27, "Proyectos": 2993.28, "Sucursal Interlomas": 738.5, "TOTAL": 190899.94}, "FEB": {"Distribuidores (Mayoreo)": 12195.09, "E-Commerce": 12869.77, "General se cambiara al 0007": 0.0, "Matriz": 127533.08, "Proyectos": 3902.08, "Sucursal Interlomas": 0.0, "TOTAL": 156500.02}, "MAR": {"Distribuidores (Mayoreo)": 4184.93, "E-Commerce": 19027.43, "General se cambiara al 0007": 0.0, "Matriz": 150958.19, "Proyectos": 0.0, "Sucursal Interlomas": 184.65, "TOTAL": 174355.2}, "ABR": {"Distribuidores (Mayoreo)": 7400.9, "E-Commerce": 2679.41, "General se cambiara al 0007": 0.0, "Matriz": 139604.21, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 149684.53}}, "acum": {"Distribuidores (Mayoreo)": 36097.49, "E-Commerce": 69777.94, "General se cambiara al 0007": 0.0, "Matriz": 557745.75, "Proyectos": 6895.35, "Sucursal Interlomas": 923.15, "TOTAL": 671439.69}, "categoria": "MOLDURAS"}, {"months": {"ENE": {"Distribuidores (Mayoreo)": 0.0, "E-Commerce": 0.0, "General se cambiara al 0007": 0.0, "Matriz": 66706.52, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 66706.52}, "FEB": {"Distribuidores (Mayoreo)": 148274.97, "E-Commerce": 0.0, "General se cambiara al 0007": 0.0, "Matriz": 79733.95, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 228008.92}, "MAR": {"Distribuidores (Mayoreo)": 0.0, "E-Commerce": 0.0, "General se cambiara al 0007": 0.0, "Matriz": 98907.98, "Proyectos": 0.0, "Sucursal Interlomas": 119186.9, "TOTAL": 218094.88}, "ABR": {"Distribuidores (Mayoreo)": 0.0, "E-Commerce": 0.0, "General se cambiara al 0007": 0.0, "Matriz": 28324.68, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 28324.68}}, "acum": {"Distribuidores (Mayoreo)": 148274.97, "E-Commerce": 0.0, "General se cambiara al 0007": 0.0, "Matriz": 273673.13, "Proyectos": 0.0, "Sucursal Interlomas": 119186.9, "TOTAL": 541135.0}, "categoria": "PERSIANAS"}, {"months": {"ENE": {"Distribuidores (Mayoreo)": 5573.66, "E-Commerce": 1600.48, "General se cambiara al 0007": 0.0, "Matriz": 15604.99, "Proyectos": 112816.22, "Sucursal Interlomas": 790.37, "TOTAL": 136385.72}, "FEB": {"Distribuidores (Mayoreo)": 3996.65, "E-Commerce": 9535.25, "General se cambiara al 0007": 0.0, "Matriz": 35615.47, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 49147.37}, "MAR": {"Distribuidores (Mayoreo)": 3382.0, "E-Commerce": 3972.41, "General se cambiara al 0007": 0.0, "Matriz": 64688.17, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 72042.58}, "ABR": {"Distribuidores (Mayoreo)": 1268.58, "E-Commerce": 2040.87, "General se cambiara al 0007": 0.0, "Matriz": 42741.75, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 46051.2}}, "acum": {"Distribuidores (Mayoreo)": 14220.89, "E-Commerce": 17149.0, "General se cambiara al 0007": 0.0, "Matriz": 158650.38, "Proyectos": 112816.22, "Sucursal Interlomas": 790.37, "TOTAL": 303626.86}, "categoria": "MATERIAL PARA COLOCACION"}, {"months": {"ENE": {"Distribuidores (Mayoreo)": 0.0, "E-Commerce": 0.0, "General se cambiara al 0007": 0.0, "Matriz": 100.0, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 100.0}, "FEB": {"Distribuidores (Mayoreo)": 39027.27, "E-Commerce": 0.0, "General se cambiara al 0007": 0.0, "Matriz": 5682.35, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 44709.62}, "MAR": {"Distribuidores (Mayoreo)": 0.0, "E-Commerce": 0.0, "General se cambiara al 0007": 0.0, "Matriz": 773.17, "Proyectos": 0.0, "Sucursal Interlomas": 232320.88, "TOTAL": 233094.06}, "ABR": {"Distribuidores (Mayoreo)": 0.0, "E-Commerce": 0.0, "General se cambiara al 0007": 0.0, "Matriz": 2480.89, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 2480.89}}, "acum": {"Distribuidores (Mayoreo)": 39027.27, "E-Commerce": 0.0, "General se cambiara al 0007": 0.0, "Matriz": 9036.42, "Proyectos": 0.0, "Sucursal Interlomas": 232320.88, "TOTAL": 280384.58}, "categoria": "BA\u00d1O"}, {"months": {"ENE": {"Distribuidores (Mayoreo)": 0.0, "E-Commerce": 0.0, "General se cambiara al 0007": 0.0, "Matriz": 18046.41, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 18046.41}, "FEB": {"Distribuidores (Mayoreo)": 2986.5, "E-Commerce": 183.11, "General se cambiara al 0007": 0.0, "Matriz": 15980.54, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 19150.15}, "MAR": {"Distribuidores (Mayoreo)": 0.0, "E-Commerce": 0.0, "General se cambiara al 0007": 0.0, "Matriz": 33110.65, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 33110.65}, "ABR": {"Distribuidores (Mayoreo)": 308.59, "E-Commerce": 0.0, "General se cambiara al 0007": 0.0, "Matriz": 17572.34, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 17880.94}}, "acum": {"Distribuidores (Mayoreo)": 3295.1, "E-Commerce": 183.11, "General se cambiara al 0007": 0.0, "Matriz": 84709.94, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 88188.14}, "categoria": "TAPETES"}, {"months": {"ENE": {"Distribuidores (Mayoreo)": 300.0, "E-Commerce": 0.0, "General se cambiara al 0007": 0.0, "Matriz": 1807.07, "Proyectos": 0.0, "Sucursal Interlomas": 5206.84, "TOTAL": 7313.91}, "FEB": {"Distribuidores (Mayoreo)": 0.0, "E-Commerce": 300.0, "General se cambiara al 0007": 0.0, "Matriz": 707.32, "Proyectos": 0.0, "Sucursal Interlomas": 5842.64, "TOTAL": 6849.96}, "MAR": {"Distribuidores (Mayoreo)": 0.0, "E-Commerce": 0.0, "General se cambiara al 0007": 0.0, "Matriz": 0.0, "Proyectos": 0.0, "Sucursal Interlomas": 63783.41, "TOTAL": 63783.41}, "ABR": {"Distribuidores (Mayoreo)": 300.0, "E-Commerce": 0.0, "General se cambiara al 0007": 0.0, "Matriz": 500.01, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 800.01}}, "acum": {"Distribuidores (Mayoreo)": 600.0, "E-Commerce": 300.0, "General se cambiara al 0007": 0.0, "Matriz": 3014.4, "Proyectos": 0.0, "Sucursal Interlomas": 74832.89, "TOTAL": 78747.29}, "categoria": "VARIOS"}, {"months": {"ENE": {"Distribuidores (Mayoreo)": 0.0, "E-Commerce": 0.0, "General se cambiara al 0007": 0.0, "Matriz": 11840.03, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 11840.03}, "FEB": {"Distribuidores (Mayoreo)": 0.0, "E-Commerce": 0.0, "General se cambiara al 0007": 0.0, "Matriz": 0.0, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 0.0}, "MAR": {"Distribuidores (Mayoreo)": 0.0, "E-Commerce": 0.0, "General se cambiara al 0007": 0.0, "Matriz": 22516.04, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 22516.04}, "ABR": {"Distribuidores (Mayoreo)": 0.0, "E-Commerce": 0.0, "General se cambiara al 0007": 0.0, "Matriz": 0.0, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 0.0}}, "acum": {"Distribuidores (Mayoreo)": 0.0, "E-Commerce": 0.0, "General se cambiara al 0007": 0.0, "Matriz": 34356.07, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 34356.07}, "categoria": "MUEBLES"}]}, "primarios": {"depts": ["Distribuidores (Mayoreo)", "E-Commerce", "General se cambiara al 0007", "Matriz", "Proyectos", "Sucursal Interlomas"], "groups": [{"gpo": "PR 9", "months": {"ENE": {"Distribuidores (Mayoreo)": 459428.97, "E-Commerce": 16835.27, "General se cambiara al 0007": 0.0, "Matriz": 1623347.78, "Proyectos": 1426573.37, "Sucursal Interlomas": 2296315.47, "TOTAL": 5822500.86}, "FEB": {"Distribuidores (Mayoreo)": 226857.4, "E-Commerce": 29152.73, "General se cambiara al 0007": 0.0, "Matriz": 1927690.99, "Proyectos": 999618.93, "Sucursal Interlomas": 118756.54, "TOTAL": 3302076.58}, "MAR": {"Distribuidores (Mayoreo)": 4059395.99, "E-Commerce": 171417.54, "General se cambiara al 0007": 0.0, "Matriz": 2239644.71, "Proyectos": 1752565.43, "Sucursal Interlomas": 2955170.26, "TOTAL": 11178193.93}, "ABR": {"Distribuidores (Mayoreo)": 65143.47, "E-Commerce": 30385.84, "General se cambiara al 0007": 3097.21, "Matriz": 701622.68, "Proyectos": 677842.1, "Sucursal Interlomas": 322652.27, "TOTAL": 1800743.57}}, "acum": {"Distribuidores (Mayoreo)": 4810825.82, "E-Commerce": 247791.37, "General se cambiara al 0007": 3097.21, "Matriz": 6492306.17, "Proyectos": 4856599.82, "Sucursal Interlomas": 5692894.55, "TOTAL": 22103514.94}}, {"gpo": "PR 2", "months": {"ENE": {"Distribuidores (Mayoreo)": 442339.34, "E-Commerce": 315063.42, "General se cambiara al 0007": 0.0, "Matriz": 4619724.52, "Proyectos": 39239.2, "Sucursal Interlomas": 535771.71, "TOTAL": 5952138.2}, "FEB": {"Distribuidores (Mayoreo)": 610521.41, "E-Commerce": 400885.22, "General se cambiara al 0007": 0.0, "Matriz": 3455574.87, "Proyectos": 0.0, "Sucursal Interlomas": 437566.27, "TOTAL": 4904547.77}, "MAR": {"Distribuidores (Mayoreo)": 1022863.59, "E-Commerce": 291999.31, "General se cambiara al 0007": 0.0, "Matriz": 3539513.45, "Proyectos": 475397.97, "Sucursal Interlomas": 1479219.97, "TOTAL": 6808994.29}, "ABR": {"Distribuidores (Mayoreo)": 823021.87, "E-Commerce": 362982.42, "General se cambiara al 0007": 3492.82, "Matriz": 2828640.51, "Proyectos": 0.0, "Sucursal Interlomas": 96849.09, "TOTAL": 4114986.71}}, "acum": {"Distribuidores (Mayoreo)": 2898746.21, "E-Commerce": 1370930.37, "General se cambiara al 0007": 3492.82, "Matriz": 14443453.35, "Proyectos": 514637.17, "Sucursal Interlomas": 2549407.04, "TOTAL": 21780666.97}}, {"gpo": "PR 3", "months": {"ENE": {"Distribuidores (Mayoreo)": 230154.32, "E-Commerce": 144526.8, "General se cambiara al 0007": 0.0, "Matriz": 3899671.52, "Proyectos": 82789.27, "Sucursal Interlomas": 10170.44, "TOTAL": 4367312.36}, "FEB": {"Distribuidores (Mayoreo)": 383526.7, "E-Commerce": 293948.16, "General se cambiara al 0007": 0.0, "Matriz": 3121607.78, "Proyectos": 59192.74, "Sucursal Interlomas": 43225.67, "TOTAL": 3901501.06}, "MAR": {"Distribuidores (Mayoreo)": 360122.61, "E-Commerce": 299980.01, "General se cambiara al 0007": 0.0, "Matriz": 4601284.25, "Proyectos": 223067.64, "Sucursal Interlomas": 140837.77, "TOTAL": 5625292.28}, "ABR": {"Distribuidores (Mayoreo)": 137117.78, "E-Commerce": 256391.42, "General se cambiara al 0007": 0.0, "Matriz": 3051076.69, "Proyectos": 36520.12, "Sucursal Interlomas": 57050.7, "TOTAL": 3538156.72}}, "acum": {"Distribuidores (Mayoreo)": 1110921.42, "E-Commerce": 994846.4, "General se cambiara al 0007": 0.0, "Matriz": 14673640.24, "Proyectos": 401569.77, "Sucursal Interlomas": 251284.59, "TOTAL": 17432262.42}}, {"gpo": "PR 4", "months": {"ENE": {"Distribuidores (Mayoreo)": 300.0, "E-Commerce": 11109.16, "General se cambiara al 0007": 0.0, "Matriz": 303680.17, "Proyectos": 51999.11, "Sucursal Interlomas": 7132.98, "TOTAL": 374221.42}, "FEB": {"Distribuidores (Mayoreo)": 11049.87, "E-Commerce": 68680.54, "General se cambiara al 0007": 0.0, "Matriz": 269947.5, "Proyectos": 21916.25, "Sucursal Interlomas": 27171.72, "TOTAL": 398765.88}, "MAR": {"Distribuidores (Mayoreo)": 16283.12, "E-Commerce": 69941.2, "General se cambiara al 0007": 0.0, "Matriz": 260896.77, "Proyectos": 16788.22, "Sucursal Interlomas": 81402.13, "TOTAL": 445311.43}, "ABR": {"Distribuidores (Mayoreo)": 40857.97, "E-Commerce": 5982.83, "General se cambiara al 0007": 0.0, "Matriz": 166267.82, "Proyectos": 0.0, "Sucursal Interlomas": 2755.0, "TOTAL": 215863.62}}, "acum": {"Distribuidores (Mayoreo)": 68490.96, "E-Commerce": 155713.73, "General se cambiara al 0007": 0.0, "Matriz": 1000792.26, "Proyectos": 90703.57, "Sucursal Interlomas": 118461.83, "TOTAL": 1434162.35}}, {"gpo": "PR 1", "months": {"ENE": {"Distribuidores (Mayoreo)": 535.46, "E-Commerce": 0.0, "General se cambiara al 0007": 0.0, "Matriz": 96895.82, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 97431.28}, "FEB": {"Distribuidores (Mayoreo)": 19170.65, "E-Commerce": 1015.59, "General se cambiara al 0007": 0.0, "Matriz": 36848.82, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 57035.05}, "MAR": {"Distribuidores (Mayoreo)": 0.0, "E-Commerce": 0.0, "General se cambiara al 0007": 0.0, "Matriz": 38504.6, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 38504.6}, "ABR": {"Distribuidores (Mayoreo)": 0.0, "E-Commerce": 0.0, "General se cambiara al 0007": 0.0, "Matriz": 33730.58, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 33730.58}}, "acum": {"Distribuidores (Mayoreo)": 19706.1, "E-Commerce": 1015.59, "General se cambiara al 0007": 0.0, "Matriz": 205979.82, "Proyectos": 0.0, "Sucursal Interlomas": 0.0, "TOTAL": 226701.51}}]}, "cobranza": {"depts": [{"dept": "ALFOMBRAS", "months": {"ENE": {"ac": 6177922.06, "cobrar": 48867.9}, "FEB": {"ac": 4340382.56, "cobrar": 98271.04}, "MAR": {"ac": 5705621.61, "cobrar": 923578.67}, "ABR": {"ac": 3832358.65, "cobrar": 74261.31}}, "acum": {"ac": 20056284.88, "cobrar": 1144978.93}}, {"dept": "LOSETAS", "months": {"ENE": {"ac": 4197853.34, "cobrar": 118676.51}, "FEB": {"ac": 3845188.91, "cobrar": 527827.44}, "MAR": {"ac": 4026581.6, "cobrar": 24061.9}, "ABR": {"ac": 2826219.53, "cobrar": 48498.8}}, "acum": {"ac": 14895843.38, "cobrar": 719064.65}}, {"dept": "E COMERCE", "months": {"ENE": {"ac": 487534.72, "cobrar": -0.07}, "FEB": {"ac": 793682.3, "cobrar": -0.06}, "MAR": {"ac": 833337.99, "cobrar": 0.07}, "ABR": {"ac": 652755.7, "cobrar": 2986.81}}, "acum": {"ac": 2767310.71, "cobrar": 2986.76}}, {"dept": "DISTRIBUIDORES", "months": {"ENE": {"ac": 1103780.57, "cobrar": 28977.53}, "FEB": {"ac": 1147704.12, "cobrar": 103421.91}, "MAR": {"ac": 2661770.02, "cobrar": 2796895.29}, "ABR": {"ac": 704820.33, "cobrar": 361320.75}}, "acum": {"ac": 5618075.04, "cobrar": 3290615.48}}, {"dept": "PROYECTOS", "months": {"ENE": {"ac": 1028912.79, "cobrar": 571688.16}, "FEB": {"ac": 1019255.17, "cobrar": 61472.75}, "MAR": {"ac": 1079309.47, "cobrar": 1388509.79}, "ABR": {"ac": 353263.57, "cobrar": 361098.65}}, "acum": {"ac": 3480741.0, "cobrar": 2382769.34}}, {"dept": "EURO FLOORS", "months": {"ENE": {"ac": 1281060.72, "cobrar": 1568329.89}, "FEB": {"ac": 587613.38, "cobrar": 39106.82}, "MAR": {"ac": 4194496.95, "cobrar": 462133.18}, "ABR": {"ac": 475170.67, "cobrar": 4136.4}}, "acum": {"ac": 6538341.72, "cobrar": 2073706.29}}], "total": {"months": {"ENE": {"ac": 14277064.2, "cobrar": 2336539.91}, "FEB": {"ac": 11733826.44, "cobrar": 830099.9}, "MAR": {"ac": 18501117.64, "cobrar": 5595178.9}, "ABR": {"ac": 8844588.45, "cobrar": 852302.73}}, "acum": {"ac": 53356596.73, "cobrar": 9614121.44}}}};
+const MESES = DATA.meses;
+const PERIODS = MESES.concat(["ACUM"]);
+const C = { navy:"#0D1B3E", accent:"#2563EB", green:"#059669", yellow:"#D97706", red:"#DC2626", teal:"#0F766E", gray:"#64748B", track:"#CBD5E1" };
+const DEPT_COLORS = { "ALFOMBRAS":"#2563EB","LOSETAS":"#059669","E COMERCE":"#D97706","DISTRIBUIDORES":"#7C3AED","PROYECTOS":"#DC2626","EURO FLOORS":"#0F766E" };
+const INV_DEPT_COLORS = { "Matriz":"#2563EB","Sucursal Interlomas":"#0F766E","E-Commerce":"#D97706","Distribuidores (Mayoreo)":"#7C3AED","Proyectos":"#DC2626","General se cambiara al 0007":"#94A3B8" };
+const PALETTE = ["#2563EB","#059669","#DC2626","#D97706","#7C3AED","#0F766E","#DB2777","#65A30D","#0891B2","#9333EA","#EA580C","#4F46E5","#B45309","#0D9488"];
+const SVGNS = "http://www.w3.org/2000/svg";
+
+function fmtMoney(v){ const n=Number(v); if(!isFinite(n)) return "-"; return "$"+Math.round(n).toLocaleString("es-MX"); }
+function fmtMoneyShort(v){ const n=Number(v)||0; const a=Math.abs(n);
+  if(a>=1e6) return "$"+(n/1e6).toFixed(1)+"M"; if(a>=1e3) return "$"+(n/1e3).toFixed(0)+"K"; return "$"+Math.round(n); }
+function fmtUnits(v){ const n=Number(v)||0; return n.toLocaleString("es-MX",{maximumFractionDigits:0}); }
+function numVal(v){ const n=Number(v); return isFinite(n)?n:0; }
+function pctColor(p){ if(p===null||p===undefined) return "#94A3B8"; if(p>=1.0) return C.green; if(p>=0.8) return C.yellow; return C.red; }
+function fmtPct(p){ return (p===null||p===undefined) ? "N/A" : (p*100).toFixed(1)+"%"; }
+function el(tag, attrs){ const e=document.createElementNS(SVGNS, tag); for(const k in attrs) e.setAttribute(k, attrs[k]); return e; }
+function clear(node){ while(node.firstChild) node.removeChild(node.firstChild); }
+function periodData(obj, period){ return period==="ACUM" ? obj.acum : obj.months[period]; }
+function vendorColor(idx){ return PALETTE[idx % PALETTE.length]; }
+function hexToRgba(hex, alpha){
+  hex = hex.replace("#","");
+  const r=parseInt(hex.substring(0,2),16), g=parseInt(hex.substring(2,4),16), b=parseInt(hex.substring(4,6),16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+document.querySelectorAll(".tab-btn").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("panel-"+btn.dataset.tab).classList.add("active");
+  });
+});
+
+function makePills(container, options, defaultVal, onChange){
+  clear(container);
+  options.forEach(opt=>{
+    const b = document.createElement("button");
+    b.className = "pill" + (opt.value===defaultVal ? " active" : "");
+    b.textContent = opt.label;
+    b.addEventListener("click", ()=>{
+      container.querySelectorAll(".pill").forEach(p=>p.classList.remove("active"));
+      b.classList.add("active");
+      onChange(opt.value);
+    });
+    container.appendChild(b);
+  });
+}
+
+// ================= KPIs =================
+document.getElementById("kpi-pct").textContent = fmtPct(DATA.resumen.total.acum.pct);
+document.getElementById("kpi-pct").style.color = pctColor(DATA.resumen.total.acum.pct);
+document.getElementById("kpi-venta").textContent = fmtMoney(DATA.resumen.total.acum.venta);
+document.getElementById("kpi-cuota").textContent = fmtMoney(DATA.resumen.total.acum.cuota);
+
+// ================= HALLAZGOS CLAVE =================
+function renderInsights(){
+  const depts = DATA.resumen.depts;
+  const byVenta = depts.slice().sort((a,b)=>numVal(b.acum.venta)-numVal(a.acum.venta));
+  const byPct = depts.slice().sort((a,b)=>(b.acum.pct||0)-(a.acum.pct||0));
+  const worstPct = depts.slice().sort((a,b)=>(a.acum.pct||0)-(b.acum.pct||0));
+  const topDept = byVenta[0];
+  const bestPctDept = byPct[0];
+  const worstDept = worstPct[0];
+
+  const groups = DATA.primarios.groups.slice().sort((a,b)=>b.acum.TOTAL-a.acum.TOTAL);
+  const topGroup = groups[0];
+  let topGroupDept = null, topGroupDeptVal = -1;
+  DATA.primarios.depts.forEach(d=>{ if(topGroup.acum[d] > topGroupDeptVal){ topGroupDeptVal = topGroup.acum[d]; topGroupDept = d; } });
+
+  const cats = DATA.inventario.cats.slice().sort((a,b)=>b.acum.TOTAL-a.acum.TOTAL);
+  const topCat = cats[0];
+
+  const vendByUnits = DATA.vendedores.slice().sort((a,b)=>(b.unidades_acum||0)-(a.unidades_acum||0));
+  const topVendUnits = vendByUnits[0];
+  const vendByVenta = DATA.vendedores.slice().sort((a,b)=>numVal(b.acum.venta)-numVal(a.acum.venta));
+  const topVendVenta = vendByVenta[0];
+
+  const cards = [
+    {tag:"Departamento líder", title: topDept.dept, sub: fmtMoney(topDept.acum.venta)+" · "+fmtPct(topDept.acum.pct)+" cumpl.", color:DEPT_COLORS[topDept.dept]},
+    {tag:"Mejor cumplimiento", title: bestPctDept.dept, sub: fmtPct(bestPctDept.acum.pct)+" de cuota", color:C.green},
+    {tag:"Requiere atención", title: worstDept.dept, sub: fmtPct(worstDept.acum.pct)+" de cuota", color:C.red},
+    {tag:"Grupo primario más vendido", title: topGroup.gpo, sub: fmtMoney(topGroup.acum.TOTAL)+" · líder: "+topGroupDept, color:C.purple},
+    {tag:"Categoría (línea) más vendida", title: topCat.categoria, sub: fmtMoney(topCat.acum.TOTAL), color:C.teal},
+    {tag:"Vendedor top en venta $", title: topVendVenta.vendedor, sub: fmtMoney(topVendVenta.acum.venta)+" · "+topVendVenta.dept, color:C.accent},
+  ];
+  const container = document.getElementById("insights-row");
+  clear2html(container);
+  container.innerHTML = cards.map(c=>`<div class="insight-card" style="border-left-color:${c.color}">
+    <div class="itag">${c.tag}</div><div class="ititle">${c.title}</div><div class="isub">${c.sub}</div></div>`).join("");
+}
+function clear2html(node){ node.innerHTML=""; }
+renderInsights();
+
+// ================= DEPARTAMENTOS =================
+let mesDepto = "ACUM";
+function renderDeptoChart(){
+  const depts = DATA.resumen.depts;
+  const container = document.getElementById("chart-depto");
+  clear(container);
+  const W=560, rowH=34, padL=110, padR=54, top=6;
+  const H = top + depts.length*rowH + 10;
+  const svg = el("svg",{viewBox:`0 0 ${W} ${H}`});
+  const maxVal = Math.max(...depts.map(d=>{ const pd=periodData(d,mesDepto); return Math.max(numVal(pd.venta), numVal(pd.cuota)); }), 1);
+  const scaleW = W - padL - padR;
+  depts.forEach((d,i)=>{
+    const pd = periodData(d, mesDepto);
+    const y = top + i*rowH;
+    const label = el("text",{x:padL-8, y:y+13, "text-anchor":"end", class:"axis-label", "font-weight":"700", fill:C.navy});
+    label.textContent = d.dept; svg.appendChild(label);
+    const wCuota = Math.max(numVal(pd.cuota)/maxVal*scaleW, 1);
+    const wVenta = Math.max(numVal(pd.venta)/maxVal*scaleW, 1);
+    svg.appendChild(el("rect",{x:padL, y:y, width:wCuota, height:10, rx:3, fill:C.track}));
+    svg.appendChild(el("rect",{x:padL, y:y+13, width:wVenta, height:10, rx:3, fill:C.accent}));
+    const t = el("text",{x:padL+Math.max(wVenta,wCuota)+6, y:y+13, class:"axis-label", "font-weight":"700", fill:pctColor(pd.pct)});
+    t.textContent = fmtPct(pd.pct); svg.appendChild(t);
+  });
+  container.appendChild(svg);
+}
+function renderDeptoTabla(){
+  const depts = DATA.resumen.depts;
+  let html = '<table><thead><tr><th>Depto</th><th>Venta</th><th>Cuota</th><th>%</th></tr></thead><tbody>';
+  depts.forEach(d=>{
+    const pd = periodData(d, mesDepto);
+    html += `<tr><td><span class="dept-dot" style="background:${DEPT_COLORS[d.dept]}"></span>${d.dept}</td>`+
+      `<td>${fmtMoney(pd.venta)}</td><td>${fmtMoney(pd.cuota)}</td>`+
+      `<td><span class="badge" style="background:${pctColor(pd.pct)}">${fmtPct(pd.pct)}</span></td></tr>`;
+  });
+  const tot = periodData(DATA.resumen.total, mesDepto);
+  html += `<tr class="total-row"><td>TOTAL GENERAL</td><td>${fmtMoney(tot.venta)}</td><td>${fmtMoney(tot.cuota)}</td>`+
+    `<td><span class="badge" style="background:${pctColor(tot.pct)}">${fmtPct(tot.pct)}</span></td></tr></tbody></table>`;
+  document.getElementById("tabla-depto").innerHTML = html;
+}
+function renderDeptos(){ renderDeptoChart(); renderDeptoTabla(); }
+makePills(document.getElementById("pills-mes-depto"), PERIODS.map(p=>({value:p, label: p==="ACUM"?"Acumulado":p})), "ACUM", (v)=>{ mesDepto=v; renderDeptos(); });
+
+// ================= COMPARATIVO =================
+const COMP_MAX = 5;
+let compDim = "dept";
+let compMetric = "pct";
+let compSelected = new Set();
+let compSearch = "";
+
+function compItemsList(){
+  if (compDim === "dept") return DATA.resumen.depts.map((d,i)=>({key:d.dept, label:d.dept, color:DEPT_COLORS[d.dept], obj:d}));
+  return DATA.vendedores.map((v,i)=>({key:v.dept+"|"+v.vendedor, label:v.vendedor, color:vendorColor(i), obj:v, dept:v.dept}));
+}
+function compDefaultSelection(){
+  if (compDim === "dept"){
+    const sorted = DATA.resumen.depts.slice().sort((a,b)=>numVal(b.acum.venta)-numVal(a.acum.venta)).slice(0,3);
+    return new Set(sorted.map(d=>d.dept));
+  }
+  const sorted = DATA.vendedores.slice().sort((a,b)=>numVal(b.acum.venta)-numVal(a.acum.venta)).slice(0,3);
+  return new Set(sorted.map(v=>v.dept+"|"+v.vendedor));
+}
+function renderCompCounter(){
+  document.getElementById("comp-counter").innerHTML = `Seleccionados: <b>${compSelected.size} de ${COMP_MAX}</b> máximo — para mantener la gráfica legible.`;
+}
+function renderCompItemPills(){
+  const container = document.getElementById("pills-items-comp");
+  clear(container);
+  let items = compItemsList();
+  if (compDim === "vendor" && compSearch.trim()){
+    const q = compSearch.trim().toUpperCase();
+    items = items.filter(it=> it.label.toUpperCase().includes(q));
+  } else if (compDim === "vendor"){
+    // sin búsqueda: mostrar primero los ya seleccionados, luego top por venta, limitado para no saturar
+    const selected = items.filter(it=>compSelected.has(it.key));
+    const rest = items.filter(it=>!compSelected.has(it.key)).sort((a,b)=>numVal(b.obj.acum.venta)-numVal(a.obj.acum.venta)).slice(0,12);
+    items = selected.concat(rest);
+  }
+  items.forEach(it=>{
+    const chip = document.createElement("button");
+    const isSel = compSelected.has(it.key);
+    const atLimit = !isSel && compSelected.size>=COMP_MAX;
+    chip.className = "chip" + (isSel ? " sel" : "") + (atLimit ? " disabled" : "");
+    chip.style.color = it.color;
+    chip.innerHTML = `<span class="dot" style="background:${it.color}"></span>${it.label}`;
+    chip.disabled = atLimit;
+    chip.addEventListener("click", ()=>{
+      if (compSelected.has(it.key)) compSelected.delete(it.key);
+      else { if (compSelected.size>=COMP_MAX) return; compSelected.add(it.key); }
+      renderCompItemPills(); renderComparativo();
+    });
+    container.appendChild(chip);
+  });
+  if (compDim==="vendor" && !compSearch.trim()){
+    const hint = document.createElement("span");
+    hint.style.cssText = "font-size:11px;color:#94A3B8;align-self:center;";
+    hint.textContent = "Usa el buscador para ver el resto de vendedores";
+    container.appendChild(hint);
+  }
+  renderCompCounter();
+}
+
+function miniSparkline(vals, color, isCurrentIdx){
+  const W=140, H=36, pad=4;
+  const maxV = Math.max(...vals, 0.0001), minV = Math.min(...vals, 0);
+  const range = (maxV-minV) || 1;
+  const xStep = (W-pad*2)/(vals.length-1);
+  const svg = el("svg",{viewBox:`0 0 ${W} ${H}`});
+  const pts = vals.map((v,i)=>({x:pad+i*xStep, y:H-pad-((v-minV)/range)*(H-pad*2)}));
+  const path = pts.map((p,i)=>(i===0?"M":"L")+p.x+","+p.y).join(" ");
+  svg.appendChild(el("path",{d:path, fill:"none", stroke:color, "stroke-width":2, "stroke-linecap":"round", "stroke-linejoin":"round"}));
+  pts.forEach((p,i)=>{
+    const isLast = i===pts.length-1;
+    svg.appendChild(el("circle",{cx:p.x, cy:p.y, r:isLast?3.2:1.6, fill: isLast ? color : "#fff", stroke:color, "stroke-width":isLast?0:1.4}));
+  });
+  return svg;
+}
+
+function renderCompCards(){
+  const container = document.getElementById("comp-cards");
+  clear(container);
+  const items = compItemsList().filter(it=>compSelected.has(it.key));
+  if (items.length===0){ container.innerHTML = "<div class='empty-hint' style='grid-column:1/-1;'>Selecciona hasta "+COMP_MAX+" "+(compDim==="dept"?"departamentos":"vendedores")+" arriba para comparar su desempeño mes a mes.</div>"; return; }
+  items.forEach(it=>{
+    const vals = MESES.map(m=> compMetric==="pct" ? (it.obj.months[m].pct||0) : numVal(it.obj.months[m].venta));
+    const acumVal = compMetric==="pct" ? it.obj.acum.pct : it.obj.acum.venta;
+    const bigColor = compMetric==="pct" ? pctColor(it.obj.acum.pct) : C.navy;
+    const card = document.createElement("div");
+    card.className = "comp-card";
+    card.style.borderTopColor = it.color;
+    card.innerHTML = `<div class="cc-name"><span class="dept-dot" style="background:${it.color}"></span>${it.label}</div>
+      <div class="cc-sub">${compDim==="dept" ? "Acumulado Ene-Jul" : it.dept}</div>
+      <div class="cc-val" style="color:${bigColor}">${compMetric==="pct" ? fmtPct(acumVal) : fmtMoney(acumVal)}</div>
+      <div class="cc-spark"></div>`;
+    card.querySelector(".cc-spark").appendChild(miniSparkline(vals, it.color));
+    container.appendChild(card);
+  });
+}
+
+function renderComparativoChart(){
+  const container = document.getElementById("chart-comp");
+  clear(container);
+  const items = compItemsList().filter(it=>compSelected.has(it.key));
+  if (items.length===0){ container.innerHTML = "<div class='empty-msg'>Selecciona al menos un elemento arriba para comparar.</div>"; document.getElementById("legend-comp").innerHTML=""; return; }
+  const W=1000, H=300, padL=60, padR=24, padT=18, padB=30;
+  const plotW = W-padL-padR, plotH = H-padT-padB;
+  let maxVal = 1;
+  items.forEach(it=>{ MESES.forEach(m=>{ const v = compMetric==="pct" ? (it.obj.months[m].pct||0) : numVal(it.obj.months[m].venta); maxVal = Math.max(maxVal, v); }); });
+  if (compMetric==="pct") maxVal = Math.max(maxVal, 1.05);
+  const svg = el("svg",{viewBox:`0 0 ${W} ${H}`});
+  for(let i=0;i<=4;i++){
+    const y = padT + plotH - (i/4)*plotH;
+    svg.appendChild(el("line",{x1:padL,y1:y,x2:W-padR,y2:y,stroke:"#EEF2F7","stroke-width":1}));
+    const t = el("text",{x:padL-8,y:y+4,"text-anchor":"end",class:"axis-label"});
+    t.textContent = compMetric==="pct" ? Math.round(maxVal*i/4*100)+"%" : fmtMoneyShort(maxVal*i/4);
+    svg.appendChild(t);
+  }
+  if (compMetric==="pct"){
+    const y100 = padT + plotH - (1/maxVal*plotH);
+    svg.appendChild(el("line",{x1:padL,y1:y100,x2:W-padR,y2:y100,stroke:C.green,"stroke-width":1,"stroke-dasharray":"3,3",opacity:"0.6"}));
+  }
+  const xStep = plotW/(MESES.length-1);
+  const pathRefs = [];
+  items.forEach(it=>{
+    const vals = MESES.map(m=> compMetric==="pct" ? (it.obj.months[m].pct||0) : numVal(it.obj.months[m].venta));
+    const path = vals.map((v,i)=>{ const x=padL+i*xStep; const y=padT+plotH-(v/maxVal*plotH); return (i===0?"M":"L")+x+","+y; }).join(" ");
+    const pathEl = el("path",{d:path, fill:"none", stroke:it.color, "stroke-width":2.4});
+    svg.appendChild(pathEl);
+    pathRefs.push({key:it.key, pathEl, dots:[]});
+    vals.forEach((v,i)=>{
+      const x=padL+i*xStep, y=padT+plotH-(v/maxVal*plotH);
+      const dot = el("circle",{cx:x,cy:y,r:3.6,fill:it.color});
+      const title = document.createElementNS(SVGNS,"title"); title.textContent = it.label+" · "+MESES[i]+": "+(compMetric==="pct"?fmtPct(v):fmtMoney(v));
+      dot.appendChild(title); svg.appendChild(dot);
+      pathRefs[pathRefs.length-1].dots.push(dot);
+    });
+  });
+  MESES.forEach((m,i)=>{ const x=padL+i*xStep; const lbl=el("text",{x:x,y:H-8,"text-anchor":"middle",class:"axis-label","font-weight":"700"}); lbl.textContent=m; svg.appendChild(lbl); });
+  container.appendChild(svg);
+  const legend = document.getElementById("legend-comp");
+  legend.innerHTML = items.map(it=>`<span data-key="${it.key}" style="cursor:pointer;"><i style="background:${it.color}"></i>${it.label}</span>`).join("");
+  legend.querySelectorAll("span[data-key]").forEach(spanEl=>{
+    spanEl.addEventListener("mouseenter", ()=>{
+      pathRefs.forEach(pr=>{
+        const on = pr.key===spanEl.dataset.key;
+        pr.pathEl.setAttribute("stroke-width", on?"4":"1.2");
+        pr.pathEl.setAttribute("opacity", on?"1":"0.2");
+        pr.dots.forEach(d=>d.setAttribute("opacity", on?"1":"0.2"));
+      });
+    });
+    spanEl.addEventListener("mouseleave", ()=>{
+      pathRefs.forEach(pr=>{ pr.pathEl.setAttribute("stroke-width","2.4"); pr.pathEl.setAttribute("opacity","1"); pr.dots.forEach(d=>d.setAttribute("opacity","1")); });
+    });
+  });
+}
+function renderComparativoTabla(){
+  const items = compItemsList().filter(it=>compSelected.has(it.key));
+  let html = '<table><thead><tr><th>'+(compDim==="dept"?"Depto":"Vendedor")+'</th>';
+  MESES.forEach(m=> html += `<th>${m}</th>`);
+  html += '<th>Acum.</th></tr></thead><tbody>';
+  items.forEach(it=>{
+    html += `<tr><td><span class="dept-dot" style="background:${it.color}"></span>${it.label}</td>`;
+    MESES.forEach(m=>{
+      const pd = it.obj.months[m];
+      const v = compMetric==="pct" ? pd.pct : pd.venta;
+      const disp = compMetric==="pct" ? `<span class="badge" style="background:${pctColor(pd.pct)}">${fmtPct(pd.pct)}</span>` : fmtMoneyShort(v);
+      html += `<td>${disp}</td>`;
+    });
+    const acum = it.obj.acum;
+    const vAcum = compMetric==="pct" ? acum.pct : acum.venta;
+    html += `<td>${compMetric==="pct" ? `<span class="badge" style="background:${pctColor(acum.pct)}">${fmtPct(acum.pct)}</span>` : fmtMoney(vAcum)}</td></tr>`;
+  });
+  html += "</tbody></table>";
+  document.getElementById("tabla-comp").innerHTML = items.length ? html : "<div class='empty-msg'>Sin elementos seleccionados.</div>";
+}
+function renderComparativo(){ renderCompCards(); renderComparativoChart(); renderComparativoTabla(); }
+makePills(document.getElementById("pills-dim-comp"), [{value:"dept",label:"Departamento"},{value:"vendor",label:"Vendedor"}], "dept", (v)=>{
+  compDim = v; compSelected = compDefaultSelection(); compSearch="";
+  document.getElementById("search-comp").value = "";
+  document.getElementById("row-search-comp").style.display = v==="vendor" ? "flex" : "none";
+  renderCompItemPills(); renderComparativo();
+});
+makePills(document.getElementById("pills-metric-comp"), [{value:"pct",label:"% Cumplimiento"},{value:"venta",label:"Venta $"}], "pct", (v)=>{ compMetric=v; renderComparativo(); });
+document.getElementById("search-comp").addEventListener("input", (e)=>{ compSearch = e.target.value; renderCompItemPills(); });
+compSelected = compDefaultSelection();
+renderCompItemPills();
+
+// ================= TENDENCIA =================
+let tendMetric = "pct";
+function renderTendenciaNote(){
+  const note = document.getElementById("tend-note");
+  if (tendMetric==="pct"){
+    note.innerHTML = `<b>Vista normalizada:</b> se compara % de cumplimiento (venta real ÷ cuota) mes a mes. La cuota de ${DATA.mesCorte} ya está prorrateada a ${DATA.diasCorte} de ${DATA.diasMes} días transcurridos, así que esta línea sí es comparable entre meses completos y el mes en curso.`;
+  } else {
+    note.innerHTML = `<b>Cuidado con los montos crudos:</b> ${DATA.mesCorte} lleva solo ${DATA.diasCorte} de ${DATA.diasMes} días — por eso su barra se ve más baja, no porque haya caído la venta. La barra punteada muestra la <b>proyección a mes completo</b> (venta ÷ días transcurridos × días del mes) para comparar en la misma escala.`;
+  }
+}
+function renderTendencia(){
+  renderTendenciaNote();
+  const container = document.getElementById("chart-tendencia");
+  clear(container);
+  const W=980, H=300, padL=64, padR=24, padT=18, padB=34;
+  const plotW = W-padL-padR, plotH = H-padT-padB;
+  const svg = el("svg",{viewBox:`0 0 ${W} ${H}`});
+  const xStep = plotW/(MESES.length-1);
+  const mesEnCursoIdx = MESES.indexOf(DATA.mesCorte);
+  if (tendMetric === "pct"){
+    const vals = MESES.map(m=> DATA.resumen.total.months[m].pct||0);
+    const maxVal = Math.max(...vals, 1.1);
+    for(let i=0;i<=4;i++){
+      const y = padT + plotH - (i/4)*plotH;
+      svg.appendChild(el("line",{x1:padL,y1:y,x2:W-padR,y2:y,stroke:"#EEF2F7","stroke-width":1}));
+      const t = el("text",{x:padL-8,y:y+4,"text-anchor":"end",class:"axis-label"}); t.textContent = Math.round(maxVal*i/4*100)+"%"; svg.appendChild(t);
+    }
+    const y100 = padT + plotH - (1/maxVal*plotH);
+    svg.appendChild(el("line",{x1:padL,y1:y100,x2:W-padR,y2:y100,stroke:C.green,"stroke-width":1.5,"stroke-dasharray":"4,3"}));
+    const lblMeta = el("text",{x:W-padR,y:y100-5,"text-anchor":"end",class:"axis-label",fill:C.green,"font-weight":"700"}); lblMeta.textContent="Meta 100%"; svg.appendChild(lblMeta);
+    const path = vals.map((v,i)=>{ const x=padL+i*xStep; const y=padT+plotH-(v/maxVal*plotH); return (i===0?"M":"L")+x+","+y; }).join(" ");
+    svg.appendChild(el("path",{d:path, fill:"none", stroke:C.accent, "stroke-width":2.5}));
+    vals.forEach((v,i)=>{
+      const x=padL+i*xStep, y=padT+plotH-(v/maxVal*plotH);
+      const isCurrent = i===mesEnCursoIdx;
+      svg.appendChild(el("circle",{cx:x,cy:y,r:isCurrent?6:4.5,fill: isCurrent ? "#fff" : pctColor(v), stroke:pctColor(v), "stroke-width":isCurrent?2.5:0}));
+      const t = el("text",{x:x,y:y-10,"text-anchor":"middle",class:"axis-label","font-weight":"700",fill:pctColor(v)}); t.textContent=fmtPct(v); svg.appendChild(t);
+      const lbl = el("text",{x:x,y:H-16,"text-anchor":"middle",class:"axis-label","font-weight":"700"}); lbl.textContent=MESES[i]; svg.appendChild(lbl);
+      if (isCurrent){ const sub = el("text",{x:x,y:H-4,"text-anchor":"middle",class:"axis-label",fill:C.gray}); sub.textContent=`(${DATA.diasCorte}/${DATA.diasMes}d)`; svg.appendChild(sub); }
+    });
+    document.getElementById("legend-tend").innerHTML = `<span><i style="background:${C.accent}"></i>% Cumplimiento</span><span><i style="background:${C.green}"></i>Meta 100%</span>`;
+  } else {
+    const ventas = MESES.map(m=> numVal(DATA.resumen.total.months[m].venta));
+    const cuotas = MESES.map(m=> numVal(DATA.resumen.total.months[m].cuota));
+    const proyeccionActual = ventas[mesEnCursoIdx] / DATA.diasCorte * DATA.diasMes;
+    const maxVal = Math.max(...ventas, ...cuotas, proyeccionActual, 1);
+    for(let i=0;i<=4;i++){
+      const y = padT + plotH - (i/4)*plotH;
+      svg.appendChild(el("line",{x1:padL,y1:y,x2:W-padR,y2:y,stroke:"#EEF2F7","stroke-width":1}));
+      const t = el("text",{x:padL-8,y:y+4,"text-anchor":"end",class:"axis-label"}); t.textContent = fmtMoneyShort(maxVal*i/4); svg.appendChild(t);
+    }
+    const barW = xStep*0.30;
+    MESES.forEach((m,i)=>{
+      const x = padL+i*xStep;
+      const hV = ventas[i]/maxVal*plotH, hC = cuotas[i]/maxVal*plotH;
+      const isCurrent = i===mesEnCursoIdx;
+      svg.appendChild(el("rect",{x:x-barW-2, y:padT+plotH-hC, width:barW, height:hC, fill:C.track, rx:2}));
+      svg.appendChild(el("rect",{x:x+2, y:padT+plotH-hV, width:barW, height:hV, fill:C.accent, opacity: isCurrent?0.55:1, rx:2}));
+      if (isCurrent){
+        const hP = proyeccionActual/maxVal*plotH;
+        svg.appendChild(el("rect",{x:x+2, y:padT+plotH-hP, width:barW, height:hP, fill:"none", stroke:C.accent, "stroke-width":1.6, "stroke-dasharray":"3,2", rx:2}));
+        const t2 = el("text",{x:x+2+barW/2, y:padT+plotH-hP-6, "text-anchor":"middle", class:"axis-label","font-weight":"700",fill:C.accent}); t2.textContent = fmtMoneyShort(proyeccionActual); svg.appendChild(t2);
+      }
+      const lbl = el("text",{x:x,y:H-16,"text-anchor":"middle",class:"axis-label","font-weight":"700"}); lbl.textContent=m; svg.appendChild(lbl);
+      if (isCurrent){ const sub = el("text",{x:x,y:H-4,"text-anchor":"middle",class:"axis-label",fill:C.gray}); sub.textContent=`(${DATA.diasCorte}/${DATA.diasMes}d)`; svg.appendChild(sub); }
+    });
+    document.getElementById("legend-tend").innerHTML = `<span><i style="background:${C.accent}"></i>Venta real</span><span><i style="background:${C.track}"></i>Cuota</span><span>Proyección mes completo (mes en curso, contorno punteado)</span>`;
+  }
+  container.appendChild(svg);
+}
+makePills(document.getElementById("pills-tend-metric"), [{value:"pct",label:"% Cumplimiento (objetivo)"},{value:"monto",label:"Monto $ + proyección"}], "pct", (v)=>{ tendMetric=v; renderTendencia(); });
+
+// ================= VENDEDORES =================
+let deptVendFilter = "__ALL__";
+let vendMetric = "pct"; // 'pct' | 'venta' | 'unidades'
+function vendMetricLabel(){ return vendMetric==="pct" ? "% cumplimiento acumulado" : vendMetric==="venta" ? "venta $ acumulada" : "unidades desplazadas (acum.)"; }
+function renderVendedores(){
+  document.getElementById("vend-rank-title").textContent = vendMetricLabel();
+  document.getElementById("vend-warn").style.display = vendMetric==="unidades" ? "block" : "none";
+  let vs = DATA.vendedores.filter(v=> deptVendFilter==="__ALL__" || v.dept===deptVendFilter);
+  vs = vs.slice().sort((a,b)=>{
+    if (vendMetric==="pct"){ const pa=a.acum.pct===null?-1:a.acum.pct, pb=b.acum.pct===null?-1:b.acum.pct; return pb-pa; }
+    if (vendMetric==="venta") return numVal(b.acum.venta)-numVal(a.acum.venta);
+    return (b.unidades_acum||0)-(a.unidades_acum||0);
+  });
+  let html = "";
+  vs.forEach((v,i)=>{
+    let display, widthPct, barColor;
+    if (vendMetric==="pct"){ display = fmtPct(v.acum.pct); widthPct = v.acum.pct===null?0:Math.min(v.acum.pct*100,100); barColor = pctColor(v.acum.pct); }
+    else if (vendMetric==="venta"){ display = fmtMoneyShort(v.acum.venta); const maxV = Math.max(...vs.map(x=>numVal(x.acum.venta)),1); widthPct = numVal(v.acum.venta)/maxV*100; barColor = C.accent; }
+    else { display = fmtUnits(v.unidades_acum); const maxU = Math.max(...vs.map(x=>x.unidades_acum||0),1); widthPct = (v.unidades_acum||0)/maxU*100; barColor = C.teal; }
+    html += `<div class="rank-item"><span class="rank-num">${i+1}</span>
+      <span class="dept-dot" style="background:${DEPT_COLORS[v.dept]||'#94A3B8'}"></span>
+      <div class="name">${v.vendedor}<div class="dept-tag">${v.dept}</div></div>
+      <div class="bar-bg"><div class="bar-fg" style="width:${widthPct}%; background:${barColor}"></div></div>
+      <span class="badge" style="background:${barColor}">${display}</span></div>`;
+  });
+  document.getElementById("rank-list").innerHTML = html || "<div class='empty-msg'>Sin datos.</div>";
+
+  const top = vs.slice(0,12);
+  const container = document.getElementById("chart-vend");
+  clear(container);
+  const W=560, rowH=28, padL=150, padR=54, topPad=6;
+  const H = topPad + top.length*rowH + 10;
+  const svg = el("svg",{viewBox:`0 0 ${W} ${H}`});
+  const scaleW = W-padL-padR;
+  if (vendMetric==="unidades"){
+    const maxVal = Math.max(...top.map(v=>v.unidades_acum||0),1);
+    top.forEach((v,i)=>{
+      const y = topPad+i*rowH;
+      const label = el("text",{x:padL-8,y:y+11,"text-anchor":"end",class:"axis-label","font-weight":"700",fill:C.navy});
+      label.textContent = v.vendedor.length>16 ? v.vendedor.slice(0,15)+"…" : v.vendedor; svg.appendChild(label);
+      const w = Math.max((v.unidades_acum||0)/maxVal*scaleW,1);
+      svg.appendChild(el("rect",{x:padL,y:y+4,width:w,height:12,rx:2,fill:C.teal}));
+      const t = el("text",{x:padL+w+6,y:y+13,class:"axis-label","font-weight":"700",fill:C.navy}); t.textContent=fmtUnits(v.unidades_acum); svg.appendChild(t);
+    });
+  } else {
+    const maxVal = Math.max(...top.map(v=>Math.max(numVal(v.acum.venta),numVal(v.acum.cuota))),1);
+    top.forEach((v,i)=>{
+      const y = topPad+i*rowH;
+      const label = el("text",{x:padL-8,y:y+11,"text-anchor":"end",class:"axis-label","font-weight":"700",fill:C.navy});
+      label.textContent = v.vendedor.length>16 ? v.vendedor.slice(0,15)+"…" : v.vendedor; svg.appendChild(label);
+      const wCuota = Math.max(numVal(v.acum.cuota)/maxVal*scaleW,1);
+      const wVenta = Math.max(numVal(v.acum.venta)/maxVal*scaleW,1);
+      svg.appendChild(el("rect",{x:padL,y:y,width:wCuota,height:8,rx:2,fill:C.track}));
+      svg.appendChild(el("rect",{x:padL,y:y+10,width:wVenta,height:8,rx:2,fill:C.accent}));
+    });
+  }
+  container.appendChild(svg);
+}
+const deptVendOptions = [{value:"__ALL__",label:"Todos"}].concat(Object.keys(DEPT_COLORS).map(d=>({value:d,label:d})));
+makePills(document.getElementById("pills-dept-vend"), deptVendOptions, "__ALL__", (v)=>{ deptVendFilter=v; renderVendedores(); });
+makePills(document.getElementById("pills-metric-vend"), [{value:"pct",label:"% Cumplimiento"},{value:"venta",label:"Venta $"},{value:"unidades",label:"Unidades desplazadas"}], "pct", (v)=>{ vendMetric=v; renderVendedores(); });
+
+// ================= INVENTARIO (apilado por depto; categoría o grupo primario) =================
+let mesInv = "ACUM";
+let invGroupMode = "linea"; // 'linea' | 'gpo'
+function currentInvDataset(){
+  if (invGroupMode === "linea") return { items: DATA.inventario.cats, keyField:"categoria" };
+  return { items: DATA.primarios.groups, keyField:"gpo" };
+}
+function renderInventario(){
+  document.getElementById("inv-group-title").textContent = invGroupMode==="linea" ? "categoría de producto (línea)" : "grupo primario (gpo)";
+  const invDepts = DATA.inventario.depts;
+  const { items, keyField } = currentInvDataset();
+  const cats = items.map(c=>{
+    const pd = mesInv==="ACUM" ? c.acum : c.months[mesInv];
+    return { categoria:c[keyField], total:numVal(pd.TOTAL), byDept: invDepts.map(d=>numVal(pd[d])) };
+  }).sort((a,b)=>b.total-a.total).filter(c=>c.total>0);
+
+  const container = document.getElementById("chart-inv");
+  clear(container);
+  document.getElementById("legend-inv").innerHTML = invDepts.map(d=>`<span><i style="background:${INV_DEPT_COLORS[d]}"></i>${d}</span>`).join("");
+
+  if (cats.length===0){ container.innerHTML = "<div class='empty-msg'>Sin datos para este periodo.</div>"; return; }
+
+  const grandTotal = cats.reduce((s,c)=>s+c.total,0) || 1;
+  const deptGrandTotals = invDepts.map((d,di)=>cats.reduce((s,c)=>s+c.byDept[di],0));
+
+  let html = '<table class="inv-pct-table"><thead><tr><th style="text-align:left;">'+(invGroupMode==="linea"?"CATEGORÍA":"GRUPO PRIMARIO")+'</th><th>% DEL TOTAL</th>';
+  invDepts.forEach(d=>{ html += `<th><span class="dept-dot" style="background:${INV_DEPT_COLORS[d]}"></span>${d}</th>`; });
+  html += '<th>TOTAL $</th></tr></thead><tbody>';
+  cats.forEach(c=>{
+    const pctTotal = c.total/grandTotal*100;
+    html += `<tr><td style="text-align:left;font-weight:700;">${c.categoria}</td><td class="inv-pct-main">${pctTotal.toFixed(1)}%</td>`;
+    c.byDept.forEach((val,di)=>{
+      const pctDept = c.total>0 ? (val/c.total*100) : 0;
+      if (val<=0){ html += `<td class="inv-pct-cell">-</td>`; return; }
+      const bg = hexToRgba(INV_DEPT_COLORS[invDepts[di]], 0.08 + (pctDept/100)*0.30);
+      html += `<td class="inv-pct-cell" style="background:${bg}">${pctDept.toFixed(1)}%</td>`;
+    });
+    html += `<td class="inv-pct-total">${fmtMoneyShort(c.total)}</td></tr>`;
+  });
+  html += `<tr class="total-row"><td style="text-align:left;">MEZCLA DEPARTAMENTAL (TOTAL GENERAL)</td><td>100.0%</td>`;
+  deptGrandTotals.forEach(dt=>{ const pct = dt/grandTotal*100; html += `<td>${pct.toFixed(1)}%</td>`; });
+  html += `<td>${fmtMoneyShort(grandTotal)}</td></tr>`;
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+makePills(document.getElementById("pills-group-inv"), [{value:"linea",label:"Categoría (línea)"},{value:"gpo",label:"Grupo Primario"}], "linea", (v)=>{ invGroupMode=v; renderInventario(); });
+makePills(document.getElementById("pills-mes-inv"), PERIODS.map(p=>({value:p,label:p==="ACUM"?"Acumulado":p})), "ACUM", (v)=>{ mesInv=v; renderInventario(); });
+
+// ================= POR COBRAR =================
+let mesCobranza = "ACUM";
+function renderCobranzaChart(){
+  const depts = DATA.cobranza.depts;
+  const container = document.getElementById("chart-cobranza");
+  clear(container);
+  const W=560, rowH=34, padL=110, padR=60, top=6;
+  const H = top + depts.length*rowH + 10;
+  const svg = el("svg",{viewBox:`0 0 ${W} ${H}`});
+  const maxVal = Math.max(...depts.map(d=>numVal(periodData(d,mesCobranza).cobrar)), 1);
+  const scaleW = W - padL - padR;
+  depts.forEach((d,i)=>{
+    const pd = periodData(d, mesCobranza);
+    const y = top + i*rowH;
+    const label = el("text",{x:padL-8, y:y+16, "text-anchor":"end", class:"axis-label", "font-weight":"700", fill:C.navy});
+    label.textContent = d.dept; svg.appendChild(label);
+    const w = Math.max(numVal(pd.cobrar)/maxVal*scaleW, 1);
+    const rect = el("rect",{x:padL, y:y+3, width:w, height:20, rx:3, fill:DEPT_COLORS[d.dept]||C.accent});
+    const title = document.createElementNS(SVGNS,"title"); title.textContent = d.dept+" · Por cobrar: "+fmtMoney(pd.cobrar);
+    rect.appendChild(title); svg.appendChild(rect);
+    const t = el("text",{x:padL+w+6, y:y+17, class:"axis-label", "font-weight":"700", fill:C.navy});
+    t.textContent = fmtMoneyShort(pd.cobrar); svg.appendChild(t);
+  });
+  if (depts.length===0){ container.innerHTML = "<div class='empty-msg'>Sin datos.</div>"; }
+  else container.appendChild(svg);
+}
+function renderCobranzaTabla(){
+  const depts = DATA.cobranza.depts;
+  let html = '<table><thead><tr><th>Depto</th><th>A/C MX</th><th>Por cobrar</th></tr></thead><tbody>';
+  depts.forEach(d=>{
+    const pd = periodData(d, mesCobranza);
+    html += `<tr><td><span class="dept-dot" style="background:${DEPT_COLORS[d.dept]||'#94A3B8'}"></span>${d.dept}</td>`+
+      `<td>${fmtMoney(pd.ac)}</td><td>${fmtMoney(pd.cobrar)}</td></tr>`;
+  });
+  const tot = periodData(DATA.cobranza.total, mesCobranza);
+  html += `<tr class="total-row"><td>TOTAL GENERAL</td><td>${fmtMoney(tot.ac)}</td><td>${fmtMoney(tot.cobrar)}</td></tr></tbody></table>`;
+  document.getElementById("tabla-cobranza").innerHTML = html;
+  document.getElementById("cob-kpi-ac").textContent = fmtMoney(tot.ac);
+  document.getElementById("cob-kpi-cobrar").textContent = fmtMoney(tot.cobrar);
+}
+function renderCobranza(){ renderCobranzaChart(); renderCobranzaTabla(); }
+makePills(document.getElementById("pills-mes-cobranza"), PERIODS.map(p=>({value:p,label:p==="ACUM"?"Acumulado":p})), "ACUM", (v)=>{ mesCobranza=v; renderCobranza(); });
+
+// ================= INIT =================
+renderDeptos();
+renderComparativo();
+renderTendencia();
+renderVendedores();
+renderInventario();
+renderCobranza();
+</script>
+</body>
+</html>
