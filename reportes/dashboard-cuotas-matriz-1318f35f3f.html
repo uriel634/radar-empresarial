@@ -61,6 +61,14 @@ body{ margin:0; font-family:"Montserrat",-apple-system,BlinkMacSystemFont,"Segoe
 .insight-card .itag{ font-size:10px; text-transform:uppercase; letter-spacing:.05em; font-weight:800; color:var(--gray-text); margin-bottom:3px; }
 .insight-card .ititle{ font-size:13.5px; font-weight:800; color:var(--navy); line-height:1.3; }
 .insight-card .isub{ font-size:11.5px; color:var(--gray-text); margin-top:2px; }
+.mom-card{ margin-bottom:20px; }
+.mom-detail{ font-size:12px; color:var(--gray-text); margin-top:10px; line-height:1.55; }
+.mom-detail b{ color:var(--navy); }
+.mom-detail .mom-up{ color:#059669; font-weight:800; }
+.mom-detail .mom-down{ color:#DC2626; font-weight:800; }
+.av-falta{ font-size:10.5px; color:#B45309; font-weight:700; white-space:nowrap; }
+.av-falta-dept{ color:#B45309; font-weight:800; }
+td.falta-cell{ color:#B45309; font-weight:700; }
 .avance-card{ margin-bottom:20px; }
 .av-dept{ padding:13px 0; border-top:1px solid var(--border); }
 .av-dept:first-child{ padding-top:2px; border-top:none; }
@@ -241,7 +249,17 @@ tr.total-row td{ font-weight:800; background:var(--gray-bg); }
     <div class="hero-stats">
       <div class="hero-stat"><div class="lbl">Venta acumulada</div><div class="val" id="kpi-venta">—</div></div>
       <div class="hero-stat"><div class="lbl">Cuota acumulada</div><div class="val" id="kpi-cuota">—</div></div>
+      <div class="hero-stat"><div class="lbl">Falta para cuota</div><div class="val" id="kpi-hueco">—</div></div>
     </div>
+  </div>
+
+  <div class="card mom-card">
+    <h3>Variación mes con mes <span class="hint">cada barra compara el mes contra el mes inmediato anterior</span></h3>
+    <div class="pillrow"><span class="grp-label">Métrica</span><div id="pills-mom-metric"></div>
+      <span class="grp-label" style="margin-left:14px;" id="lbl-mom-scope">Ámbito</span><div id="pills-mom-scope"></div></div>
+    <div class="chart-wrap" id="chart-mom"></div>
+    <div class="legend" id="legend-mom"></div>
+    <div class="mom-detail" id="mom-detail"></div>
   </div>
 
   <div class="card avance-card">
@@ -338,7 +356,7 @@ tr.total-row td{ font-weight:800; background:var(--gray-bg); }
 </div>
 
 <script>
-const DATA = {"fechaCorte": "2026-07-31", "meses": ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL"], "diasCorte": 31, "diasMes": 31, "mesCorte": "JUL", "resumen": {"depts": [{"dept": "ALFOMBRAS", "months": {"ENE": {"venta": 6251441.55, "cuota": 5268489.17, "pct": 1.1865719662496992}, "FEB": {"venta": 4344199.07, "cuota": 5137653.65, "pct": 0.8455609052955211}, "MAR": {"venta": 6623029.93, "cuota": 7759520.62, "pct": 0.8535359664936458}, "ABR": {"venta": 5008068.42, "cuota": 5365388.31, "pct": 0.9334027892837397}, "MAY": {"venta": 6803992.48, "cuota": 6020804.85, "pct": 1.1300802211485006}, "JUN": {"venta": 3879159.65, "cuota": 5207858.71, "pct": 0.7448665315934784}, "JUL": {"venta": 6598674.86, "cuota": 5547479.65, "pct": 1.1894905936045805}}, "acum": {"venta": 39508565.96, "cuota": 40307194.96, "pct": 0.980186440726796}}, {"dept": "LOSETAS", "months": {"ENE": {"venta": 4293105.94, "cuota": 3747289.1, "pct": 1.1456564540010117}, "FEB": {"venta": 4362682.55, "cuota": 3647383.17, "pct": 1.196113033982834}, "MAR": {"venta": 4064837.63, "cuota": 4644892.66, "pct": 0.8751198210736172}, "ABR": {"venta": 3675140.18, "cuota": 3629230.31, "pct": 1.0126500292218896}, "MAY": {"venta": 3679819.98, "cuota": 4311525.67, "pct": 0.853484417282431}, "JUN": {"venta": 3794433.45, "cuota": 3431863.25, "pct": 1.105648206171821}, "JUL": {"venta": 3707650.66, "cuota": 4170077.44, "pct": 0.8891083483585126}}, "acum": {"venta": 27577670.38, "cuota": 27582261.59, "pct": 0.999833544882771}}], "total": {"months": {"ENE": {"venta": 10544547.49, "cuota": 9015778.27, "pct": 1.1695659735873252}, "FEB": {"venta": 8706881.62, "cuota": 8785036.82, "pct": 0.9911036001781947}, "MAR": {"venta": 10687867.56, "cuota": 12404413.28, "pct": 0.8616181449897645}, "ABR": {"venta": 8683208.6, "cuota": 8994618.62, "pct": 0.9653781852064786}, "MAY": {"venta": 10483812.46, "cuota": 10332330.52, "pct": 1.0146609653753123}, "JUN": {"venta": 7673593.1, "cuota": 8639721.96, "pct": 0.8881759315319446}, "JUL": {"venta": 10306325.52, "cuota": 9717557.09, "pct": 1.0605881112451483}}, "acum": {"venta": 67086236.34, "cuota": 67889456.55, "pct": 0.9881687046734801}}}, "vendedores": [{"vendedor": "JORGE BERNAL", "dept": "ALFOMBRAS", "months": {"ENE": {"venta": 734149.88, "cuota": 1019919.92, "pct": 0.7198112993801754}, "FEB": {"venta": 753584.88, "cuota": 970369.53, "pct": 0.7765957837359925}, "MAR": {"venta": 1735438.09, "cuota": 1579233.58, "pct": 1.0989115943264018}, "ABR": {"venta": 731151.62, "cuota": 948804.92, "pct": 0.7706026851948472}, "MAY": {"venta": 1920289.6, "cuota": 1375342.46, "pct": 1.3962265052548455}, "JUN": {"venta": 763729.94, "cuota": 951891.45, "pct": 0.8023288129212846}, "JUL": {"venta": 1236525.85, "cuota": 1105075.63, "pct": 1.118951336242244}}, "acum": {"venta": 7874869.87, "cuota": 7950637.49, "pct": 0.9904702454578781}, "unidades_acum": 61917.69}, {"vendedor": "MARCOS BORENSTEIN", "dept": "ALFOMBRAS", "months": {"ENE": {"venta": 0.0, "cuota": 1699.87, "pct": 0.0}, "FEB": {"venta": 0.0, "cuota": 1617.28, "pct": 0.0}, "MAR": {"venta": 0.0, "cuota": 2183.26, "pct": 0.0}, "ABR": {"venta": 0.0, "cuota": 1581.34, "pct": 0.0}, "MAY": {"venta": 0.0, "cuota": 1923.86, "pct": 0.0}, "JUN": {"venta": 0.0, "cuota": 1586.49, "pct": 0.0}, "JUL": {"venta": 0.0, "cuota": 1841.79, "pct": 0.0}}, "acum": {"venta": 0.0, "cuota": 12433.89, "pct": 0.0}, "unidades_acum": 0.0}, {"vendedor": "MARY TORRES", "dept": "ALFOMBRAS", "months": {"ENE": {"venta": 3927970.56, "cuota": 3139868.44, "pct": 1.2509984527255742}, "FEB": {"venta": 2389078.17, "cuota": 3177507.21, "pct": 0.7518718344759516}, "MAR": {"venta": 3818168.15, "cuota": 4844129.9, "pct": 0.7882051535116537}, "ABR": {"venta": 3101891.19, "cuota": 2846414.76, "pct": 1.089753761072672}, "MAY": {"venta": 3922026.57, "cuota": 3462947.88, "pct": 1.132568754862536}, "JUN": {"venta": 2315648.92, "cuota": 2855674.36, "pct": 0.8108938997218065}, "JUL": {"venta": 2937719.8, "cuota": 3315226.88, "pct": 0.8861293378598855}}, "acum": {"venta": 22412503.38, "cuota": 23641769.44, "pct": 0.9480044812562443}, "unidades_acum": 177657.8}, {"vendedor": "MOISES ROMANO", "dept": "ALFOMBRAS", "months": {"ENE": {"venta": 0.0, "cuota": 1699.87, "pct": 0.0}, "FEB": {"venta": 0.0, "cuota": 1617.28, "pct": 0.0}, "MAR": {"venta": 0.0, "cuota": 2183.26, "pct": 0.0}, "ABR": {"venta": 0.0, "cuota": 1581.34, "pct": 0.0}, "MAY": {"venta": 0.0, "cuota": 1923.86, "pct": 0.0}, "JUN": {"venta": 0.0, "cuota": 1586.49, "pct": 0.0}, "JUL": {"venta": 0.0, "cuota": 1841.79, "pct": 0.0}}, "acum": {"venta": 0.0, "cuota": 12433.89, "pct": 0.0}, "unidades_acum": 64914.2}, {"vendedor": "VICTOR DIAZ", "dept": "ALFOMBRAS", "months": {"ENE": {"venta": 1589321.1, "cuota": 1105301.07, "pct": 1.437907864954535}, "FEB": {"venta": 1201536.02, "cuota": 986542.35, "pct": 1.2179264418860654}, "MAR": {"venta": 1069423.69, "cuota": 1331790.61, "pct": 0.8029968663046932}, "ABR": {"venta": 1175025.61, "cuota": 1567005.95, "pct": 0.7498539540315011}, "MAY": {"venta": 961676.31, "cuota": 1178666.79, "pct": 0.8159017610330661}, "JUN": {"venta": 799780.79, "cuota": 1397119.92, "pct": 0.5724496378380822}, "JUL": {"venta": 2424429.21, "cuota": 1123493.55, "pct": 2.157937800071896}}, "acum": {"venta": 9221192.72, "cuota": 8689920.24, "pct": 1.0611366345329862}, "unidades_acum": 65618.99}, {"vendedor": "ANGEL MORALES", "dept": "LOSETAS", "months": {"ENE": {"venta": 1222629.95, "cuota": 1189906.57, "pct": 1.0275007987445905}, "FEB": {"venta": 1752836.71, "cuota": 1199039.62, "pct": 1.4618672193540543}, "MAR": {"venta": 1158359.08, "cuota": 1528284.3, "pct": 0.757947374015422}, "ABR": {"venta": 1086987.06, "cuota": 1277049.77, "pct": 0.8511704780100096}, "MAY": {"venta": 1199526.97, "cuota": 1346701.95, "pct": 0.8907145052180369}, "JUN": {"venta": 1148049.59, "cuota": 1110540.03, "pct": 1.0337759610697195}, "JUL": {"venta": 1186866.45, "cuota": 1403193.75, "pct": 0.8458321921781887}}, "acum": {"venta": 8755255.8, "cuota": 9054716.0, "pct": 0.9669277095225731}, "unidades_acum": 103710.87}, {"vendedor": "BRENDA RIOS", "dept": "LOSETAS", "months": {"ENE": {"venta": 956523.56, "cuota": 900929.26, "pct": 1.0617077328264488}, "FEB": {"venta": 1122585.51, "cuota": 925919.61, "pct": 1.2124006161900576}, "MAR": {"venta": 1090847.59, "cuota": 1157129.55, "pct": 0.9427186356342768}, "ABR": {"venta": 824970.23, "cuota": 838111.01, "pct": 0.9843209481731809}, "MAY": {"venta": 1002728.81, "cuota": 1238159.43, "pct": 0.809854362454779}, "JUN": {"venta": 921095.38, "cuota": 840837.45, "pct": 1.0954499905854582}, "JUL": {"venta": 1039462.22, "cuota": 1015703.33, "pct": 1.0233915623453227}}, "acum": {"venta": 6958213.3, "cuota": 6916789.64, "pct": 1.0059888556833605}, "unidades_acum": 55122.41}, {"vendedor": "MARY MARTINEZ", "dept": "LOSETAS", "months": {"ENE": {"venta": 984919.84, "cuota": 812064.91, "pct": 1.2128585201191735}, "FEB": {"venta": 731703.9, "cuota": 695431.49, "pct": 1.0521581234839958}, "MAR": {"venta": 979876.73, "cuota": 938803.22, "pct": 1.043750931696023}, "ABR": {"venta": 733944.73, "cuota": 774792.36, "pct": 0.9472792476613346}, "MAY": {"venta": 797117.8, "cuota": 827259.77, "pct": 0.9635640823486926}, "JUN": {"venta": 773649.37, "cuota": 682188.88, "pct": 1.1340691633173385}, "JUL": {"venta": 746578.47, "cuota": 791970.87, "pct": 0.9426842612062312}}, "acum": {"venta": 5747790.84, "cuota": 5522511.49, "pct": 1.0407929152068258}, "unidades_acum": 43685.83}, {"vendedor": "VIRIDIANA PUEBLA", "dept": "LOSETAS", "months": {"ENE": {"venta": 1129032.58, "cuota": 844388.36, "pct": 1.3371010768956537}, "FEB": {"venta": 755556.43, "cuota": 826992.44, "pct": 0.9136195093412215}, "MAR": {"venta": 835754.24, "cuota": 1020675.59, "pct": 0.8188245561665639}, "ABR": {"venta": 1029238.16, "cuota": 739277.17, "pct": 1.3922223095798845}, "MAY": {"venta": 680446.4, "cuota": 899404.52, "pct": 0.7565521189779163}, "JUN": {"venta": 951639.12, "cuota": 798296.9, "pct": 1.1920867058511682}, "JUL": {"venta": 734743.52, "cuota": 959209.49, "pct": 0.7659885923406107}}, "acum": {"venta": 6116410.45, "cuota": 6088244.46, "pct": 1.0046262910801291}, "unidades_acum": 51237.25}], "inventario": {"depts": ["ALFOMBRAS", "LOSETAS"], "cats": [{"categoria": "MURO INTERIOR", "months": {"ENE": {"ALFOMBRAS": 1314088.63, "LOSETAS": 1696525.17, "TOTAL": 3010613.8}, "FEB": {"ALFOMBRAS": 1171465.92, "LOSETAS": 1138148.05, "TOTAL": 2309613.97}, "MAR": {"ALFOMBRAS": 1016496.19, "LOSETAS": 1236649.88, "TOTAL": 2253146.07}, "ABR": {"ALFOMBRAS": 971871.42, "LOSETAS": 1130885.4, "TOTAL": 2102756.82}, "MAY": {"ALFOMBRAS": 1073034.41, "LOSETAS": 1145956.2, "TOTAL": 2218990.61}, "JUN": {"ALFOMBRAS": 749608.79, "LOSETAS": 1053694.77, "TOTAL": 1803303.56}, "JUL": {"ALFOMBRAS": 1081793.54, "LOSETAS": 1104789.36, "TOTAL": 2186582.9}}, "acum": {"ALFOMBRAS": 7378358.9, "LOSETAS": 8506648.83, "TOTAL": 15885007.73}}, {"categoria": "PISO VINILICO", "months": {"ENE": {"ALFOMBRAS": 628557.67, "LOSETAS": 1590652.48, "TOTAL": 2219210.15}, "FEB": {"ALFOMBRAS": 827668.72, "LOSETAS": 1895176.58, "TOTAL": 2722845.3}, "MAR": {"ALFOMBRAS": 863812.06, "LOSETAS": 1409898.09, "TOTAL": 2273710.15}, "ABR": {"ALFOMBRAS": 852971.62, "LOSETAS": 1289610.3, "TOTAL": 2142581.92}, "MAY": {"ALFOMBRAS": 865255.65, "LOSETAS": 1192027.02, "TOTAL": 2057282.67}, "JUN": {"ALFOMBRAS": 692205.73, "LOSETAS": 1484488.38, "TOTAL": 2176694.11}, "JUL": {"ALFOMBRAS": 800755.41, "LOSETAS": 1300129.51, "TOTAL": 2100884.92}}, "acum": {"ALFOMBRAS": 5531226.86, "LOSETAS": 10161982.36, "TOTAL": 15693209.22}}, {"categoria": "ALFOMBRA", "months": {"ENE": {"ALFOMBRAS": 2634133.63, "LOSETAS": 78441.09, "TOTAL": 2712574.72}, "FEB": {"ALFOMBRAS": 800004.32, "LOSETAS": 119893.71, "TOTAL": 919898.03}, "MAR": {"ALFOMBRAS": 2076406.74, "LOSETAS": 84157.66, "TOTAL": 2160564.4}, "ABR": {"ALFOMBRAS": 1699349.75, "LOSETAS": 79534.97, "TOTAL": 1778884.72}, "MAY": {"ALFOMBRAS": 2571075.88, "LOSETAS": 152115.86, "TOTAL": 2723191.74}, "JUN": {"ALFOMBRAS": 1129227.66, "LOSETAS": 77733.9, "TOTAL": 1206961.56}, "JUL": {"ALFOMBRAS": 2910656.48, "LOSETAS": 80075.37, "TOTAL": 2990731.85}}, "acum": {"ALFOMBRAS": 13820854.45, "LOSETAS": 671952.56, "TOTAL": 14492807.01}}, {"categoria": "PASTOS", "months": {"ENE": {"ALFOMBRAS": 369378.17, "LOSETAS": 33134.17, "TOTAL": 402512.34}, "FEB": {"ALFOMBRAS": 199581.91, "LOSETAS": 119088.67, "TOTAL": 318670.58}, "MAR": {"ALFOMBRAS": 557422.64, "LOSETAS": 110742.85, "TOTAL": 668165.49}, "ABR": {"ALFOMBRAS": 483352.55, "LOSETAS": 76174.14, "TOTAL": 559526.69}, "MAY": {"ALFOMBRAS": 609422.83, "LOSETAS": 129652.79, "TOTAL": 739075.62}, "JUN": {"ALFOMBRAS": 533007.34, "LOSETAS": 139177.26, "TOTAL": 672184.6}, "JUL": {"ALFOMBRAS": 369226.5, "LOSETAS": 62038.54, "TOTAL": 431265.04}}, "acum": {"ALFOMBRAS": 3121391.95, "LOSETAS": 670008.43, "TOTAL": 3791400.38}}, {"categoria": "MADERA", "months": {"ENE": {"ALFOMBRAS": 288560.41, "LOSETAS": 104703.72, "TOTAL": 393264.13}, "FEB": {"ALFOMBRAS": 339316.82, "LOSETAS": 0.0, "TOTAL": 339316.82}, "MAR": {"ALFOMBRAS": 1097037.06, "LOSETAS": 0.0, "TOTAL": 1097037.06}, "ABR": {"ALFOMBRAS": 145474.75, "LOSETAS": 0.0, "TOTAL": 145474.75}, "MAY": {"ALFOMBRAS": 450512.95, "LOSETAS": 0.0, "TOTAL": 450512.95}, "JUN": {"ALFOMBRAS": 92860.71, "LOSETAS": 2989.25, "TOTAL": 95849.96}, "JUL": {"ALFOMBRAS": 423001.15, "LOSETAS": 175894.87, "TOTAL": 598896.02}}, "acum": {"ALFOMBRAS": 2836763.84, "LOSETAS": 283587.84, "TOTAL": 3120351.68}}, {"categoria": "ADHESIVO", "months": {"ENE": {"ALFOMBRAS": 194701.97, "LOSETAS": 247914.14, "TOTAL": 442616.11}, "FEB": {"ALFOMBRAS": 211248.74, "LOSETAS": 253964.11, "TOTAL": 465212.85}, "MAR": {"ALFOMBRAS": 150724.84, "LOSETAS": 247087.53, "TOTAL": 397812.37}, "ABR": {"ALFOMBRAS": 107623.86, "LOSETAS": 253216.28, "TOTAL": 360840.14}, "MAY": {"ALFOMBRAS": 126825.97, "LOSETAS": 254633.83, "TOTAL": 381459.8}, "JUN": {"ALFOMBRAS": 135006.38, "LOSETAS": 229979.86, "TOTAL": 364986.24}, "JUL": {"ALFOMBRAS": 104002.53, "LOSETAS": 215637.19, "TOTAL": 319639.72}}, "acum": {"ALFOMBRAS": 1030134.29, "LOSETAS": 1702432.95, "TOTAL": 2732567.24}}, {"categoria": "COLOCACION", "months": {"ENE": {"ALFOMBRAS": 158041.17, "LOSETAS": 152164.29, "TOTAL": 310205.46}, "FEB": {"ALFOMBRAS": 163403.24, "LOSETAS": 106441.89, "TOTAL": 269845.13}, "MAR": {"ALFOMBRAS": 179359.62, "LOSETAS": 114309.6, "TOTAL": 293669.22}, "ABR": {"ALFOMBRAS": 126688.41, "LOSETAS": 120475.54, "TOTAL": 247163.95}, "MAY": {"ALFOMBRAS": 321113.73, "LOSETAS": 82103.84, "TOTAL": 403217.57}, "JUN": {"ALFOMBRAS": 117035.97, "LOSETAS": 196689.41, "TOTAL": 313725.38}, "JUL": {"ALFOMBRAS": 174285.95, "LOSETAS": 106826.78, "TOTAL": 281112.73}}, "acum": {"ALFOMBRAS": 1239928.09, "LOSETAS": 879011.34, "TOTAL": 2118939.43}}, {"categoria": "PORCELANATO", "months": {"ENE": {"ALFOMBRAS": 53253.34, "LOSETAS": 141678.71, "TOTAL": 194932.05}, "FEB": {"ALFOMBRAS": 52897.93, "LOSETAS": 207434.9, "TOTAL": 260332.83}, "MAR": {"ALFOMBRAS": 36708.5, "LOSETAS": 309212.63, "TOTAL": 345921.13}, "ABR": {"ALFOMBRAS": 32397.81, "LOSETAS": 279976.29, "TOTAL": 312374.1}, "MAY": {"ALFOMBRAS": 24006.88, "LOSETAS": 309492.27, "TOTAL": 333499.15}, "JUN": {"ALFOMBRAS": 32887.76, "LOSETAS": 282478.76, "TOTAL": 315366.52}, "JUL": {"ALFOMBRAS": 42854.52, "LOSETAS": 252448.91, "TOTAL": 295303.43}}, "acum": {"ALFOMBRAS": 275006.74, "LOSETAS": 1782722.46, "TOTAL": 2057729.2}}, {"categoria": "FOLLAJE", "months": {"ENE": {"ALFOMBRAS": 262385.79, "LOSETAS": 39244.66, "TOTAL": 301630.45}, "FEB": {"ALFOMBRAS": 138730.78, "LOSETAS": 199213.18, "TOTAL": 337943.96}, "MAR": {"ALFOMBRAS": 167414.09, "LOSETAS": 103993.01, "TOTAL": 271407.1}, "ABR": {"ALFOMBRAS": 152699.95, "LOSETAS": 77628.09, "TOTAL": 230328.04}, "MAY": {"ALFOMBRAS": 213173.01, "LOSETAS": 91677.26, "TOTAL": 304850.27}, "JUN": {"ALFOMBRAS": 198902.16, "LOSETAS": 39148.81, "TOTAL": 238050.97}, "JUL": {"ALFOMBRAS": 280681.93, "LOSETAS": 40570.59, "TOTAL": 321252.52}}, "acum": {"ALFOMBRAS": 1413987.72, "LOSETAS": 591475.6, "TOTAL": 2005463.32}}, {"categoria": "LAMINADO", "months": {"ENE": {"ALFOMBRAS": 260342.73, "LOSETAS": 0.0, "TOTAL": 260342.73}, "FEB": {"ALFOMBRAS": 201595.21, "LOSETAS": 4082.17, "TOTAL": 205677.38}, "MAR": {"ALFOMBRAS": 313056.1, "LOSETAS": 9014.74, "TOTAL": 322070.84}, "ABR": {"ALFOMBRAS": 288711.76, "LOSETAS": 7342.28, "TOTAL": 296054.04}, "MAY": {"ALFOMBRAS": 298281.99, "LOSETAS": 6721.41, "TOTAL": 305003.4}, "JUN": {"ALFOMBRAS": 73521.61, "LOSETAS": 2016.43, "TOTAL": 75538.04}, "JUL": {"ALFOMBRAS": 250151.65, "LOSETAS": 10585.7, "TOTAL": 260737.35}}, "acum": {"ALFOMBRAS": 1685661.05, "LOSETAS": 39762.72, "TOTAL": 1725423.77}}, {"categoria": "MOLDURAS", "months": {"ENE": {"ALFOMBRAS": 69621.11, "LOSETAS": 72796.82, "TOTAL": 142417.93}, "FEB": {"ALFOMBRAS": 69916.56, "LOSETAS": 51759.26, "TOTAL": 121675.82}, "MAR": {"ALFOMBRAS": 76328.09, "LOSETAS": 82329.61, "TOTAL": 158657.7}, "ABR": {"ALFOMBRAS": 71675.74, "LOSETAS": 102266.7, "TOTAL": 173942.44}, "MAY": {"ALFOMBRAS": 85777.46, "LOSETAS": 119060.42, "TOTAL": 204837.88}, "JUN": {"ALFOMBRAS": 66512.13, "LOSETAS": 122391.87, "TOTAL": 188904.0}, "JUL": {"ALFOMBRAS": 87497.3, "LOSETAS": 123658.81, "TOTAL": 211156.11}}, "acum": {"ALFOMBRAS": 527328.4, "LOSETAS": 674263.48, "TOTAL": 1201591.88}}, {"categoria": "MURO EXTERIOR", "months": {"ENE": {"ALFOMBRAS": 0.0, "LOSETAS": 0.0, "TOTAL": 0.0}, "FEB": {"ALFOMBRAS": 123842.63, "LOSETAS": 142762.81, "TOTAL": 266605.44}, "MAR": {"ALFOMBRAS": 17074.77, "LOSETAS": 186350.6, "TOTAL": 203425.37}, "ABR": {"ALFOMBRAS": 39013.94, "LOSETAS": 114332.38, "TOTAL": 153346.32}, "MAY": {"ALFOMBRAS": 97749.11, "LOSETAS": 99546.95, "TOTAL": 197296.06}, "JUN": {"ALFOMBRAS": 34297.04, "LOSETAS": 69685.39, "TOTAL": 103982.43}, "JUL": {"ALFOMBRAS": 39561.35, "LOSETAS": 101610.65, "TOTAL": 141172.0}}, "acum": {"ALFOMBRAS": 351538.84, "LOSETAS": 714288.79, "TOTAL": 1065827.63}}, {"categoria": "PERSIANAS", "months": {"ENE": {"ALFOMBRAS": 0.0, "LOSETAS": 66706.52, "TOTAL": 66706.52}, "FEB": {"ALFOMBRAS": 0.0, "LOSETAS": 79733.95, "TOTAL": 79733.95}, "MAR": {"ALFOMBRAS": 0.0, "LOSETAS": 98907.98, "TOTAL": 98907.98}, "ABR": {"ALFOMBRAS": 0.0, "LOSETAS": 53139.96, "TOTAL": 53139.96}, "MAY": {"ALFOMBRAS": 0.0, "LOSETAS": 59456.35, "TOTAL": 59456.35}, "JUN": {"ALFOMBRAS": 0.0, "LOSETAS": 45343.51, "TOTAL": 45343.51}, "JUL": {"ALFOMBRAS": 0.0, "LOSETAS": 80559.78, "TOTAL": 80559.78}}, "acum": {"ALFOMBRAS": 0.0, "LOSETAS": 483848.04, "TOTAL": 483848.04}}, {"categoria": "MATERIAL PARA COLOCACION", "months": {"ENE": {"ALFOMBRAS": 11385.12, "LOSETAS": 3626.81, "TOTAL": 15011.93}, "FEB": {"ALFOMBRAS": 33879.12, "LOSETAS": 1736.35, "TOTAL": 35615.47}, "MAR": {"ALFOMBRAS": 54252.48, "LOSETAS": 10435.68, "TOTAL": 64688.16}, "ABR": {"ALFOMBRAS": 22618.81, "LOSETAS": 38113.44, "TOTAL": 60732.25}, "MAY": {"ALFOMBRAS": 62008.04, "LOSETAS": 5973.88, "TOTAL": 67981.92}, "JUN": {"ALFOMBRAS": 11465.37, "LOSETAS": 11026.75, "TOTAL": 22492.12}, "JUL": {"ALFOMBRAS": 21185.52, "LOSETAS": 15618.45, "TOTAL": 36803.97}}, "acum": {"ALFOMBRAS": 216794.46, "LOSETAS": 86531.36, "TOTAL": 303325.82}}, {"categoria": "CERAMICA", "months": {"ENE": {"ALFOMBRAS": 0.0, "LOSETAS": 40715.64, "TOTAL": 40715.64}, "FEB": {"ALFOMBRAS": 0.0, "LOSETAS": 31523.88, "TOTAL": 31523.88}, "MAR": {"ALFOMBRAS": 2111.49, "LOSETAS": 20173.15, "TOTAL": 22284.64}, "ABR": {"ALFOMBRAS": 4556.89, "LOSETAS": 36728.12, "TOTAL": 41285.01}, "MAY": {"ALFOMBRAS": 606.08, "LOSETAS": 18464.03, "TOTAL": 19070.11}, "JUN": {"ALFOMBRAS": 7569.8, "LOSETAS": 24991.69, "TOTAL": 32561.49}, "JUL": {"ALFOMBRAS": 0.0, "LOSETAS": 11210.7, "TOTAL": 11210.7}}, "acum": {"ALFOMBRAS": 14844.25, "LOSETAS": 183807.22, "TOTAL": 198651.47}}, {"categoria": "TAPETES", "months": {"ENE": {"ALFOMBRAS": 6691.8, "LOSETAS": 11354.61, "TOTAL": 18046.41}, "FEB": {"ALFOMBRAS": 4964.82, "LOSETAS": 11015.72, "TOTAL": 15980.54}, "MAR": {"ALFOMBRAS": 14825.25, "LOSETAS": 18285.39, "TOTAL": 33110.64}, "ABR": {"ALFOMBRAS": 8045.7, "LOSETAS": 13750.84, "TOTAL": 21796.54}, "MAY": {"ALFOMBRAS": 3943.05, "LOSETAS": 12637.86, "TOTAL": 16580.91}, "JUN": {"ALFOMBRAS": 5051.2, "LOSETAS": 10401.23, "TOTAL": 15452.43}, "JUL": {"ALFOMBRAS": 9459.24, "LOSETAS": 21492.9, "TOTAL": 30952.14}}, "acum": {"ALFOMBRAS": 52981.06, "LOSETAS": 98938.56, "TOTAL": 151919.62}}, {"categoria": "MUEBLES", "months": {"ENE": {"ALFOMBRAS": 0.0, "LOSETAS": 11840.03, "TOTAL": 11840.03}, "FEB": {"ALFOMBRAS": 0.0, "LOSETAS": 0.0, "TOTAL": 0.0}, "MAR": {"ALFOMBRAS": 0.0, "LOSETAS": 22516.04, "TOTAL": 22516.04}, "ABR": {"ALFOMBRAS": 0.0, "LOSETAS": 0.0, "TOTAL": 0.0}, "MAY": {"ALFOMBRAS": 0.0, "LOSETAS": 0.0, "TOTAL": 0.0}, "JUN": {"ALFOMBRAS": 0.0, "LOSETAS": 0.0, "TOTAL": 0.0}, "JUL": {"ALFOMBRAS": 0.0, "LOSETAS": 0.0, "TOTAL": 0.0}}, "acum": {"ALFOMBRAS": 0.0, "LOSETAS": 34356.07, "TOTAL": 34356.07}}, {"categoria": "BA\u00d1O", "months": {"ENE": {"ALFOMBRAS": 0.0, "LOSETAS": 100.0, "TOTAL": 100.0}, "FEB": {"ALFOMBRAS": 5682.35, "LOSETAS": 0.0, "TOTAL": 5682.35}, "MAR": {"ALFOMBRAS": 0.0, "LOSETAS": 773.17, "TOTAL": 773.17}, "ABR": {"ALFOMBRAS": 515.45, "LOSETAS": 1965.45, "TOTAL": 2480.9}, "MAY": {"ALFOMBRAS": 0.0, "LOSETAS": 300.0, "TOTAL": 300.0}, "JUN": {"ALFOMBRAS": 0.0, "LOSETAS": 2196.19, "TOTAL": 2196.19}, "JUL": {"ALFOMBRAS": 3561.79, "LOSETAS": 4202.55, "TOTAL": 7764.34}}, "acum": {"ALFOMBRAS": 9759.59, "LOSETAS": 9537.37, "TOTAL": 19296.96}}, {"categoria": "VARIOS", "months": {"ENE": {"ALFOMBRAS": 300.0, "LOSETAS": 1507.07, "TOTAL": 1807.07}, "FEB": {"ALFOMBRAS": 0.0, "LOSETAS": 707.32, "TOTAL": 707.32}, "MAR": {"ALFOMBRAS": 0.0, "LOSETAS": 0.0, "TOTAL": 0.0}, "ABR": {"ALFOMBRAS": 500.01, "LOSETAS": 0.0, "TOTAL": 500.01}, "MAY": {"ALFOMBRAS": 1205.45, "LOSETAS": 0.0, "TOTAL": 1205.45}, "JUN": {"ALFOMBRAS": 0.0, "LOSETAS": 0.0, "TOTAL": 0.0}, "JUL": {"ALFOMBRAS": 0.0, "LOSETAS": 300.0, "TOTAL": 300.0}}, "acum": {"ALFOMBRAS": 2005.45, "LOSETAS": 2514.39, "TOTAL": 4519.84}}]}, "primarios": {"depts": ["ALFOMBRAS", "LOSETAS"], "groups": [{"gpo": "PR 2", "months": {"ENE": {"ALFOMBRAS": 2363532.69, "LOSETAS": 2287045.57, "TOTAL": 4650578.26}, "FEB": {"ALFOMBRAS": 1623025.96, "LOSETAS": 1853332.6, "TOTAL": 3476358.56}, "MAR": {"ALFOMBRAS": 1624514.45, "LOSETAS": 2140382.17, "TOTAL": 3764896.62}, "ABR": {"ALFOMBRAS": 1798130.58, "LOSETAS": 1877159.21, "TOTAL": 3675289.79}, "MAY": {"ALFOMBRAS": 3138949.42, "LOSETAS": 1816230.21, "TOTAL": 4955179.63}, "JUN": {"ALFOMBRAS": 1488776.56, "LOSETAS": 1883453.71, "TOTAL": 3372230.27}, "JUL": {"ALFOMBRAS": 3257308.95, "LOSETAS": 1966146.03, "TOTAL": 5223454.98}}, "acum": {"ALFOMBRAS": 15294238.61, "LOSETAS": 13823749.5, "TOTAL": 29117988.11}}, {"gpo": "PR 3", "months": {"ENE": {"ALFOMBRAS": 2619029.21, "LOSETAS": 1264360.48, "TOTAL": 3883389.69}, "FEB": {"ALFOMBRAS": 1518513.9, "LOSETAS": 1502189.19, "TOTAL": 3020703.09}, "MAR": {"ALFOMBRAS": 3067693.93, "LOSETAS": 1451632.56, "TOTAL": 4519326.49}, "ABR": {"ALFOMBRAS": 2509590.95, "LOSETAS": 1457521.42, "TOTAL": 3967112.37}, "MAY": {"ALFOMBRAS": 2605903.95, "LOSETAS": 1514327.57, "TOTAL": 4120231.52}, "JUN": {"ALFOMBRAS": 1866646.39, "LOSETAS": 1069276.09, "TOTAL": 2935922.48}, "JUL": {"ALFOMBRAS": 2365753.85, "LOSETAS": 1082743.63, "TOTAL": 3448497.48}}, "acum": {"ALFOMBRAS": 16553132.16, "LOSETAS": 9342050.93, "TOTAL": 25895183.09}}, {"gpo": "PR 9", "months": {"ENE": {"ALFOMBRAS": 1065090.46, "LOSETAS": 536580.74, "TOTAL": 1601671.2}, "FEB": {"ALFOMBRAS": 1019934.78, "LOSETAS": 882971.31, "TOTAL": 1902906.09}, "MAR": {"ALFOMBRAS": 1754552.26, "LOSETAS": 342585.7, "TOTAL": 2097137.96}, "ABR": {"ALFOMBRAS": 569237.9, "LOSETAS": 199964.48, "TOTAL": 769202.38}, "MAY": {"ALFOMBRAS": 727941.97, "LOSETAS": 220109.54, "TOTAL": 948051.51}, "JUN": {"ALFOMBRAS": 398759.21, "LOSETAS": 609542.18, "TOTAL": 1008301.39}, "JUL": {"ALFOMBRAS": 775408.75, "LOSETAS": 491988.27, "TOTAL": 1267397.02}}, "acum": {"ALFOMBRAS": 6310925.33, "LOSETAS": 3283742.21, "TOTAL": 9594667.54}}, {"gpo": "PR 4", "months": {"ENE": {"ALFOMBRAS": 158341.17, "LOSETAS": 153671.36, "TOTAL": 312012.53}, "FEB": {"ALFOMBRAS": 163403.24, "LOSETAS": 106661.83, "TOTAL": 270065.07}, "MAR": {"ALFOMBRAS": 153692.3, "LOSETAS": 114309.6, "TOTAL": 268001.9}, "ABR": {"ALFOMBRAS": 113580.51, "LOSETAS": 120475.54, "TOTAL": 234056.05}, "MAY": {"ALFOMBRAS": 322319.18, "LOSETAS": 82103.84, "TOTAL": 404423.02}, "JUN": {"ALFOMBRAS": 117035.97, "LOSETAS": 196389.42, "TOTAL": 313425.39}, "JUL": {"ALFOMBRAS": 174285.95, "LOSETAS": 107126.78, "TOTAL": 281412.73}}, "acum": {"ALFOMBRAS": 1202658.32, "LOSETAS": 880738.35, "TOTAL": 2083396.67}}, {"gpo": "PR 1", "months": {"ENE": {"ALFOMBRAS": 45448.02, "LOSETAS": 51447.8, "TOTAL": 96895.82}, "FEB": {"ALFOMBRAS": 19321.19, "LOSETAS": 17527.62, "TOTAL": 36848.81}, "MAR": {"ALFOMBRAS": 22577.0, "LOSETAS": 15927.6, "TOTAL": 38504.6}, "ABR": {"ALFOMBRAS": 17528.48, "LOSETAS": 20019.54, "TOTAL": 37548.02}, "MAY": {"ALFOMBRAS": 8877.97, "LOSETAS": 47048.82, "TOTAL": 55926.79}, "JUN": {"ALFOMBRAS": 7941.52, "LOSETAS": 35772.06, "TOTAL": 43713.58}, "JUL": {"ALFOMBRAS": 25917.36, "LOSETAS": 59645.96, "TOTAL": 85563.32}}, "acum": {"ALFOMBRAS": 147611.54, "LOSETAS": 247389.4, "TOTAL": 395000.94}}]}, "cobranza": {"depts": [{"dept": "ALFOMBRAS", "months": {"ENE": {"ac": 6219462.73, "cobrar": 31978.82}, "FEB": {"ac": 4340382.56, "cobrar": 3816.51}, "MAR": {"ac": 6623019.97, "cobrar": 9.96}, "ABR": {"ac": 4942408.99, "cobrar": 65659.43}, "MAY": {"ac": 6790159.81, "cobrar": 13832.67}, "JUN": {"ac": 3816799.33, "cobrar": 62360.32}, "JUL": {"ac": 5299283.8, "cobrar": 1299391.06}}, "acum": {"ac": 38031517.19, "cobrar": 1477048.77}}, {"dept": "LOSETAS", "months": {"ENE": {"ac": 4221179.9, "cobrar": 71926.05}, "FEB": {"ac": 3847002.88, "cobrar": 515679.67}, "MAR": {"ac": 4050592.39, "cobrar": 14245.24}, "ABR": {"ac": 3628462.94, "cobrar": 46677.24}, "MAY": {"ac": 3638618.22, "cobrar": 41201.76}, "JUN": {"ac": 3781383.01, "cobrar": 13050.44}, "JUL": {"ac": 3691234.58, "cobrar": 16416.08}}, "acum": {"ac": 26858473.92, "cobrar": 719196.47}}], "total": {"months": {"ENE": {"ac": 10440642.63, "cobrar": 103904.87}, "FEB": {"ac": 8187385.44, "cobrar": 519496.18}, "MAR": {"ac": 10673612.36, "cobrar": 14255.2}, "ABR": {"ac": 8570871.93, "cobrar": 112336.67}, "MAY": {"ac": 10428778.03, "cobrar": 55034.43}, "JUN": {"ac": 7598182.34, "cobrar": 75410.76}, "JUL": {"ac": 8990518.38, "cobrar": 1315807.14}}, "acum": {"ac": 64889991.11, "cobrar": 2196245.24}}}};
+const DATA = {"fechaCorte": "2026-07-31", "meses": ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL"], "diasCorte": 31, "diasMes": 31, "mesCorte": "JUL", "resumen": {"depts": [{"dept": "ALFOMBRAS", "months": {"ENE": {"venta": 6251441.55, "cuota": 5265089.43, "pct": 1.187338150376267}, "FEB": {"venta": 4344199.07, "cuota": 5134419.09, "pct": 0.8460935890785799}, "MAR": {"venta": 6623029.93, "cuota": 7755154.09, "pct": 0.8540165484969912}, "ABR": {"venta": 5008068.42, "cuota": 5362225.63, "pct": 0.9339533176277305}, "MAY": {"venta": 6803992.48, "cuota": 6016957.13, "pct": 1.1308028841199442}, "JUN": {"venta": 3879159.65, "cuota": 5204685.74, "pct": 0.7453206301512855}, "JUL": {"venta": 6598674.86, "cuota": 5543796.06, "pct": 1.1902809528029887}}, "acum": {"venta": 39508565.96, "cuota": 40282327.18, "pct": 0.9807915464145341}}, {"dept": "LOSETAS", "months": {"ENE": {"venta": 4293105.94, "cuota": 3747289.1, "pct": 1.1456564540010117}, "FEB": {"venta": 4362682.55, "cuota": 3647383.17, "pct": 1.196113033982834}, "MAR": {"venta": 4064837.63, "cuota": 4644892.66, "pct": 0.8751198210736172}, "ABR": {"venta": 3675140.18, "cuota": 3629230.31, "pct": 1.0126500292218896}, "MAY": {"venta": 3679819.98, "cuota": 4311525.67, "pct": 0.853484417282431}, "JUN": {"venta": 3794433.45, "cuota": 3431863.25, "pct": 1.105648206171821}, "JUL": {"venta": 3707650.66, "cuota": 4170077.44, "pct": 0.8891083483585126}}, "acum": {"venta": 27577670.38, "cuota": 27582261.59, "pct": 0.999833544882771}}], "total": {"months": {"ENE": {"venta": 10544547.49, "cuota": 9012378.53, "pct": 1.1700071690175669}, "FEB": {"venta": 8706881.62, "cuota": 8781802.26, "pct": 0.9914686487144837}, "MAR": {"venta": 10687867.56, "cuota": 12400046.75, "pct": 0.8619215536425296}, "ABR": {"venta": 8683208.6, "cuota": 8991455.94, "pct": 0.9657177500443827}, "MAY": {"venta": 10483812.46, "cuota": 10328482.8, "pct": 1.0150389619664177}, "JUN": {"venta": 7673593.1, "cuota": 8636548.99, "pct": 0.8885022372807729}, "JUL": {"venta": 10306325.52, "cuota": 9713873.5, "pct": 1.0609902959926336}}, "acum": {"venta": 67086236.34, "cuota": 67864588.77, "pct": 0.9885308016432854}}}, "vendedores": [{"vendedor": "JORGE BERNAL", "dept": "ALFOMBRAS", "months": {"ENE": {"venta": 734149.88, "cuota": 1019919.92, "pct": 0.7198112993801754}, "FEB": {"venta": 753584.88, "cuota": 970369.53, "pct": 0.7765957837359925}, "MAR": {"venta": 1735438.09, "cuota": 1579233.58, "pct": 1.0989115943264018}, "ABR": {"venta": 731151.62, "cuota": 948804.92, "pct": 0.7706026851948472}, "MAY": {"venta": 1920289.6, "cuota": 1375342.46, "pct": 1.3962265052548455}, "JUN": {"venta": 763729.94, "cuota": 951891.45, "pct": 0.8023288129212846}, "JUL": {"venta": 1236525.85, "cuota": 1105075.63, "pct": 1.118951336242244}}, "acum": {"venta": 7874869.87, "cuota": 7950637.49, "pct": 0.9904702454578781}, "unidades_acum": 61917.69}, {"vendedor": "MARY TORRES", "dept": "ALFOMBRAS", "months": {"ENE": {"venta": 3927970.56, "cuota": 3139868.44, "pct": 1.2509984527255742}, "FEB": {"venta": 2389078.17, "cuota": 3177507.21, "pct": 0.7518718344759516}, "MAR": {"venta": 3818168.15, "cuota": 4844129.9, "pct": 0.7882051535116537}, "ABR": {"venta": 3101891.19, "cuota": 2846414.76, "pct": 1.089753761072672}, "MAY": {"venta": 3922026.57, "cuota": 3462947.88, "pct": 1.132568754862536}, "JUN": {"venta": 2315648.92, "cuota": 2855674.36, "pct": 0.8108938997218065}, "JUL": {"venta": 2937719.8, "cuota": 3315226.88, "pct": 0.8861293378598855}}, "acum": {"venta": 22412503.38, "cuota": 23641769.44, "pct": 0.9480044812562443}, "unidades_acum": 177657.8}, {"vendedor": "VICTOR DIAZ", "dept": "ALFOMBRAS", "months": {"ENE": {"venta": 1589321.1, "cuota": 1105301.07, "pct": 1.437907864954535}, "FEB": {"venta": 1201536.02, "cuota": 986542.35, "pct": 1.2179264418860654}, "MAR": {"venta": 1069423.69, "cuota": 1331790.61, "pct": 0.8029968663046932}, "ABR": {"venta": 1175025.61, "cuota": 1567005.95, "pct": 0.7498539540315011}, "MAY": {"venta": 961676.31, "cuota": 1178666.79, "pct": 0.8159017610330661}, "JUN": {"venta": 799780.79, "cuota": 1397119.92, "pct": 0.5724496378380822}, "JUL": {"venta": 2424429.21, "cuota": 1123493.55, "pct": 2.157937800071896}}, "acum": {"venta": 9221192.72, "cuota": 8689920.24, "pct": 1.0611366345329862}, "unidades_acum": 65618.99}, {"vendedor": "ANGEL MORALES", "dept": "LOSETAS", "months": {"ENE": {"venta": 1222629.95, "cuota": 1189906.57, "pct": 1.0275007987445905}, "FEB": {"venta": 1752836.71, "cuota": 1199039.62, "pct": 1.4618672193540543}, "MAR": {"venta": 1158359.08, "cuota": 1528284.3, "pct": 0.757947374015422}, "ABR": {"venta": 1086987.06, "cuota": 1277049.77, "pct": 0.8511704780100096}, "MAY": {"venta": 1199526.97, "cuota": 1346701.95, "pct": 0.8907145052180369}, "JUN": {"venta": 1148049.59, "cuota": 1110540.03, "pct": 1.0337759610697195}, "JUL": {"venta": 1186866.45, "cuota": 1403193.75, "pct": 0.8458321921781887}}, "acum": {"venta": 8755255.8, "cuota": 9054716.0, "pct": 0.9669277095225731}, "unidades_acum": 103710.87}, {"vendedor": "BRENDA RIOS", "dept": "LOSETAS", "months": {"ENE": {"venta": 956523.56, "cuota": 900929.26, "pct": 1.0617077328264488}, "FEB": {"venta": 1122585.51, "cuota": 925919.61, "pct": 1.2124006161900576}, "MAR": {"venta": 1090847.59, "cuota": 1157129.55, "pct": 0.9427186356342768}, "ABR": {"venta": 824970.23, "cuota": 838111.01, "pct": 0.9843209481731809}, "MAY": {"venta": 1002728.81, "cuota": 1238159.43, "pct": 0.809854362454779}, "JUN": {"venta": 921095.38, "cuota": 840837.45, "pct": 1.0954499905854582}, "JUL": {"venta": 1039462.22, "cuota": 1015703.33, "pct": 1.0233915623453227}}, "acum": {"venta": 6958213.3, "cuota": 6916789.64, "pct": 1.0059888556833605}, "unidades_acum": 55122.41}, {"vendedor": "MARY MARTINEZ", "dept": "LOSETAS", "months": {"ENE": {"venta": 984919.84, "cuota": 812064.91, "pct": 1.2128585201191735}, "FEB": {"venta": 731703.9, "cuota": 695431.49, "pct": 1.0521581234839958}, "MAR": {"venta": 979876.73, "cuota": 938803.22, "pct": 1.043750931696023}, "ABR": {"venta": 733944.73, "cuota": 774792.36, "pct": 0.9472792476613346}, "MAY": {"venta": 797117.8, "cuota": 827259.77, "pct": 0.9635640823486926}, "JUN": {"venta": 773649.37, "cuota": 682188.88, "pct": 1.1340691633173385}, "JUL": {"venta": 746578.47, "cuota": 791970.87, "pct": 0.9426842612062312}}, "acum": {"venta": 5747790.84, "cuota": 5522511.49, "pct": 1.0407929152068258}, "unidades_acum": 43685.83}, {"vendedor": "VIRIDIANA PUEBLA", "dept": "LOSETAS", "months": {"ENE": {"venta": 1129032.58, "cuota": 844388.36, "pct": 1.3371010768956537}, "FEB": {"venta": 755556.43, "cuota": 826992.44, "pct": 0.9136195093412215}, "MAR": {"venta": 835754.24, "cuota": 1020675.59, "pct": 0.8188245561665639}, "ABR": {"venta": 1029238.16, "cuota": 739277.17, "pct": 1.3922223095798845}, "MAY": {"venta": 680446.4, "cuota": 899404.52, "pct": 0.7565521189779163}, "JUN": {"venta": 951639.12, "cuota": 798296.9, "pct": 1.1920867058511682}, "JUL": {"venta": 734743.52, "cuota": 959209.49, "pct": 0.7659885923406107}}, "acum": {"venta": 6116410.45, "cuota": 6088244.46, "pct": 1.0046262910801291}, "unidades_acum": 51237.25}], "inventario": {"depts": ["ALFOMBRAS", "LOSETAS"], "cats": [{"categoria": "MURO INTERIOR", "months": {"ENE": {"ALFOMBRAS": 1314088.63, "LOSETAS": 1696525.17, "TOTAL": 3010613.8}, "FEB": {"ALFOMBRAS": 1171465.92, "LOSETAS": 1138148.05, "TOTAL": 2309613.97}, "MAR": {"ALFOMBRAS": 1016496.19, "LOSETAS": 1236649.88, "TOTAL": 2253146.07}, "ABR": {"ALFOMBRAS": 971871.42, "LOSETAS": 1130885.4, "TOTAL": 2102756.82}, "MAY": {"ALFOMBRAS": 1073034.41, "LOSETAS": 1145956.2, "TOTAL": 2218990.61}, "JUN": {"ALFOMBRAS": 749608.79, "LOSETAS": 1053694.77, "TOTAL": 1803303.56}, "JUL": {"ALFOMBRAS": 1081793.54, "LOSETAS": 1104789.36, "TOTAL": 2186582.9}}, "acum": {"ALFOMBRAS": 7378358.9, "LOSETAS": 8506648.83, "TOTAL": 15885007.73}}, {"categoria": "PISO VINILICO", "months": {"ENE": {"ALFOMBRAS": 628557.67, "LOSETAS": 1590652.48, "TOTAL": 2219210.15}, "FEB": {"ALFOMBRAS": 827668.72, "LOSETAS": 1895176.58, "TOTAL": 2722845.3}, "MAR": {"ALFOMBRAS": 863812.06, "LOSETAS": 1409898.09, "TOTAL": 2273710.15}, "ABR": {"ALFOMBRAS": 852971.62, "LOSETAS": 1289610.3, "TOTAL": 2142581.92}, "MAY": {"ALFOMBRAS": 865255.65, "LOSETAS": 1192027.02, "TOTAL": 2057282.67}, "JUN": {"ALFOMBRAS": 692205.73, "LOSETAS": 1484488.38, "TOTAL": 2176694.11}, "JUL": {"ALFOMBRAS": 800755.41, "LOSETAS": 1300129.51, "TOTAL": 2100884.92}}, "acum": {"ALFOMBRAS": 5531226.86, "LOSETAS": 10161982.36, "TOTAL": 15693209.22}}, {"categoria": "ALFOMBRA", "months": {"ENE": {"ALFOMBRAS": 2634133.63, "LOSETAS": 78441.09, "TOTAL": 2712574.72}, "FEB": {"ALFOMBRAS": 800004.32, "LOSETAS": 119893.71, "TOTAL": 919898.03}, "MAR": {"ALFOMBRAS": 2076406.74, "LOSETAS": 84157.66, "TOTAL": 2160564.4}, "ABR": {"ALFOMBRAS": 1699349.75, "LOSETAS": 79534.97, "TOTAL": 1778884.72}, "MAY": {"ALFOMBRAS": 2571075.88, "LOSETAS": 152115.86, "TOTAL": 2723191.74}, "JUN": {"ALFOMBRAS": 1129227.66, "LOSETAS": 77733.9, "TOTAL": 1206961.56}, "JUL": {"ALFOMBRAS": 2910656.48, "LOSETAS": 80075.37, "TOTAL": 2990731.85}}, "acum": {"ALFOMBRAS": 13820854.45, "LOSETAS": 671952.56, "TOTAL": 14492807.01}}, {"categoria": "PASTOS", "months": {"ENE": {"ALFOMBRAS": 369378.17, "LOSETAS": 33134.17, "TOTAL": 402512.34}, "FEB": {"ALFOMBRAS": 199581.91, "LOSETAS": 119088.67, "TOTAL": 318670.58}, "MAR": {"ALFOMBRAS": 557422.64, "LOSETAS": 110742.85, "TOTAL": 668165.49}, "ABR": {"ALFOMBRAS": 483352.55, "LOSETAS": 76174.14, "TOTAL": 559526.69}, "MAY": {"ALFOMBRAS": 609422.83, "LOSETAS": 129652.79, "TOTAL": 739075.62}, "JUN": {"ALFOMBRAS": 533007.34, "LOSETAS": 139177.26, "TOTAL": 672184.6}, "JUL": {"ALFOMBRAS": 369226.5, "LOSETAS": 62038.54, "TOTAL": 431265.04}}, "acum": {"ALFOMBRAS": 3121391.95, "LOSETAS": 670008.43, "TOTAL": 3791400.38}}, {"categoria": "MADERA", "months": {"ENE": {"ALFOMBRAS": 288560.41, "LOSETAS": 104703.72, "TOTAL": 393264.13}, "FEB": {"ALFOMBRAS": 339316.82, "LOSETAS": 0.0, "TOTAL": 339316.82}, "MAR": {"ALFOMBRAS": 1097037.06, "LOSETAS": 0.0, "TOTAL": 1097037.06}, "ABR": {"ALFOMBRAS": 145474.75, "LOSETAS": 0.0, "TOTAL": 145474.75}, "MAY": {"ALFOMBRAS": 450512.95, "LOSETAS": 0.0, "TOTAL": 450512.95}, "JUN": {"ALFOMBRAS": 92860.71, "LOSETAS": 2989.25, "TOTAL": 95849.96}, "JUL": {"ALFOMBRAS": 423001.15, "LOSETAS": 175894.87, "TOTAL": 598896.02}}, "acum": {"ALFOMBRAS": 2836763.84, "LOSETAS": 283587.84, "TOTAL": 3120351.68}}, {"categoria": "ADHESIVO", "months": {"ENE": {"ALFOMBRAS": 194701.97, "LOSETAS": 247914.14, "TOTAL": 442616.11}, "FEB": {"ALFOMBRAS": 211248.74, "LOSETAS": 253964.11, "TOTAL": 465212.85}, "MAR": {"ALFOMBRAS": 150724.84, "LOSETAS": 247087.53, "TOTAL": 397812.37}, "ABR": {"ALFOMBRAS": 107623.86, "LOSETAS": 253216.28, "TOTAL": 360840.14}, "MAY": {"ALFOMBRAS": 126825.97, "LOSETAS": 254633.83, "TOTAL": 381459.8}, "JUN": {"ALFOMBRAS": 135006.38, "LOSETAS": 229979.86, "TOTAL": 364986.24}, "JUL": {"ALFOMBRAS": 104002.53, "LOSETAS": 215637.19, "TOTAL": 319639.72}}, "acum": {"ALFOMBRAS": 1030134.29, "LOSETAS": 1702432.95, "TOTAL": 2732567.24}}, {"categoria": "COLOCACION", "months": {"ENE": {"ALFOMBRAS": 158041.17, "LOSETAS": 152164.29, "TOTAL": 310205.46}, "FEB": {"ALFOMBRAS": 163403.24, "LOSETAS": 106441.89, "TOTAL": 269845.13}, "MAR": {"ALFOMBRAS": 179359.62, "LOSETAS": 114309.6, "TOTAL": 293669.22}, "ABR": {"ALFOMBRAS": 126688.41, "LOSETAS": 120475.54, "TOTAL": 247163.95}, "MAY": {"ALFOMBRAS": 321113.73, "LOSETAS": 82103.84, "TOTAL": 403217.57}, "JUN": {"ALFOMBRAS": 117035.97, "LOSETAS": 196689.41, "TOTAL": 313725.38}, "JUL": {"ALFOMBRAS": 174285.95, "LOSETAS": 106826.78, "TOTAL": 281112.73}}, "acum": {"ALFOMBRAS": 1239928.09, "LOSETAS": 879011.34, "TOTAL": 2118939.43}}, {"categoria": "PORCELANATO", "months": {"ENE": {"ALFOMBRAS": 53253.34, "LOSETAS": 141678.71, "TOTAL": 194932.05}, "FEB": {"ALFOMBRAS": 52897.93, "LOSETAS": 207434.9, "TOTAL": 260332.83}, "MAR": {"ALFOMBRAS": 36708.5, "LOSETAS": 309212.63, "TOTAL": 345921.13}, "ABR": {"ALFOMBRAS": 32397.81, "LOSETAS": 279976.29, "TOTAL": 312374.1}, "MAY": {"ALFOMBRAS": 24006.88, "LOSETAS": 309492.27, "TOTAL": 333499.15}, "JUN": {"ALFOMBRAS": 32887.76, "LOSETAS": 282478.76, "TOTAL": 315366.52}, "JUL": {"ALFOMBRAS": 42854.52, "LOSETAS": 252448.91, "TOTAL": 295303.43}}, "acum": {"ALFOMBRAS": 275006.74, "LOSETAS": 1782722.46, "TOTAL": 2057729.2}}, {"categoria": "FOLLAJE", "months": {"ENE": {"ALFOMBRAS": 262385.79, "LOSETAS": 39244.66, "TOTAL": 301630.45}, "FEB": {"ALFOMBRAS": 138730.78, "LOSETAS": 199213.18, "TOTAL": 337943.96}, "MAR": {"ALFOMBRAS": 167414.09, "LOSETAS": 103993.01, "TOTAL": 271407.1}, "ABR": {"ALFOMBRAS": 152699.95, "LOSETAS": 77628.09, "TOTAL": 230328.04}, "MAY": {"ALFOMBRAS": 213173.01, "LOSETAS": 91677.26, "TOTAL": 304850.27}, "JUN": {"ALFOMBRAS": 198902.16, "LOSETAS": 39148.81, "TOTAL": 238050.97}, "JUL": {"ALFOMBRAS": 280681.93, "LOSETAS": 40570.59, "TOTAL": 321252.52}}, "acum": {"ALFOMBRAS": 1413987.72, "LOSETAS": 591475.6, "TOTAL": 2005463.32}}, {"categoria": "LAMINADO", "months": {"ENE": {"ALFOMBRAS": 260342.73, "LOSETAS": 0.0, "TOTAL": 260342.73}, "FEB": {"ALFOMBRAS": 201595.21, "LOSETAS": 4082.17, "TOTAL": 205677.38}, "MAR": {"ALFOMBRAS": 313056.1, "LOSETAS": 9014.74, "TOTAL": 322070.84}, "ABR": {"ALFOMBRAS": 288711.76, "LOSETAS": 7342.28, "TOTAL": 296054.04}, "MAY": {"ALFOMBRAS": 298281.99, "LOSETAS": 6721.41, "TOTAL": 305003.4}, "JUN": {"ALFOMBRAS": 73521.61, "LOSETAS": 2016.43, "TOTAL": 75538.04}, "JUL": {"ALFOMBRAS": 250151.65, "LOSETAS": 10585.7, "TOTAL": 260737.35}}, "acum": {"ALFOMBRAS": 1685661.05, "LOSETAS": 39762.72, "TOTAL": 1725423.77}}, {"categoria": "MOLDURAS", "months": {"ENE": {"ALFOMBRAS": 69621.11, "LOSETAS": 72796.82, "TOTAL": 142417.93}, "FEB": {"ALFOMBRAS": 69916.56, "LOSETAS": 51759.26, "TOTAL": 121675.82}, "MAR": {"ALFOMBRAS": 76328.09, "LOSETAS": 82329.61, "TOTAL": 158657.7}, "ABR": {"ALFOMBRAS": 71675.74, "LOSETAS": 102266.7, "TOTAL": 173942.44}, "MAY": {"ALFOMBRAS": 85777.46, "LOSETAS": 119060.42, "TOTAL": 204837.88}, "JUN": {"ALFOMBRAS": 66512.13, "LOSETAS": 122391.87, "TOTAL": 188904.0}, "JUL": {"ALFOMBRAS": 87497.3, "LOSETAS": 123658.81, "TOTAL": 211156.11}}, "acum": {"ALFOMBRAS": 527328.4, "LOSETAS": 674263.48, "TOTAL": 1201591.88}}, {"categoria": "MURO EXTERIOR", "months": {"ENE": {"ALFOMBRAS": 0.0, "LOSETAS": 0.0, "TOTAL": 0.0}, "FEB": {"ALFOMBRAS": 123842.63, "LOSETAS": 142762.81, "TOTAL": 266605.44}, "MAR": {"ALFOMBRAS": 17074.77, "LOSETAS": 186350.6, "TOTAL": 203425.37}, "ABR": {"ALFOMBRAS": 39013.94, "LOSETAS": 114332.38, "TOTAL": 153346.32}, "MAY": {"ALFOMBRAS": 97749.11, "LOSETAS": 99546.95, "TOTAL": 197296.06}, "JUN": {"ALFOMBRAS": 34297.04, "LOSETAS": 69685.39, "TOTAL": 103982.43}, "JUL": {"ALFOMBRAS": 39561.35, "LOSETAS": 101610.65, "TOTAL": 141172.0}}, "acum": {"ALFOMBRAS": 351538.84, "LOSETAS": 714288.79, "TOTAL": 1065827.63}}, {"categoria": "PERSIANAS", "months": {"ENE": {"ALFOMBRAS": 0.0, "LOSETAS": 66706.52, "TOTAL": 66706.52}, "FEB": {"ALFOMBRAS": 0.0, "LOSETAS": 79733.95, "TOTAL": 79733.95}, "MAR": {"ALFOMBRAS": 0.0, "LOSETAS": 98907.98, "TOTAL": 98907.98}, "ABR": {"ALFOMBRAS": 0.0, "LOSETAS": 53139.96, "TOTAL": 53139.96}, "MAY": {"ALFOMBRAS": 0.0, "LOSETAS": 59456.35, "TOTAL": 59456.35}, "JUN": {"ALFOMBRAS": 0.0, "LOSETAS": 45343.51, "TOTAL": 45343.51}, "JUL": {"ALFOMBRAS": 0.0, "LOSETAS": 80559.78, "TOTAL": 80559.78}}, "acum": {"ALFOMBRAS": 0.0, "LOSETAS": 483848.04, "TOTAL": 483848.04}}, {"categoria": "MATERIAL PARA COLOCACION", "months": {"ENE": {"ALFOMBRAS": 11385.12, "LOSETAS": 3626.81, "TOTAL": 15011.93}, "FEB": {"ALFOMBRAS": 33879.12, "LOSETAS": 1736.35, "TOTAL": 35615.47}, "MAR": {"ALFOMBRAS": 54252.48, "LOSETAS": 10435.68, "TOTAL": 64688.16}, "ABR": {"ALFOMBRAS": 22618.81, "LOSETAS": 38113.44, "TOTAL": 60732.25}, "MAY": {"ALFOMBRAS": 62008.04, "LOSETAS": 5973.88, "TOTAL": 67981.92}, "JUN": {"ALFOMBRAS": 11465.37, "LOSETAS": 11026.75, "TOTAL": 22492.12}, "JUL": {"ALFOMBRAS": 21185.52, "LOSETAS": 15618.45, "TOTAL": 36803.97}}, "acum": {"ALFOMBRAS": 216794.46, "LOSETAS": 86531.36, "TOTAL": 303325.82}}, {"categoria": "CERAMICA", "months": {"ENE": {"ALFOMBRAS": 0.0, "LOSETAS": 40715.64, "TOTAL": 40715.64}, "FEB": {"ALFOMBRAS": 0.0, "LOSETAS": 31523.88, "TOTAL": 31523.88}, "MAR": {"ALFOMBRAS": 2111.49, "LOSETAS": 20173.15, "TOTAL": 22284.64}, "ABR": {"ALFOMBRAS": 4556.89, "LOSETAS": 36728.12, "TOTAL": 41285.01}, "MAY": {"ALFOMBRAS": 606.08, "LOSETAS": 18464.03, "TOTAL": 19070.11}, "JUN": {"ALFOMBRAS": 7569.8, "LOSETAS": 24991.69, "TOTAL": 32561.49}, "JUL": {"ALFOMBRAS": 0.0, "LOSETAS": 11210.7, "TOTAL": 11210.7}}, "acum": {"ALFOMBRAS": 14844.25, "LOSETAS": 183807.22, "TOTAL": 198651.47}}, {"categoria": "TAPETES", "months": {"ENE": {"ALFOMBRAS": 6691.8, "LOSETAS": 11354.61, "TOTAL": 18046.41}, "FEB": {"ALFOMBRAS": 4964.82, "LOSETAS": 11015.72, "TOTAL": 15980.54}, "MAR": {"ALFOMBRAS": 14825.25, "LOSETAS": 18285.39, "TOTAL": 33110.64}, "ABR": {"ALFOMBRAS": 8045.7, "LOSETAS": 13750.84, "TOTAL": 21796.54}, "MAY": {"ALFOMBRAS": 3943.05, "LOSETAS": 12637.86, "TOTAL": 16580.91}, "JUN": {"ALFOMBRAS": 5051.2, "LOSETAS": 10401.23, "TOTAL": 15452.43}, "JUL": {"ALFOMBRAS": 9459.24, "LOSETAS": 21492.9, "TOTAL": 30952.14}}, "acum": {"ALFOMBRAS": 52981.06, "LOSETAS": 98938.56, "TOTAL": 151919.62}}, {"categoria": "MUEBLES", "months": {"ENE": {"ALFOMBRAS": 0.0, "LOSETAS": 11840.03, "TOTAL": 11840.03}, "FEB": {"ALFOMBRAS": 0.0, "LOSETAS": 0.0, "TOTAL": 0.0}, "MAR": {"ALFOMBRAS": 0.0, "LOSETAS": 22516.04, "TOTAL": 22516.04}, "ABR": {"ALFOMBRAS": 0.0, "LOSETAS": 0.0, "TOTAL": 0.0}, "MAY": {"ALFOMBRAS": 0.0, "LOSETAS": 0.0, "TOTAL": 0.0}, "JUN": {"ALFOMBRAS": 0.0, "LOSETAS": 0.0, "TOTAL": 0.0}, "JUL": {"ALFOMBRAS": 0.0, "LOSETAS": 0.0, "TOTAL": 0.0}}, "acum": {"ALFOMBRAS": 0.0, "LOSETAS": 34356.07, "TOTAL": 34356.07}}, {"categoria": "BA\u00d1O", "months": {"ENE": {"ALFOMBRAS": 0.0, "LOSETAS": 100.0, "TOTAL": 100.0}, "FEB": {"ALFOMBRAS": 5682.35, "LOSETAS": 0.0, "TOTAL": 5682.35}, "MAR": {"ALFOMBRAS": 0.0, "LOSETAS": 773.17, "TOTAL": 773.17}, "ABR": {"ALFOMBRAS": 515.45, "LOSETAS": 1965.45, "TOTAL": 2480.9}, "MAY": {"ALFOMBRAS": 0.0, "LOSETAS": 300.0, "TOTAL": 300.0}, "JUN": {"ALFOMBRAS": 0.0, "LOSETAS": 2196.19, "TOTAL": 2196.19}, "JUL": {"ALFOMBRAS": 3561.79, "LOSETAS": 4202.55, "TOTAL": 7764.34}}, "acum": {"ALFOMBRAS": 9759.59, "LOSETAS": 9537.37, "TOTAL": 19296.96}}, {"categoria": "VARIOS", "months": {"ENE": {"ALFOMBRAS": 300.0, "LOSETAS": 1507.07, "TOTAL": 1807.07}, "FEB": {"ALFOMBRAS": 0.0, "LOSETAS": 707.32, "TOTAL": 707.32}, "MAR": {"ALFOMBRAS": 0.0, "LOSETAS": 0.0, "TOTAL": 0.0}, "ABR": {"ALFOMBRAS": 500.01, "LOSETAS": 0.0, "TOTAL": 500.01}, "MAY": {"ALFOMBRAS": 1205.45, "LOSETAS": 0.0, "TOTAL": 1205.45}, "JUN": {"ALFOMBRAS": 0.0, "LOSETAS": 0.0, "TOTAL": 0.0}, "JUL": {"ALFOMBRAS": 0.0, "LOSETAS": 300.0, "TOTAL": 300.0}}, "acum": {"ALFOMBRAS": 2005.45, "LOSETAS": 2514.39, "TOTAL": 4519.84}}]}, "primarios": {"depts": ["ALFOMBRAS", "LOSETAS"], "groups": [{"gpo": "PR 2", "months": {"ENE": {"ALFOMBRAS": 2363532.69, "LOSETAS": 2287045.57, "TOTAL": 4650578.26}, "FEB": {"ALFOMBRAS": 1623025.96, "LOSETAS": 1853332.6, "TOTAL": 3476358.56}, "MAR": {"ALFOMBRAS": 1624514.45, "LOSETAS": 2140382.17, "TOTAL": 3764896.62}, "ABR": {"ALFOMBRAS": 1798130.58, "LOSETAS": 1877159.21, "TOTAL": 3675289.79}, "MAY": {"ALFOMBRAS": 3138949.42, "LOSETAS": 1816230.21, "TOTAL": 4955179.63}, "JUN": {"ALFOMBRAS": 1488776.56, "LOSETAS": 1883453.71, "TOTAL": 3372230.27}, "JUL": {"ALFOMBRAS": 3257308.95, "LOSETAS": 1966146.03, "TOTAL": 5223454.98}}, "acum": {"ALFOMBRAS": 15294238.61, "LOSETAS": 13823749.5, "TOTAL": 29117988.11}}, {"gpo": "PR 3", "months": {"ENE": {"ALFOMBRAS": 2619029.21, "LOSETAS": 1264360.48, "TOTAL": 3883389.69}, "FEB": {"ALFOMBRAS": 1518513.9, "LOSETAS": 1502189.19, "TOTAL": 3020703.09}, "MAR": {"ALFOMBRAS": 3067693.93, "LOSETAS": 1451632.56, "TOTAL": 4519326.49}, "ABR": {"ALFOMBRAS": 2509590.95, "LOSETAS": 1457521.42, "TOTAL": 3967112.37}, "MAY": {"ALFOMBRAS": 2605903.95, "LOSETAS": 1514327.57, "TOTAL": 4120231.52}, "JUN": {"ALFOMBRAS": 1866646.39, "LOSETAS": 1069276.09, "TOTAL": 2935922.48}, "JUL": {"ALFOMBRAS": 2365753.85, "LOSETAS": 1082743.63, "TOTAL": 3448497.48}}, "acum": {"ALFOMBRAS": 16553132.16, "LOSETAS": 9342050.93, "TOTAL": 25895183.09}}, {"gpo": "PR 9", "months": {"ENE": {"ALFOMBRAS": 1065090.46, "LOSETAS": 536580.74, "TOTAL": 1601671.2}, "FEB": {"ALFOMBRAS": 1019934.78, "LOSETAS": 882971.31, "TOTAL": 1902906.09}, "MAR": {"ALFOMBRAS": 1754552.26, "LOSETAS": 342585.7, "TOTAL": 2097137.96}, "ABR": {"ALFOMBRAS": 569237.9, "LOSETAS": 199964.48, "TOTAL": 769202.38}, "MAY": {"ALFOMBRAS": 727941.97, "LOSETAS": 220109.54, "TOTAL": 948051.51}, "JUN": {"ALFOMBRAS": 398759.21, "LOSETAS": 609542.18, "TOTAL": 1008301.39}, "JUL": {"ALFOMBRAS": 775408.75, "LOSETAS": 491988.27, "TOTAL": 1267397.02}}, "acum": {"ALFOMBRAS": 6310925.33, "LOSETAS": 3283742.21, "TOTAL": 9594667.54}}, {"gpo": "PR 4", "months": {"ENE": {"ALFOMBRAS": 158341.17, "LOSETAS": 153671.36, "TOTAL": 312012.53}, "FEB": {"ALFOMBRAS": 163403.24, "LOSETAS": 106661.83, "TOTAL": 270065.07}, "MAR": {"ALFOMBRAS": 153692.3, "LOSETAS": 114309.6, "TOTAL": 268001.9}, "ABR": {"ALFOMBRAS": 113580.51, "LOSETAS": 120475.54, "TOTAL": 234056.05}, "MAY": {"ALFOMBRAS": 322319.18, "LOSETAS": 82103.84, "TOTAL": 404423.02}, "JUN": {"ALFOMBRAS": 117035.97, "LOSETAS": 196389.42, "TOTAL": 313425.39}, "JUL": {"ALFOMBRAS": 174285.95, "LOSETAS": 107126.78, "TOTAL": 281412.73}}, "acum": {"ALFOMBRAS": 1202658.32, "LOSETAS": 880738.35, "TOTAL": 2083396.67}}, {"gpo": "PR 1", "months": {"ENE": {"ALFOMBRAS": 45448.02, "LOSETAS": 51447.8, "TOTAL": 96895.82}, "FEB": {"ALFOMBRAS": 19321.19, "LOSETAS": 17527.62, "TOTAL": 36848.81}, "MAR": {"ALFOMBRAS": 22577.0, "LOSETAS": 15927.6, "TOTAL": 38504.6}, "ABR": {"ALFOMBRAS": 17528.48, "LOSETAS": 20019.54, "TOTAL": 37548.02}, "MAY": {"ALFOMBRAS": 8877.97, "LOSETAS": 47048.82, "TOTAL": 55926.79}, "JUN": {"ALFOMBRAS": 7941.52, "LOSETAS": 35772.06, "TOTAL": 43713.58}, "JUL": {"ALFOMBRAS": 25917.36, "LOSETAS": 59645.96, "TOTAL": 85563.32}}, "acum": {"ALFOMBRAS": 147611.54, "LOSETAS": 247389.4, "TOTAL": 395000.94}}]}, "cobranza": {"depts": [{"dept": "ALFOMBRAS", "months": {"ENE": {"ac": 6219462.73, "cobrar": 31978.82}, "FEB": {"ac": 4340382.56, "cobrar": 3816.51}, "MAR": {"ac": 6623019.97, "cobrar": 9.96}, "ABR": {"ac": 4942408.99, "cobrar": 65659.43}, "MAY": {"ac": 6790159.81, "cobrar": 13832.67}, "JUN": {"ac": 3816799.33, "cobrar": 62360.32}, "JUL": {"ac": 5299283.8, "cobrar": 1299391.06}}, "acum": {"ac": 38031517.19, "cobrar": 1477048.77}}, {"dept": "LOSETAS", "months": {"ENE": {"ac": 4221179.9, "cobrar": 71926.05}, "FEB": {"ac": 3847002.88, "cobrar": 515679.67}, "MAR": {"ac": 4050592.39, "cobrar": 14245.24}, "ABR": {"ac": 3628462.94, "cobrar": 46677.24}, "MAY": {"ac": 3638618.22, "cobrar": 41201.76}, "JUN": {"ac": 3781383.01, "cobrar": 13050.44}, "JUL": {"ac": 3691234.58, "cobrar": 16416.08}}, "acum": {"ac": 26858473.92, "cobrar": 719196.47}}], "total": {"months": {"ENE": {"ac": 10440642.63, "cobrar": 103904.87}, "FEB": {"ac": 8187385.44, "cobrar": 519496.18}, "MAR": {"ac": 10673612.36, "cobrar": 14255.2}, "ABR": {"ac": 8570871.93, "cobrar": 112336.67}, "MAY": {"ac": 10428778.03, "cobrar": 55034.43}, "JUN": {"ac": 7598182.34, "cobrar": 75410.76}, "JUL": {"ac": 8990518.38, "cobrar": 1315807.14}}, "acum": {"ac": 64889991.11, "cobrar": 2196245.24}}}};
 const MESES = DATA.meses;
 const PERIODS = MESES.concat(["ACUM"]);
 const C = { navy:"#0a4680", accent:"#2857a4", green:"#059669", yellow:"#D97706", red:"#DC2626", teal:"#0F766E", gray:"#64748B", track:"#CBD5E1" };
@@ -357,6 +375,10 @@ function fmtPct(p){ return (p===null||p===undefined) ? "N/A" : (p*100).toFixed(1
 function el(tag, attrs){ const e=document.createElementNS(SVGNS, tag); for(const k in attrs) e.setAttribute(k, attrs[k]); return e; }
 function clear(node){ while(node.firstChild) node.removeChild(node.firstChild); }
 function periodData(obj, period){ return period==="ACUM" ? obj.acum : obj.months[period]; }
+// Hueco = lo que falta para la cuota. Es el único número que ordena los problemas por tamaño:
+// un departamento en 66% puede deber menos dinero que otro en 59%. Nunca negativo.
+function hueco(pd){ return Math.max(0, numVal(pd.cuota) - numVal(pd.venta)); }
+function porHueco(a, b){ return hueco(b.acum) - hueco(a.acum); }
 function vendorColor(idx){ return PALETTE[idx % PALETTE.length]; }
 function hexToRgba(hex, alpha){
   hex = hex.replace("#","");
@@ -396,6 +418,10 @@ function pctStatusLabel(p){ if(p===null||p===undefined) return "Sin datos"; if(p
   document.getElementById("kpi-pct").textContent = fmtPct(pct);
   document.getElementById("kpi-venta").textContent = fmtMoney(DATA.resumen.total.acum.venta);
   document.getElementById("kpi-cuota").textContent = fmtMoney(DATA.resumen.total.acum.cuota);
+  const _h = hueco(DATA.resumen.total.acum);
+  const _elh = document.getElementById("kpi-hueco");
+  _elh.textContent = _h > 0 ? fmtMoney(_h) : "Cumplida";
+  if (_h <= 0) _elh.style.color = "#86EFAC";
   const ring = document.getElementById("hero-ring");
   const R = 52, CIRC = 2*Math.PI*R;
   const clamped = Math.max(0, Math.min(1, pct||0));
@@ -421,11 +447,14 @@ function renderAvance(){
     return (pct === null || pct === undefined) ? 0 : Math.max(0, Math.min(pct * 100, 100));
   }
 
-  const bloques = depts.map(d => {
+  // Orden por hueco en pesos, no alfabético ni por porcentaje: arriba lo que más dinero falta.
+  const bloques = depts.slice().sort(porHueco).map(d => {
     const col = pctColor(d.acum.pct);
     const vends = DATA.vendedores
       .filter(v => v.dept === d.dept)
       .sort((a,b) => {
+        const dh = porHueco(a,b);
+        if (dh !== 0) return dh;
         const pa = (a.acum.pct === null || a.acum.pct === undefined) ? -1 : a.acum.pct;
         const pb = (b.acum.pct === null || b.acum.pct === undefined) ? -1 : b.acum.pct;
         return pb - pa;
@@ -439,6 +468,7 @@ function renderAvance(){
         <div class="av-vend-track"><div class="av-vend-fill" data-w="${barra(v.acum.pct)}" style="background:${vc}"></div></div>
         <div class="av-vend-meta">
           <span class="av-vend-money">${fmtMoneyShort(v.acum.venta)}</span>
+          <span class="av-falta">${sinCuota || hueco(v.acum) <= 0 ? "" : "falta " + fmtMoneyShort(hueco(v.acum))}</span>
           <span class="av-vend-pct" style="color:${vc}">${sinCuota ? '<span class="av-sincuota">s/cuota</span>' : fmtPct(v.acum.pct)}</span>
         </div>
       </div>`;
@@ -453,7 +483,8 @@ function renderAvance(){
     return `<div class="av-dept">
       <div class="av-head">
         <span class="av-name"><span class="dept-dot" style="background:${DEPT_COLORS[d.dept]||'#94A3B8'}"></span>${d.dept}</span>
-        <span class="av-money">${fmtMoney(d.acum.venta)} de ${fmtMoney(d.acum.cuota)}</span>
+        <span class="av-money">${fmtMoney(d.acum.venta)} de ${fmtMoney(d.acum.cuota)}${
+          hueco(d.acum) > 0 ? ` · <b class="av-falta-dept">faltan ${fmtMoney(hueco(d.acum))}</b>` : ""}</span>
         <span class="av-pct" style="color:${col}">${fmtPct(d.acum.pct)}</span>
       </div>
       <div class="av-track"><div class="av-fill" data-w="${barra(d.acum.pct)}" style="background:${col}"></div></div>
@@ -469,6 +500,177 @@ function renderAvance(){
   });
 }
 renderAvance();
+
+// ================= VARIACIÓN MES CON MES =================
+// Dos lecturas del mismo movimiento:
+//  · "Venta y cuota": cuánto se movió cada una contra el mes anterior. Verlas juntas explica
+//    el cumplimiento — en ABR la venta cayó 41.5% pero la cuota solo 6.6%, y por eso el
+//    cumplimiento se desplomó 32.5 pp; en JUL la venta subió 9.3% pero la cuota subió 19.3%.
+//  · "Cumplimiento": la variación en puntos porcentuales, que es como se comparan dos tasas.
+let momMetric = "vc";         // "vc" | "pct"
+let momScope  = "__TOTAL__";  // "__TOTAL__" | nombre de departamento
+const MOM_VENTA = "#2857a4", MOM_CUOTA = "#94A3B8";
+
+function momScopeObj(){
+  if (momScope === "__TOTAL__") return DATA.resumen.total;
+  return DATA.resumen.depts.find(d => d.dept === momScope) || DATA.resumen.total;
+}
+function momSeries(){
+  const o = momScopeObj(), out = [];
+  for (let i = 1; i < MESES.length; i++){
+    const mPrev = MESES[i-1], mCur = MESES[i];
+    const a = o.months[mPrev] || {}, b = o.months[mCur] || {};
+    const pv = numVal(a.venta), cv = numVal(b.venta);
+    const pq = numVal(a.cuota), cq = numVal(b.cuota);
+    const hayPct = (a.pct !== null && a.pct !== undefined && b.pct !== null && b.pct !== undefined);
+    out.push({ mes: mCur, prev: mPrev, a: a, b: b,
+      venta: pv > 0 ? (cv - pv) / pv : null,
+      cuota: pq > 0 ? (cq - pq) / pq : null,
+      pct:   hayPct ? b.pct - a.pct : null });
+  }
+  return out;
+}
+function momPct(v){ const s = v >= 0 ? "+" : "−"; return s + Math.abs(v * 100).toFixed(1) + "%"; }
+function momPp(v){  const s = v >= 0 ? "+" : "−"; return s + Math.abs(v * 100).toFixed(1) + " pp"; }
+function momFmt(v){ return momMetric === "pct" ? momPp(v) : momPct(v); }
+
+function renderMomChart(){
+  const serie = momSeries();
+  const cont = document.getElementById("chart-mom");
+  clear(cont);
+  const W = 720, padL = 54, padR = 18, padT = 30, padB = 48;
+  const H = 252, plotW = W - padL - padR, plotH = H - padT - padB;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}` });
+  const vals = [];
+  serie.forEach(s => {
+    if (momMetric === "pct"){ if (s.pct !== null) vals.push(Math.abs(s.pct)); }
+    else { if (s.venta !== null) vals.push(Math.abs(s.venta)); if (s.cuota !== null) vals.push(Math.abs(s.cuota)); }
+  });
+  // Un mes que rebota desde una base muy chica (ej. Proyectos +1346% en JUN) aplasta las demás
+  // barras. Con un valor así de dominante el eje se acota al segundo más grande y la barra se
+  // recorta con punta de flecha; la etiqueta conserva la cifra real.
+  const ordenados = vals.slice().sort((a, b) => b - a);
+  const piso = momMetric === "pct" ? 0.05 : 0.10;
+  let lim;
+  if (ordenados.length > 1 && ordenados[0] > ordenados[1] * 3) lim = ordenados[1] * 1.6;
+  else lim = (ordenados[0] || piso) * 1.25;
+  lim = Math.max(lim, piso);
+  const y0 = padT + plotH / 2;
+  const toY = v => y0 - (Math.max(-1, Math.min(1, v / lim))) * (plotH / 2);
+
+  [lim, -lim].forEach(g => {
+    svg.appendChild(el("line", { x1: padL, y1: toY(g), x2: W - padR, y2: toY(g),
+      stroke: C.track, "stroke-width": 1, "stroke-dasharray": "3 4", opacity: ".7" }));
+    const t = el("text", { x: padL - 8, y: toY(g) + 4, "text-anchor": "end", class: "axis-label", fill: C.gray });
+    t.textContent = momFmt(g); svg.appendChild(t);
+  });
+  svg.appendChild(el("line", { x1: padL - 6, y1: y0, x2: W - padR, y2: y0, stroke: "#94A3B8", "stroke-width": 1.5 }));
+  const z = el("text", { x: padL - 8, y: y0 + 4, "text-anchor": "end", class: "axis-label", "font-weight": "700", fill: C.gray });
+  z.textContent = "0"; svg.appendChild(z);
+
+  const slot = plotW / serie.length;
+  // `extra` separa el rótulo de la segunda serie para que no se encime con el de la primera
+  // cuando ambas barras caen del mismo lado del cero con valores parecidos (ej. FEB).
+  function barra(cx, val, ancho, color, etiqueta, extra, fs){
+    extra = extra || 0;
+    if (val === null){
+      const sd = el("text", { x: cx, y: y0 - 8 - extra, "text-anchor": "middle", class: "axis-label", fill: "#94A3B8" });
+      sd.textContent = "s/d"; svg.appendChild(sd); return;
+    }
+    const yv = toY(val), yTop = Math.min(y0, yv), alto = Math.max(Math.abs(y0 - yv), 2);
+    svg.appendChild(el("rect", { x: cx - ancho / 2, y: yTop, width: ancho, height: alto, rx: 3, fill: color }));
+    const recortada = Math.abs(val) > lim;
+    if (recortada){
+      const py = val >= 0 ? yTop : yTop + alto, dir = val >= 0 ? -1 : 1;
+      svg.appendChild(el("polygon", { fill: color,
+        points: `${cx - ancho / 2},${py} ${cx + ancho / 2},${py} ${cx},${py + dir * 9}` }));
+    }
+    if (!etiqueta) return;
+    const attrs = { x: cx, "text-anchor": "middle", class: "axis-label", "font-weight": "800", fill: color,
+      y: val >= 0 ? yTop - (recortada ? 15 : 7) - extra : yTop + alto + (recortada ? 23 : 15) + extra };
+    if (fs) attrs["font-size"] = fs;
+    const lbl = el("text", attrs);
+    lbl.textContent = momFmt(val); svg.appendChild(lbl);
+  }
+
+  serie.forEach((s, i) => {
+    const cx = padL + slot * i + slot / 2;
+    const mes = el("text", { x: cx, y: padT + plotH + 22, "text-anchor": "middle", class: "axis-label",
+      "font-weight": "700", fill: C.navy });
+    mes.textContent = s.mes; svg.appendChild(mes);
+    const vs = el("text", { x: cx, y: padT + plotH + 36, "text-anchor": "middle", class: "axis-label", fill: C.gray });
+    vs.textContent = "vs " + s.prev; svg.appendChild(vs);
+    if (momMetric === "pct"){
+      const col = s.pct === null ? "#94A3B8" : (s.pct >= 0 ? C.green : C.red);
+      barra(cx, s.pct, Math.min(58, slot * 0.46), col, true);
+    } else {
+      const w = Math.min(26, slot * 0.21);
+      barra(cx - w * 0.62, s.venta, w, MOM_VENTA, true, 0, 9.5);
+      barra(cx + w * 0.62, s.cuota, w, MOM_CUOTA, true, 13, 9.5);
+    }
+  });
+  cont.appendChild(svg);
+
+  const leg = document.getElementById("legend-mom");
+  leg.innerHTML = momMetric === "pct"
+    ? `<span><span class="dept-dot" style="background:${C.green}"></span>Subió</span>` +
+      `<span><span class="dept-dot" style="background:${C.red}"></span>Bajó</span>`
+    : `<span><span class="dept-dot" style="background:${MOM_VENTA}"></span>Venta real</span>` +
+      `<span><span class="dept-dot" style="background:${MOM_CUOTA}"></span>Cuota</span>`;
+}
+
+function renderMomDetail(){
+  const serie = momSeries(), cont = document.getElementById("mom-detail");
+  const ambito = momScope !== "__TOTAL__" ? momScope
+    : (DATA.resumen.depts.length === 1 ? DATA.resumen.depts[0].dept : "Total general");
+  const cls = v => v >= 0 ? "mom-up" : "mom-down";
+  if (momMetric === "pct"){
+    const con = serie.filter(s => s.pct !== null);
+    if (!con.length){ cont.innerHTML = "Sin datos suficientes para comparar meses."; return; }
+    const u = con[con.length - 1];
+    const rel = (u.a.pct > 0) ? (u.b.pct - u.a.pct) / u.a.pct : null;
+    const mejor = con.reduce((a, b) => b.pct > a.pct ? b : a);
+    const peor  = con.reduce((a, b) => b.pct < a.pct ? b : a);
+    cont.innerHTML =
+      `<b>${ambito} · ${u.mes} vs ${u.prev}:</b> ${fmtPct(u.b.pct)} de cuota contra ${fmtPct(u.a.pct)} → ` +
+      `<span class="${cls(u.pct)}">${momPp(u.pct)}</span>` +
+      (rel === null ? "" : ` (${rel >= 0 ? "+" : "−"}${Math.abs(rel * 100).toFixed(1)}% relativo)`) +
+      `<br>Mayor alza: <b>${mejor.mes}</b> <span class="${cls(mejor.pct)}">${momPp(mejor.pct)}</span> · ` +
+      `mayor caída: <b>${peor.mes}</b> <span class="${cls(peor.pct)}">${momPp(peor.pct)}</span>` +
+      `<br>pp = puntos porcentuales de cumplimiento. Se usa en vez de un % relativo porque la cuota cambia cada mes: se puede vender más y aun así cumplir menos.`;
+    return;
+  }
+  const con = serie.filter(s => s.venta !== null || s.cuota !== null);
+  if (!con.length){ cont.innerHTML = "Sin datos suficientes para comparar meses."; return; }
+  const u = con[con.length - 1];
+  let linea = `<b>${ambito} · ${u.mes} vs ${u.prev}:</b> ` +
+    `venta ${fmtMoney(u.b.venta)} contra ${fmtMoney(u.a.venta)} → ` +
+    (u.venta === null ? "s/d" : `<span class="${cls(u.venta)}">${momPct(u.venta)}</span>`) +
+    ` · cuota ${fmtMoney(u.b.cuota)} contra ${fmtMoney(u.a.cuota)} → ` +
+    (u.cuota === null ? "s/d" : `<span class="${cls(u.cuota)}">${momPct(u.cuota)}</span>`);
+  if (u.pct !== null){
+    linea += `<br>Resultado: el cumplimiento ${u.pct >= 0 ? "subió" : "bajó"} ` +
+      `<span class="${cls(u.pct)}">${momPp(u.pct)}</span> (${fmtPct(u.a.pct)} → ${fmtPct(u.b.pct)})`;
+    if (u.venta !== null && u.cuota !== null && u.venta > 0 && u.pct < 0)
+      linea += ` — se vendió más que el mes pasado, pero la cuota subió todavía más.`;
+  }
+  cont.innerHTML = linea;
+}
+
+function renderMom(){ renderMomChart(); renderMomDetail(); }
+makePills(document.getElementById("pills-mom-metric"),
+  [{value:"vc", label:"Venta y cuota"}, {value:"pct", label:"Cumplimiento"}],
+  "vc", (v)=>{ momMetric = v; renderMom(); });
+// Con un solo departamento el "Total general" es ese mismo departamento: el selector sobra.
+if (DATA.resumen.depts.length > 1){
+  makePills(document.getElementById("pills-mom-scope"),
+    [{value:"__TOTAL__", label:"Total general"}].concat(DATA.resumen.depts.map(d=>({value:d.dept, label:d.dept}))),
+    "__TOTAL__", (v)=>{ momScope = v; renderMom(); });
+} else {
+  document.getElementById("lbl-mom-scope").style.display = "none";
+  document.getElementById("pills-mom-scope").style.display = "none";
+}
+renderMom();
 
 // ================= HALLAZGOS CLAVE =================
 function renderInsights(){
@@ -570,16 +772,23 @@ function renderDeptoChart(){
   container.appendChild(svg);
 }
 function renderDeptoTabla(){
-  const depts = DATA.resumen.depts;
-  let html = '<table><thead><tr><th>Depto</th><th>Venta</th><th>Cuota</th><th>%</th></tr></thead><tbody>';
+  // Ordenada por lo que falta en el periodo mostrado, no por el orden del archivo de cuotas.
+  const depts = DATA.resumen.depts.slice().sort((a,b)=>
+    hueco(periodData(b, mesDepto)) - hueco(periodData(a, mesDepto)));
+  const tot = periodData(DATA.resumen.total, mesDepto);
+  const huecoTot = hueco(tot);
+  let html = '<table><thead><tr><th>Depto</th><th>Venta</th><th>Cuota</th><th>Falta</th><th>% del faltante</th><th>%</th></tr></thead><tbody>';
   depts.forEach(d=>{
     const pd = periodData(d, mesDepto);
+    const h = hueco(pd);
     html += `<tr><td><span class="dept-dot" style="background:${DEPT_COLORS[d.dept]}"></span>${d.dept}</td>`+
       `<td>${fmtMoney(pd.venta)}</td><td>${fmtMoney(pd.cuota)}</td>`+
+      `<td class="${h > 0 ? 'falta-cell' : ''}">${h > 0 ? fmtMoney(h) : "—"}</td>`+
+      `<td>${h > 0 && huecoTot > 0 ? (h/huecoTot*100).toFixed(1)+"%" : "—"}</td>`+
       `<td><span class="badge" style="background:${pctColor(pd.pct)}">${fmtPct(pd.pct)}</span></td></tr>`;
   });
-  const tot = periodData(DATA.resumen.total, mesDepto);
   html += `<tr class="total-row"><td>TOTAL GENERAL</td><td>${fmtMoney(tot.venta)}</td><td>${fmtMoney(tot.cuota)}</td>`+
+    `<td>${huecoTot > 0 ? fmtMoney(huecoTot) : "—"}</td><td>${huecoTot > 0 ? "100%" : "—"}</td>`+
     `<td><span class="badge" style="background:${pctColor(tot.pct)}">${fmtPct(tot.pct)}</span></td></tr></tbody></table>`;
   document.getElementById("tabla-depto").innerHTML = html;
 }
@@ -853,13 +1062,17 @@ makePills(document.getElementById("pills-tend-metric"), [{value:"pct",label:"% C
 
 // ================= VENDEDORES =================
 let deptVendFilter = "__ALL__";
-let vendMetric = "pct"; // 'pct' | 'venta' | 'unidades'
-function vendMetricLabel(){ return vendMetric==="pct" ? "% cumplimiento acumulado" : vendMetric==="venta" ? "venta $ acumulada" : "unidades desplazadas (acum.)"; }
+let vendMetric = "hueco"; // 'hueco' | 'pct' | 'venta' | 'unidades'
+function vendMetricLabel(){
+  return vendMetric==="hueco" ? "lo que falta para su cuota (acum.)"
+       : vendMetric==="pct" ? "% cumplimiento acumulado"
+       : vendMetric==="venta" ? "venta $ acumulada" : "unidades desplazadas (acum.)"; }
 function renderVendedores(){
   document.getElementById("vend-rank-title").textContent = vendMetricLabel();
   document.getElementById("vend-warn").style.display = vendMetric==="unidades" ? "block" : "none";
   let vs = DATA.vendedores.filter(v=> deptVendFilter==="__ALL__" || v.dept===deptVendFilter);
   vs = vs.slice().sort((a,b)=>{
+    if (vendMetric==="hueco") return porHueco(a,b);
     if (vendMetric==="pct"){ const pa=a.acum.pct===null?-1:a.acum.pct, pb=b.acum.pct===null?-1:b.acum.pct; return pb-pa; }
     if (vendMetric==="venta") return numVal(b.acum.venta)-numVal(a.acum.venta);
     return (b.unidades_acum||0)-(a.unidades_acum||0);
@@ -867,7 +1080,13 @@ function renderVendedores(){
   let html = "";
   vs.forEach((v,i)=>{
     let display, widthPct, barColor;
-    if (vendMetric==="pct"){ display = fmtPct(v.acum.pct); widthPct = v.acum.pct===null?0:Math.min(v.acum.pct*100,100); barColor = pctColor(v.acum.pct); }
+    if (vendMetric==="hueco"){
+      const h = hueco(v.acum);
+      display = h>0 ? fmtMoneyShort(h) : "cumplida";
+      const maxH = Math.max(...vs.map(x=>hueco(x.acum)),1);
+      widthPct = h/maxH*100; barColor = h>0 ? pctColor(v.acum.pct) : C.green;
+    }
+    else if (vendMetric==="pct"){ display = fmtPct(v.acum.pct); widthPct = v.acum.pct===null?0:Math.min(v.acum.pct*100,100); barColor = pctColor(v.acum.pct); }
     else if (vendMetric==="venta"){ display = fmtMoneyShort(v.acum.venta); const maxV = Math.max(...vs.map(x=>numVal(x.acum.venta)),1); widthPct = numVal(v.acum.venta)/maxV*100; barColor = C.accent; }
     else { display = fmtUnits(v.unidades_acum); const maxU = Math.max(...vs.map(x=>x.unidades_acum||0),1); widthPct = (v.unidades_acum||0)/maxU*100; barColor = C.teal; }
     html += `<div class="rank-item"><span class="rank-num">${i+1}</span>
@@ -911,7 +1130,7 @@ function renderVendedores(){
 }
 const deptVendOptions = [{value:"__ALL__",label:"Todos"}].concat(Object.keys(DEPT_COLORS).map(d=>({value:d,label:d})));
 makePills(document.getElementById("pills-dept-vend"), deptVendOptions, "__ALL__", (v)=>{ deptVendFilter=v; renderVendedores(); });
-makePills(document.getElementById("pills-metric-vend"), [{value:"pct",label:"% Cumplimiento"},{value:"venta",label:"Venta $"},{value:"unidades",label:"Unidades desplazadas"}], "pct", (v)=>{ vendMetric=v; renderVendedores(); });
+makePills(document.getElementById("pills-metric-vend"), [{value:"hueco",label:"Falta para cuota $"},{value:"pct",label:"% Cumplimiento"},{value:"venta",label:"Venta $"},{value:"unidades",label:"Unidades desplazadas"}], "hueco", (v)=>{ vendMetric=v; renderVendedores(); });
 
 // ================= INVENTARIO (apilado por depto; categoría o grupo primario) =================
 let mesInv = "ACUM";

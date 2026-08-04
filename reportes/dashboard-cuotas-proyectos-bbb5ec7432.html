@@ -61,6 +61,14 @@ body{ margin:0; font-family:"Montserrat",-apple-system,BlinkMacSystemFont,"Segoe
 .insight-card .itag{ font-size:10px; text-transform:uppercase; letter-spacing:.05em; font-weight:800; color:var(--gray-text); margin-bottom:3px; }
 .insight-card .ititle{ font-size:13.5px; font-weight:800; color:var(--navy); line-height:1.3; }
 .insight-card .isub{ font-size:11.5px; color:var(--gray-text); margin-top:2px; }
+.mom-card{ margin-bottom:20px; }
+.mom-detail{ font-size:12px; color:var(--gray-text); margin-top:10px; line-height:1.55; }
+.mom-detail b{ color:var(--navy); }
+.mom-detail .mom-up{ color:#059669; font-weight:800; }
+.mom-detail .mom-down{ color:#DC2626; font-weight:800; }
+.av-falta{ font-size:10.5px; color:#B45309; font-weight:700; white-space:nowrap; }
+.av-falta-dept{ color:#B45309; font-weight:800; }
+td.falta-cell{ color:#B45309; font-weight:700; }
 .avance-card{ margin-bottom:20px; }
 .av-dept{ padding:13px 0; border-top:1px solid var(--border); }
 .av-dept:first-child{ padding-top:2px; border-top:none; }
@@ -241,7 +249,17 @@ tr.total-row td{ font-weight:800; background:var(--gray-bg); }
     <div class="hero-stats">
       <div class="hero-stat"><div class="lbl">Venta acumulada</div><div class="val" id="kpi-venta">—</div></div>
       <div class="hero-stat"><div class="lbl">Cuota acumulada</div><div class="val" id="kpi-cuota">—</div></div>
+      <div class="hero-stat"><div class="lbl">Falta para cuota</div><div class="val" id="kpi-hueco">—</div></div>
     </div>
+  </div>
+
+  <div class="card mom-card">
+    <h3>Variación mes con mes <span class="hint">cada barra compara el mes contra el mes inmediato anterior</span></h3>
+    <div class="pillrow"><span class="grp-label">Métrica</span><div id="pills-mom-metric"></div>
+      <span class="grp-label" style="margin-left:14px;" id="lbl-mom-scope">Ámbito</span><div id="pills-mom-scope"></div></div>
+    <div class="chart-wrap" id="chart-mom"></div>
+    <div class="legend" id="legend-mom"></div>
+    <div class="mom-detail" id="mom-detail"></div>
   </div>
 
   <div class="card avance-card">
@@ -338,7 +356,7 @@ tr.total-row td{ font-weight:800; background:var(--gray-bg); }
 </div>
 
 <script>
-const DATA = {"fechaCorte": "2026-07-31", "meses": ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL"], "diasCorte": 31, "diasMes": 31, "mesCorte": "JUL", "resumen": {"depts": [{"dept": "PROYECTOS", "months": {"ENE": {"venta": 1613499.68, "cuota": 7118740.26, "pct": 0.226655225818641}, "FEB": {"venta": 1090874.67, "cuota": 3235482.22, "pct": 0.3371598400277226}, "MAR": {"venta": 2644429.93, "cuota": 6685969.25, "pct": 0.3955193075062721}, "ABR": {"venta": 905893.78, "cuota": 5257164.26, "pct": 0.17231605103527867}, "MAY": {"venta": 127948.52, "cuota": 3636095.28, "pct": 0.03518844041054422}, "JUN": {"venta": 1850813.92, "cuota": 3131569.59, "pct": 0.5910179740618612}, "JUL": {"venta": 138682.14, "cuota": 3480988.23, "pct": 0.039839875696388694}}, "acum": {"venta": 8372142.64, "cuota": 32546009.08, "pct": 0.25724022309827177}}], "total": {"months": {"ENE": {"venta": 1613499.68, "cuota": 7118740.26, "pct": 0.22665522565364676}, "FEB": {"venta": 1090874.67, "cuota": 3235482.22, "pct": 0.33715984073619787}, "MAR": {"venta": 2644429.93, "cuota": 6685969.25, "pct": 0.3955193078400712}, "ABR": {"venta": 905893.78, "cuota": 5257164.26, "pct": 0.17231605009808085}, "MAY": {"venta": 127948.52, "cuota": 3636095.28, "pct": 0.03518843983648306}, "JUN": {"venta": 1850813.92, "cuota": 3131569.59, "pct": 0.591017975749343}, "JUL": {"venta": 138682.14, "cuota": 3480988.23, "pct": 0.039839876160684407}}, "acum": {"venta": 8372142.64, "cuota": 32546009.08, "pct": 0.2572402231997411}}}, "vendedores": [{"vendedor": "LAURA EUSTAQUIO", "dept": "PROYECTOS", "months": {"ENE": {"venta": 1390371.63, "cuota": 5737598.7, "pct": 0.2423263985696645}, "FEB": {"venta": 25331.7, "cuota": 1921440.15, "pct": 0.013183703478399814}, "MAR": {"venta": 0.0, "cuota": 4912067.83, "pct": 0.0}, "ABR": {"venta": 89654.07, "cuota": 3957242.38, "pct": 0.022655692959396567}, "MAY": {"venta": 9026.93, "cuota": 2072959.08, "pct": 0.004354612923304759}, "JUN": {"venta": 23941.52, "cuota": 1842549.91, "pct": 0.01299368772200518}, "JUL": {"venta": 971.37, "cuota": 1984531.65, "pct": 0.00048947186176756}}, "acum": {"venta": 1539297.22, "cuota": 22428389.7, "pct": 0.06863164230877354}, "unidades_acum": 17212.05}, {"vendedor": "NESSIM ROMANO", "dept": "PROYECTOS", "months": {"ENE": {"venta": 202064.7, "cuota": 297476.64, "pct": 0.6792624105123511}, "FEB": {"venta": 964958.84, "cuota": 283024.45, "pct": 3.409454034323953}, "MAR": {"venta": 1477087.03, "cuota": 382071.08, "pct": 3.8660006526934274}, "ABR": {"venta": 793661.2, "cuota": 568551.42, "pct": 1.3959356683026436}, "MAY": {"venta": 0.0, "cuota": 336675.49, "pct": 0.0}, "JUN": {"venta": 1562596.87, "cuota": 277635.01, "pct": 5.6282415029462864}, "JUL": {"venta": 137710.77, "cuota": 322313.72, "pct": 0.4272569093435433}}, "acum": {"venta": 5138079.41, "cuota": 2467747.8, "pct": 2.0820925883123356}, "unidades_acum": 6905.8}, {"vendedor": "PAULA PANDO", "dept": "PROYECTOS", "months": {"ENE": {"venta": 0.0, "cuota": 297476.64, "pct": 0.0}, "FEB": {"venta": 0.0, "cuota": 283024.45, "pct": 0.0}, "MAR": {"venta": 0.0, "cuota": 382071.08, "pct": 0.0}, "ABR": {"venta": 0.0, "cuota": 0.0, "pct": null}, "MAY": {"venta": 0.0, "cuota": 336675.49, "pct": 0.0}, "JUN": {"venta": 0.0, "cuota": 277635.01, "pct": 0.0}, "JUL": {"venta": 0.0, "cuota": 322313.72, "pct": 0.0}}, "acum": {"venta": 0.0, "cuota": 1899196.39, "pct": 0.0}, "unidades_acum": 0.0}, {"vendedor": "PROYECTOS  ROXANA ", "dept": "PROYECTOS", "months": {"ENE": {"venta": 0.0, "cuota": 786188.27, "pct": 0.0}, "FEB": {"venta": 0.0, "cuota": 747993.18, "pct": 0.0}, "MAR": {"venta": 0.0, "cuota": 1009759.27, "pct": 0.0}, "ABR": {"venta": 0.0, "cuota": 731370.46, "pct": 0.0}, "MAY": {"venta": 87466.99, "cuota": 889785.22, "pct": 0.0983012426271745}, "JUN": {"venta": 0.0, "cuota": 733749.66, "pct": 0.0}, "JUL": {"venta": 0.0, "cuota": 851829.13, "pct": 0.0}}, "acum": {"venta": 87466.99, "cuota": 5750675.19, "pct": 0.01520986490792293}, "unidades_acum": 148.0}, {"vendedor": "JOSE RK", "dept": "PROYECTOS", "months": {"ENE": {"venta": 0.0, "cuota": 0.0, "pct": null}, "FEB": {"venta": 0.0, "cuota": 0.0, "pct": null}, "MAR": {"venta": 999563.95, "cuota": 0.0, "pct": null}, "ABR": {"venta": 22578.52, "cuota": 0.0, "pct": null}, "MAY": {"venta": 0.0, "cuota": 0.0, "pct": null}, "JUN": {"venta": 239421.37, "cuota": 0.0, "pct": null}, "JUL": {"venta": 0.0, "cuota": 0.0, "pct": null}}, "acum": {"venta": 1261563.84, "cuota": 0.0, "pct": null}, "unidades_acum": 5507.29}, {"vendedor": "JOSE ROMANO", "dept": "PROYECTOS", "months": {"ENE": {"venta": 21063.35, "cuota": 0.0, "pct": null}, "FEB": {"venta": 100584.13, "cuota": 0.0, "pct": null}, "MAR": {"venta": 167778.94, "cuota": 0.0, "pct": null}, "ABR": {"venta": 0.0, "cuota": 0.0, "pct": null}, "MAY": {"venta": 31454.59, "cuota": 0.0, "pct": null}, "JUN": {"venta": 24854.16, "cuota": 0.0, "pct": null}, "JUL": {"venta": 0.0, "cuota": 0.0, "pct": null}}, "acum": {"venta": 345735.18, "cuota": 0.0, "pct": null}, "unidades_acum": 1610.91}, {"vendedor": "MOISES ROMANO", "dept": "PROYECTOS", "months": {"ENE": {"venta": 0.0, "cuota": 0.0, "pct": null}, "FEB": {"venta": 0.0, "cuota": 0.0, "pct": null}, "MAR": {"venta": 0.0, "cuota": 0.0, "pct": null}, "ABR": {"venta": 0.0, "cuota": 0.0, "pct": null}, "MAY": {"venta": 0.0, "cuota": 0.0, "pct": null}, "JUN": {"venta": 0.0, "cuota": 0.0, "pct": null}, "JUL": {"venta": 0.0, "cuota": 0.0, "pct": null}}, "acum": {"venta": 0.0, "cuota": 0.0, "pct": null}, "unidades_acum": 9688.0}], "inventario": {"depts": ["PROYECTOS"], "cats": [{"categoria": "PORCELANATO", "months": {"ENE": {"PROYECTOS": 73364.09, "TOTAL": 73364.09}, "FEB": {"PROYECTOS": 992575.74, "TOTAL": 992575.74}, "MAR": {"PROYECTOS": 2438895.57, "TOTAL": 2438895.57}, "ABR": {"PROYECTOS": 579572.23, "TOTAL": 579572.23}, "MAY": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "JUN": {"PROYECTOS": 1344841.72, "TOTAL": 1344841.72}, "JUL": {"PROYECTOS": 120515.18, "TOTAL": 120515.18}}, "acum": {"PROYECTOS": 5549764.54, "TOTAL": 5549764.54}}, {"categoria": "MADERA", "months": {"ENE": {"PROYECTOS": 1061704.99, "TOTAL": 1061704.99}, "FEB": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "MAR": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "ABR": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "MAY": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "JUN": {"PROYECTOS": 202227.9, "TOTAL": 202227.9}, "JUL": {"PROYECTOS": 0.0, "TOTAL": 0.0}}, "acum": {"PROYECTOS": 1263932.89, "TOTAL": 1263932.89}}, {"categoria": "CERAMICA", "months": {"ENE": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "FEB": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "MAR": {"PROYECTOS": 37755.41, "TOTAL": 37755.41}, "ABR": {"PROYECTOS": 272105.05, "TOTAL": 272105.05}, "MAY": {"PROYECTOS": 73499.24, "TOTAL": 73499.24}, "JUN": {"PROYECTOS": 212143.65, "TOTAL": 212143.65}, "JUL": {"PROYECTOS": 0.0, "TOTAL": 0.0}}, "acum": {"PROYECTOS": 595503.35, "TOTAL": 595503.35}}, {"categoria": "PISO VINILICO", "months": {"ENE": {"PROYECTOS": 235781.44, "TOTAL": 235781.44}, "FEB": {"PROYECTOS": 47126.84, "TOTAL": 47126.84}, "MAR": {"PROYECTOS": 142791.65, "TOTAL": 142791.65}, "ABR": {"PROYECTOS": 1082.56, "TOTAL": 1082.56}, "MAY": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "JUN": {"PROYECTOS": 15023.74, "TOTAL": 15023.74}, "JUL": {"PROYECTOS": 971.37, "TOTAL": 971.37}}, "acum": {"PROYECTOS": 442777.6, "TOTAL": 442777.6}}, {"categoria": "COLOCACION", "months": {"ENE": {"PROYECTOS": 51671.15, "TOTAL": 51671.15}, "FEB": {"PROYECTOS": 21916.25, "TOTAL": 21916.25}, "MAR": {"PROYECTOS": 16788.22, "TOTAL": 16788.22}, "ABR": {"PROYECTOS": 36539.14, "TOTAL": 36539.14}, "MAY": {"PROYECTOS": 30849.31, "TOTAL": 30849.31}, "JUN": {"PROYECTOS": 19081.05, "TOTAL": 19081.05}, "JUL": {"PROYECTOS": 10223.94, "TOTAL": 10223.94}}, "acum": {"PROYECTOS": 187069.05, "TOTAL": 187069.05}}, {"categoria": "MATERIAL PARA COLOCACION", "months": {"ENE": {"PROYECTOS": 114016.45, "TOTAL": 114016.45}, "FEB": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "MAR": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "ABR": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "MAY": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "JUN": {"PROYECTOS": 22805.9, "TOTAL": 22805.9}, "JUL": {"PROYECTOS": 0.0, "TOTAL": 0.0}}, "acum": {"PROYECTOS": 136822.35, "TOTAL": 136822.35}}, {"categoria": "ADHESIVO", "months": {"ENE": {"PROYECTOS": 51148.18, "TOTAL": 51148.18}, "FEB": {"PROYECTOS": 25353.75, "TOTAL": 25353.75}, "MAR": {"PROYECTOS": 8199.08, "TOTAL": 8199.08}, "ABR": {"PROYECTOS": 3229.25, "TOTAL": 3229.25}, "MAY": {"PROYECTOS": 2481.7, "TOTAL": 2481.7}, "JUN": {"PROYECTOS": 31983.59, "TOTAL": 31983.59}, "JUL": {"PROYECTOS": 0.0, "TOTAL": 0.0}}, "acum": {"PROYECTOS": 122395.56, "TOTAL": 122395.56}}, {"categoria": "PASTOS", "months": {"ENE": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "FEB": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "MAR": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "ABR": {"PROYECTOS": 13365.55, "TOTAL": 13365.55}, "MAY": {"PROYECTOS": 12418.28, "TOTAL": 12418.28}, "JUN": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "JUL": {"PROYECTOS": 0.0, "TOTAL": 0.0}}, "acum": {"PROYECTOS": 25783.83, "TOTAL": 25783.83}}, {"categoria": "ALFOMBRA", "months": {"ENE": {"PROYECTOS": 11645.82, "TOTAL": 11645.82}, "FEB": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "MAR": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "ABR": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "MAY": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "JUN": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "JUL": {"PROYECTOS": 0.0, "TOTAL": 0.0}}, "acum": {"PROYECTOS": 11645.82, "TOTAL": 11645.82}}, {"categoria": "LAMINADO", "months": {"ENE": {"PROYECTOS": 11174.28, "TOTAL": 11174.28}, "FEB": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "MAR": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "ABR": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "MAY": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "JUN": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "JUL": {"PROYECTOS": 0.0, "TOTAL": 0.0}}, "acum": {"PROYECTOS": 11174.28, "TOTAL": 11174.28}}, {"categoria": "PERSIANAS", "months": {"ENE": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "FEB": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "MAR": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "ABR": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "MAY": {"PROYECTOS": 8700.0, "TOTAL": 8700.0}, "JUN": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "JUL": {"PROYECTOS": 0.0, "TOTAL": 0.0}}, "acum": {"PROYECTOS": 8700.0, "TOTAL": 8700.0}}, {"categoria": "VARIOS", "months": {"ENE": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "FEB": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "MAR": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "ABR": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "MAY": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "JUN": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "JUL": {"PROYECTOS": 6971.65, "TOTAL": 6971.65}}, "acum": {"PROYECTOS": 6971.65, "TOTAL": 6971.65}}, {"categoria": "MOLDURAS", "months": {"ENE": {"PROYECTOS": 2993.28, "TOTAL": 2993.28}, "FEB": {"PROYECTOS": 3902.08, "TOTAL": 3902.08}, "MAR": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "ABR": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "MAY": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "JUN": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "JUL": {"PROYECTOS": 0.0, "TOTAL": 0.0}}, "acum": {"PROYECTOS": 6895.35, "TOTAL": 6895.35}}, {"categoria": "MURO INTERIOR", "months": {"ENE": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "FEB": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "MAR": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "ABR": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "MAY": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "JUN": {"PROYECTOS": 2706.37, "TOTAL": 2706.37}, "JUL": {"PROYECTOS": 0.0, "TOTAL": 0.0}}, "acum": {"PROYECTOS": 2706.37, "TOTAL": 2706.37}}]}, "primarios": {"depts": ["PROYECTOS"], "groups": [{"gpo": "PR 9", "months": {"ENE": {"PROYECTOS": 1439737.87, "TOTAL": 1439737.87}, "FEB": {"PROYECTOS": 1009765.68, "TOTAL": 1009765.68}, "MAR": {"PROYECTOS": 1892338.23, "TOTAL": 1892338.23}, "ABR": {"PROYECTOS": 816239.72, "TOTAL": 816239.72}, "MAY": {"PROYECTOS": 82199.24, "TOTAL": 82199.24}, "JUN": {"PROYECTOS": 1821897.07, "TOTAL": 1821897.07}, "JUL": {"PROYECTOS": 2111.59, "TOTAL": 2111.59}}, "acum": {"PROYECTOS": 7064289.38, "TOTAL": 7064289.38}}, {"gpo": "PR 2", "months": {"ENE": {"PROYECTOS": 39239.2, "TOTAL": 39239.2}, "FEB": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "MAR": {"PROYECTOS": 512235.84, "TOTAL": 512235.84}, "ABR": {"PROYECTOS": 13365.55, "TOTAL": 13365.55}, "MAY": {"PROYECTOS": 12418.28, "TOTAL": 12418.28}, "JUN": {"PROYECTOS": 2706.37, "TOTAL": 2706.37}, "JUL": {"PROYECTOS": 119374.97, "TOTAL": 119374.97}}, "acum": {"PROYECTOS": 699340.22, "TOTAL": 699340.22}}, {"gpo": "PR 3", "months": {"ENE": {"PROYECTOS": 82851.46, "TOTAL": 82851.46}, "FEB": {"PROYECTOS": 59192.74, "TOTAL": 59192.74}, "MAR": {"PROYECTOS": 223067.64, "TOTAL": 223067.64}, "ABR": {"PROYECTOS": 39749.37, "TOTAL": 39749.37}, "MAY": {"PROYECTOS": 2481.7, "TOTAL": 2481.7}, "JUN": {"PROYECTOS": 7129.43, "TOTAL": 7129.43}, "JUL": {"PROYECTOS": 0.0, "TOTAL": 0.0}}, "acum": {"PROYECTOS": 414472.34, "TOTAL": 414472.34}}, {"gpo": "PR 4", "months": {"ENE": {"PROYECTOS": 51671.15, "TOTAL": 51671.15}, "FEB": {"PROYECTOS": 21916.25, "TOTAL": 21916.25}, "MAR": {"PROYECTOS": 16788.22, "TOTAL": 16788.22}, "ABR": {"PROYECTOS": 36539.14, "TOTAL": 36539.14}, "MAY": {"PROYECTOS": 30849.31, "TOTAL": 30849.31}, "JUN": {"PROYECTOS": 19081.05, "TOTAL": 19081.05}, "JUL": {"PROYECTOS": 17195.58, "TOTAL": 17195.58}}, "acum": {"PROYECTOS": 194040.7, "TOTAL": 194040.7}}]}, "cobranza": {"depts": [{"dept": "PROYECTOS", "months": {"ENE": {"ac": 1037508.25, "cobrar": 575991.43}, "FEB": {"ac": 1029401.92, "cobrar": 61472.75}, "MAR": {"ac": 1826343.26, "cobrar": 818086.67}, "ABR": {"ac": 525639.18, "cobrar": 380254.6}, "MAY": {"ac": 127948.54, "cobrar": -0.02}, "JUN": {"ac": 289952.89, "cobrar": 1560861.02}, "JUL": {"ac": 118403.57, "cobrar": 20278.57}}, "acum": {"ac": 4955197.61, "cobrar": 3416945.02}}], "total": {"months": {"ENE": {"ac": 1037508.25, "cobrar": 575991.43}, "FEB": {"ac": 1029401.92, "cobrar": 61472.75}, "MAR": {"ac": 1826343.26, "cobrar": 818086.67}, "ABR": {"ac": 525639.18, "cobrar": 380254.6}, "MAY": {"ac": 127948.54, "cobrar": -0.02}, "JUN": {"ac": 289952.89, "cobrar": 1560861.02}, "JUL": {"ac": 118403.57, "cobrar": 20278.57}}, "acum": {"ac": 4955197.61, "cobrar": 3416945.02}}}};
+const DATA = {"fechaCorte": "2026-07-31", "meses": ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL"], "diasCorte": 31, "diasMes": 31, "mesCorte": "JUL", "resumen": {"depts": [{"dept": "PROYECTOS", "months": {"ENE": {"venta": 1613499.68, "cuota": 7118740.26, "pct": 0.226655225818641}, "FEB": {"venta": 1090874.67, "cuota": 3235482.22, "pct": 0.3371598400277226}, "MAR": {"venta": 2644429.93, "cuota": 6685969.25, "pct": 0.3955193075062721}, "ABR": {"venta": 905893.78, "cuota": 5257164.26, "pct": 0.17231605103527867}, "MAY": {"venta": 127948.52, "cuota": 3636095.28, "pct": 0.03518844041054422}, "JUN": {"venta": 1850813.92, "cuota": 3131569.59, "pct": 0.5910179740618612}, "JUL": {"venta": 138682.14, "cuota": 3480988.23, "pct": 0.039839875696388694}}, "acum": {"venta": 8372142.64, "cuota": 32546009.08, "pct": 0.25724022309827177}}], "total": {"months": {"ENE": {"venta": 1613499.68, "cuota": 7118740.26, "pct": 0.22665522565364676}, "FEB": {"venta": 1090874.67, "cuota": 3235482.22, "pct": 0.33715984073619787}, "MAR": {"venta": 2644429.93, "cuota": 6685969.25, "pct": 0.3955193078400712}, "ABR": {"venta": 905893.78, "cuota": 5257164.26, "pct": 0.17231605009808085}, "MAY": {"venta": 127948.52, "cuota": 3636095.28, "pct": 0.03518843983648306}, "JUN": {"venta": 1850813.92, "cuota": 3131569.59, "pct": 0.591017975749343}, "JUL": {"venta": 138682.14, "cuota": 3480988.23, "pct": 0.039839876160684407}}, "acum": {"venta": 8372142.64, "cuota": 32546009.08, "pct": 0.2572402231997411}}}, "vendedores": [{"vendedor": "LAURA EUSTAQUIO", "dept": "PROYECTOS", "months": {"ENE": {"venta": 1390371.63, "cuota": 5737598.7, "pct": 0.2423263985696645}, "FEB": {"venta": 25331.7, "cuota": 1921440.15, "pct": 0.013183703478399814}, "MAR": {"venta": 0.0, "cuota": 4912067.83, "pct": 0.0}, "ABR": {"venta": 89654.07, "cuota": 3957242.38, "pct": 0.022655692959396567}, "MAY": {"venta": 9026.93, "cuota": 2072959.08, "pct": 0.004354612923304759}, "JUN": {"venta": 23941.52, "cuota": 1842549.91, "pct": 0.01299368772200518}, "JUL": {"venta": 971.37, "cuota": 1984531.65, "pct": 0.00048947186176756}}, "acum": {"venta": 1539297.22, "cuota": 22428389.7, "pct": 0.06863164230877354}, "unidades_acum": 17212.05}, {"vendedor": "NESSIM ROMANO", "dept": "PROYECTOS", "months": {"ENE": {"venta": 202064.7, "cuota": 297476.64, "pct": 0.6792624105123511}, "FEB": {"venta": 964958.84, "cuota": 283024.45, "pct": 3.409454034323953}, "MAR": {"venta": 1477087.03, "cuota": 382071.08, "pct": 3.8660006526934274}, "ABR": {"venta": 793661.2, "cuota": 568551.42, "pct": 1.3959356683026436}, "MAY": {"venta": 0.0, "cuota": 336675.49, "pct": 0.0}, "JUN": {"venta": 1562596.87, "cuota": 277635.01, "pct": 5.6282415029462864}, "JUL": {"venta": 137710.77, "cuota": 322313.72, "pct": 0.4272569093435433}}, "acum": {"venta": 5138079.41, "cuota": 2467747.8, "pct": 2.0820925883123356}, "unidades_acum": 6905.8}, {"vendedor": "PAULA PANDO", "dept": "PROYECTOS", "months": {"ENE": {"venta": 0.0, "cuota": 297476.64, "pct": 0.0}, "FEB": {"venta": 0.0, "cuota": 283024.45, "pct": 0.0}, "MAR": {"venta": 0.0, "cuota": 382071.08, "pct": 0.0}, "ABR": {"venta": 0.0, "cuota": 0.0, "pct": null}, "MAY": {"venta": 0.0, "cuota": 336675.49, "pct": 0.0}, "JUN": {"venta": 0.0, "cuota": 277635.01, "pct": 0.0}, "JUL": {"venta": 0.0, "cuota": 322313.72, "pct": 0.0}}, "acum": {"venta": 0.0, "cuota": 1899196.39, "pct": 0.0}, "unidades_acum": 0.0}, {"vendedor": "PROYECTOS  ROXANA ", "dept": "PROYECTOS", "months": {"ENE": {"venta": 0.0, "cuota": 786188.27, "pct": 0.0}, "FEB": {"venta": 0.0, "cuota": 747993.18, "pct": 0.0}, "MAR": {"venta": 0.0, "cuota": 1009759.27, "pct": 0.0}, "ABR": {"venta": 0.0, "cuota": 731370.46, "pct": 0.0}, "MAY": {"venta": 87466.99, "cuota": 889785.22, "pct": 0.0983012426271745}, "JUN": {"venta": 0.0, "cuota": 733749.66, "pct": 0.0}, "JUL": {"venta": 0.0, "cuota": 851829.13, "pct": 0.0}}, "acum": {"venta": 87466.99, "cuota": 5750675.19, "pct": 0.01520986490792293}, "unidades_acum": 148.0}, {"vendedor": "JOSE RK", "dept": "PROYECTOS", "months": {"ENE": {"venta": 0.0, "cuota": 0.0, "pct": null}, "FEB": {"venta": 0.0, "cuota": 0.0, "pct": null}, "MAR": {"venta": 999563.95, "cuota": 0.0, "pct": null}, "ABR": {"venta": 22578.52, "cuota": 0.0, "pct": null}, "MAY": {"venta": 0.0, "cuota": 0.0, "pct": null}, "JUN": {"venta": 239421.37, "cuota": 0.0, "pct": null}, "JUL": {"venta": 0.0, "cuota": 0.0, "pct": null}}, "acum": {"venta": 1261563.84, "cuota": 0.0, "pct": null}, "unidades_acum": 5507.29}, {"vendedor": "JOSE ROMANO", "dept": "PROYECTOS", "months": {"ENE": {"venta": 21063.35, "cuota": 0.0, "pct": null}, "FEB": {"venta": 100584.13, "cuota": 0.0, "pct": null}, "MAR": {"venta": 167778.94, "cuota": 0.0, "pct": null}, "ABR": {"venta": 0.0, "cuota": 0.0, "pct": null}, "MAY": {"venta": 31454.59, "cuota": 0.0, "pct": null}, "JUN": {"venta": 24854.16, "cuota": 0.0, "pct": null}, "JUL": {"venta": 0.0, "cuota": 0.0, "pct": null}}, "acum": {"venta": 345735.18, "cuota": 0.0, "pct": null}, "unidades_acum": 1610.91}], "inventario": {"depts": ["PROYECTOS"], "cats": [{"categoria": "PORCELANATO", "months": {"ENE": {"PROYECTOS": 73364.09, "TOTAL": 73364.09}, "FEB": {"PROYECTOS": 992575.74, "TOTAL": 992575.74}, "MAR": {"PROYECTOS": 2438895.57, "TOTAL": 2438895.57}, "ABR": {"PROYECTOS": 579572.23, "TOTAL": 579572.23}, "MAY": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "JUN": {"PROYECTOS": 1344841.72, "TOTAL": 1344841.72}, "JUL": {"PROYECTOS": 120515.18, "TOTAL": 120515.18}}, "acum": {"PROYECTOS": 5549764.54, "TOTAL": 5549764.54}}, {"categoria": "MADERA", "months": {"ENE": {"PROYECTOS": 1061704.99, "TOTAL": 1061704.99}, "FEB": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "MAR": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "ABR": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "MAY": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "JUN": {"PROYECTOS": 202227.9, "TOTAL": 202227.9}, "JUL": {"PROYECTOS": 0.0, "TOTAL": 0.0}}, "acum": {"PROYECTOS": 1263932.89, "TOTAL": 1263932.89}}, {"categoria": "CERAMICA", "months": {"ENE": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "FEB": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "MAR": {"PROYECTOS": 37755.41, "TOTAL": 37755.41}, "ABR": {"PROYECTOS": 272105.05, "TOTAL": 272105.05}, "MAY": {"PROYECTOS": 73499.24, "TOTAL": 73499.24}, "JUN": {"PROYECTOS": 212143.65, "TOTAL": 212143.65}, "JUL": {"PROYECTOS": 0.0, "TOTAL": 0.0}}, "acum": {"PROYECTOS": 595503.35, "TOTAL": 595503.35}}, {"categoria": "PISO VINILICO", "months": {"ENE": {"PROYECTOS": 235781.44, "TOTAL": 235781.44}, "FEB": {"PROYECTOS": 47126.84, "TOTAL": 47126.84}, "MAR": {"PROYECTOS": 142791.65, "TOTAL": 142791.65}, "ABR": {"PROYECTOS": 1082.56, "TOTAL": 1082.56}, "MAY": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "JUN": {"PROYECTOS": 15023.74, "TOTAL": 15023.74}, "JUL": {"PROYECTOS": 971.37, "TOTAL": 971.37}}, "acum": {"PROYECTOS": 442777.6, "TOTAL": 442777.6}}, {"categoria": "COLOCACION", "months": {"ENE": {"PROYECTOS": 51671.15, "TOTAL": 51671.15}, "FEB": {"PROYECTOS": 21916.25, "TOTAL": 21916.25}, "MAR": {"PROYECTOS": 16788.22, "TOTAL": 16788.22}, "ABR": {"PROYECTOS": 36539.14, "TOTAL": 36539.14}, "MAY": {"PROYECTOS": 30849.31, "TOTAL": 30849.31}, "JUN": {"PROYECTOS": 19081.05, "TOTAL": 19081.05}, "JUL": {"PROYECTOS": 10223.94, "TOTAL": 10223.94}}, "acum": {"PROYECTOS": 187069.05, "TOTAL": 187069.05}}, {"categoria": "MATERIAL PARA COLOCACION", "months": {"ENE": {"PROYECTOS": 114016.45, "TOTAL": 114016.45}, "FEB": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "MAR": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "ABR": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "MAY": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "JUN": {"PROYECTOS": 22805.9, "TOTAL": 22805.9}, "JUL": {"PROYECTOS": 0.0, "TOTAL": 0.0}}, "acum": {"PROYECTOS": 136822.35, "TOTAL": 136822.35}}, {"categoria": "ADHESIVO", "months": {"ENE": {"PROYECTOS": 51148.18, "TOTAL": 51148.18}, "FEB": {"PROYECTOS": 25353.75, "TOTAL": 25353.75}, "MAR": {"PROYECTOS": 8199.08, "TOTAL": 8199.08}, "ABR": {"PROYECTOS": 3229.25, "TOTAL": 3229.25}, "MAY": {"PROYECTOS": 2481.7, "TOTAL": 2481.7}, "JUN": {"PROYECTOS": 31983.59, "TOTAL": 31983.59}, "JUL": {"PROYECTOS": 0.0, "TOTAL": 0.0}}, "acum": {"PROYECTOS": 122395.56, "TOTAL": 122395.56}}, {"categoria": "PASTOS", "months": {"ENE": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "FEB": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "MAR": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "ABR": {"PROYECTOS": 13365.55, "TOTAL": 13365.55}, "MAY": {"PROYECTOS": 12418.28, "TOTAL": 12418.28}, "JUN": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "JUL": {"PROYECTOS": 0.0, "TOTAL": 0.0}}, "acum": {"PROYECTOS": 25783.83, "TOTAL": 25783.83}}, {"categoria": "ALFOMBRA", "months": {"ENE": {"PROYECTOS": 11645.82, "TOTAL": 11645.82}, "FEB": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "MAR": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "ABR": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "MAY": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "JUN": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "JUL": {"PROYECTOS": 0.0, "TOTAL": 0.0}}, "acum": {"PROYECTOS": 11645.82, "TOTAL": 11645.82}}, {"categoria": "LAMINADO", "months": {"ENE": {"PROYECTOS": 11174.28, "TOTAL": 11174.28}, "FEB": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "MAR": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "ABR": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "MAY": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "JUN": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "JUL": {"PROYECTOS": 0.0, "TOTAL": 0.0}}, "acum": {"PROYECTOS": 11174.28, "TOTAL": 11174.28}}, {"categoria": "PERSIANAS", "months": {"ENE": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "FEB": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "MAR": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "ABR": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "MAY": {"PROYECTOS": 8700.0, "TOTAL": 8700.0}, "JUN": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "JUL": {"PROYECTOS": 0.0, "TOTAL": 0.0}}, "acum": {"PROYECTOS": 8700.0, "TOTAL": 8700.0}}, {"categoria": "VARIOS", "months": {"ENE": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "FEB": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "MAR": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "ABR": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "MAY": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "JUN": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "JUL": {"PROYECTOS": 6971.65, "TOTAL": 6971.65}}, "acum": {"PROYECTOS": 6971.65, "TOTAL": 6971.65}}, {"categoria": "MOLDURAS", "months": {"ENE": {"PROYECTOS": 2993.28, "TOTAL": 2993.28}, "FEB": {"PROYECTOS": 3902.08, "TOTAL": 3902.08}, "MAR": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "ABR": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "MAY": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "JUN": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "JUL": {"PROYECTOS": 0.0, "TOTAL": 0.0}}, "acum": {"PROYECTOS": 6895.35, "TOTAL": 6895.35}}, {"categoria": "MURO INTERIOR", "months": {"ENE": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "FEB": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "MAR": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "ABR": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "MAY": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "JUN": {"PROYECTOS": 2706.37, "TOTAL": 2706.37}, "JUL": {"PROYECTOS": 0.0, "TOTAL": 0.0}}, "acum": {"PROYECTOS": 2706.37, "TOTAL": 2706.37}}]}, "primarios": {"depts": ["PROYECTOS"], "groups": [{"gpo": "PR 9", "months": {"ENE": {"PROYECTOS": 1439737.87, "TOTAL": 1439737.87}, "FEB": {"PROYECTOS": 1009765.68, "TOTAL": 1009765.68}, "MAR": {"PROYECTOS": 1892338.23, "TOTAL": 1892338.23}, "ABR": {"PROYECTOS": 816239.72, "TOTAL": 816239.72}, "MAY": {"PROYECTOS": 82199.24, "TOTAL": 82199.24}, "JUN": {"PROYECTOS": 1821897.07, "TOTAL": 1821897.07}, "JUL": {"PROYECTOS": 2111.59, "TOTAL": 2111.59}}, "acum": {"PROYECTOS": 7064289.38, "TOTAL": 7064289.38}}, {"gpo": "PR 2", "months": {"ENE": {"PROYECTOS": 39239.2, "TOTAL": 39239.2}, "FEB": {"PROYECTOS": 0.0, "TOTAL": 0.0}, "MAR": {"PROYECTOS": 512235.84, "TOTAL": 512235.84}, "ABR": {"PROYECTOS": 13365.55, "TOTAL": 13365.55}, "MAY": {"PROYECTOS": 12418.28, "TOTAL": 12418.28}, "JUN": {"PROYECTOS": 2706.37, "TOTAL": 2706.37}, "JUL": {"PROYECTOS": 119374.97, "TOTAL": 119374.97}}, "acum": {"PROYECTOS": 699340.22, "TOTAL": 699340.22}}, {"gpo": "PR 3", "months": {"ENE": {"PROYECTOS": 82851.46, "TOTAL": 82851.46}, "FEB": {"PROYECTOS": 59192.74, "TOTAL": 59192.74}, "MAR": {"PROYECTOS": 223067.64, "TOTAL": 223067.64}, "ABR": {"PROYECTOS": 39749.37, "TOTAL": 39749.37}, "MAY": {"PROYECTOS": 2481.7, "TOTAL": 2481.7}, "JUN": {"PROYECTOS": 7129.43, "TOTAL": 7129.43}, "JUL": {"PROYECTOS": 0.0, "TOTAL": 0.0}}, "acum": {"PROYECTOS": 414472.34, "TOTAL": 414472.34}}, {"gpo": "PR 4", "months": {"ENE": {"PROYECTOS": 51671.15, "TOTAL": 51671.15}, "FEB": {"PROYECTOS": 21916.25, "TOTAL": 21916.25}, "MAR": {"PROYECTOS": 16788.22, "TOTAL": 16788.22}, "ABR": {"PROYECTOS": 36539.14, "TOTAL": 36539.14}, "MAY": {"PROYECTOS": 30849.31, "TOTAL": 30849.31}, "JUN": {"PROYECTOS": 19081.05, "TOTAL": 19081.05}, "JUL": {"PROYECTOS": 17195.58, "TOTAL": 17195.58}}, "acum": {"PROYECTOS": 194040.7, "TOTAL": 194040.7}}]}, "cobranza": {"depts": [{"dept": "PROYECTOS", "months": {"ENE": {"ac": 1037508.25, "cobrar": 575991.43}, "FEB": {"ac": 1029401.92, "cobrar": 61472.75}, "MAR": {"ac": 1826343.26, "cobrar": 818086.67}, "ABR": {"ac": 525639.18, "cobrar": 380254.6}, "MAY": {"ac": 127948.54, "cobrar": -0.02}, "JUN": {"ac": 289952.89, "cobrar": 1560861.02}, "JUL": {"ac": 118403.57, "cobrar": 20278.57}}, "acum": {"ac": 4955197.61, "cobrar": 3416945.02}}], "total": {"months": {"ENE": {"ac": 1037508.25, "cobrar": 575991.43}, "FEB": {"ac": 1029401.92, "cobrar": 61472.75}, "MAR": {"ac": 1826343.26, "cobrar": 818086.67}, "ABR": {"ac": 525639.18, "cobrar": 380254.6}, "MAY": {"ac": 127948.54, "cobrar": -0.02}, "JUN": {"ac": 289952.89, "cobrar": 1560861.02}, "JUL": {"ac": 118403.57, "cobrar": 20278.57}}, "acum": {"ac": 4955197.61, "cobrar": 3416945.02}}}};
 const MESES = DATA.meses;
 const PERIODS = MESES.concat(["ACUM"]);
 const C = { navy:"#0a4680", accent:"#2857a4", green:"#059669", yellow:"#D97706", red:"#DC2626", teal:"#0F766E", gray:"#64748B", track:"#CBD5E1" };
@@ -357,6 +375,10 @@ function fmtPct(p){ return (p===null||p===undefined) ? "N/A" : (p*100).toFixed(1
 function el(tag, attrs){ const e=document.createElementNS(SVGNS, tag); for(const k in attrs) e.setAttribute(k, attrs[k]); return e; }
 function clear(node){ while(node.firstChild) node.removeChild(node.firstChild); }
 function periodData(obj, period){ return period==="ACUM" ? obj.acum : obj.months[period]; }
+// Hueco = lo que falta para la cuota. Es el único número que ordena los problemas por tamaño:
+// un departamento en 66% puede deber menos dinero que otro en 59%. Nunca negativo.
+function hueco(pd){ return Math.max(0, numVal(pd.cuota) - numVal(pd.venta)); }
+function porHueco(a, b){ return hueco(b.acum) - hueco(a.acum); }
 function vendorColor(idx){ return PALETTE[idx % PALETTE.length]; }
 function hexToRgba(hex, alpha){
   hex = hex.replace("#","");
@@ -396,6 +418,10 @@ function pctStatusLabel(p){ if(p===null||p===undefined) return "Sin datos"; if(p
   document.getElementById("kpi-pct").textContent = fmtPct(pct);
   document.getElementById("kpi-venta").textContent = fmtMoney(DATA.resumen.total.acum.venta);
   document.getElementById("kpi-cuota").textContent = fmtMoney(DATA.resumen.total.acum.cuota);
+  const _h = hueco(DATA.resumen.total.acum);
+  const _elh = document.getElementById("kpi-hueco");
+  _elh.textContent = _h > 0 ? fmtMoney(_h) : "Cumplida";
+  if (_h <= 0) _elh.style.color = "#86EFAC";
   const ring = document.getElementById("hero-ring");
   const R = 52, CIRC = 2*Math.PI*R;
   const clamped = Math.max(0, Math.min(1, pct||0));
@@ -421,11 +447,14 @@ function renderAvance(){
     return (pct === null || pct === undefined) ? 0 : Math.max(0, Math.min(pct * 100, 100));
   }
 
-  const bloques = depts.map(d => {
+  // Orden por hueco en pesos, no alfabético ni por porcentaje: arriba lo que más dinero falta.
+  const bloques = depts.slice().sort(porHueco).map(d => {
     const col = pctColor(d.acum.pct);
     const vends = DATA.vendedores
       .filter(v => v.dept === d.dept)
       .sort((a,b) => {
+        const dh = porHueco(a,b);
+        if (dh !== 0) return dh;
         const pa = (a.acum.pct === null || a.acum.pct === undefined) ? -1 : a.acum.pct;
         const pb = (b.acum.pct === null || b.acum.pct === undefined) ? -1 : b.acum.pct;
         return pb - pa;
@@ -439,6 +468,7 @@ function renderAvance(){
         <div class="av-vend-track"><div class="av-vend-fill" data-w="${barra(v.acum.pct)}" style="background:${vc}"></div></div>
         <div class="av-vend-meta">
           <span class="av-vend-money">${fmtMoneyShort(v.acum.venta)}</span>
+          <span class="av-falta">${sinCuota || hueco(v.acum) <= 0 ? "" : "falta " + fmtMoneyShort(hueco(v.acum))}</span>
           <span class="av-vend-pct" style="color:${vc}">${sinCuota ? '<span class="av-sincuota">s/cuota</span>' : fmtPct(v.acum.pct)}</span>
         </div>
       </div>`;
@@ -453,7 +483,8 @@ function renderAvance(){
     return `<div class="av-dept">
       <div class="av-head">
         <span class="av-name"><span class="dept-dot" style="background:${DEPT_COLORS[d.dept]||'#94A3B8'}"></span>${d.dept}</span>
-        <span class="av-money">${fmtMoney(d.acum.venta)} de ${fmtMoney(d.acum.cuota)}</span>
+        <span class="av-money">${fmtMoney(d.acum.venta)} de ${fmtMoney(d.acum.cuota)}${
+          hueco(d.acum) > 0 ? ` · <b class="av-falta-dept">faltan ${fmtMoney(hueco(d.acum))}</b>` : ""}</span>
         <span class="av-pct" style="color:${col}">${fmtPct(d.acum.pct)}</span>
       </div>
       <div class="av-track"><div class="av-fill" data-w="${barra(d.acum.pct)}" style="background:${col}"></div></div>
@@ -469,6 +500,177 @@ function renderAvance(){
   });
 }
 renderAvance();
+
+// ================= VARIACIÓN MES CON MES =================
+// Dos lecturas del mismo movimiento:
+//  · "Venta y cuota": cuánto se movió cada una contra el mes anterior. Verlas juntas explica
+//    el cumplimiento — en ABR la venta cayó 41.5% pero la cuota solo 6.6%, y por eso el
+//    cumplimiento se desplomó 32.5 pp; en JUL la venta subió 9.3% pero la cuota subió 19.3%.
+//  · "Cumplimiento": la variación en puntos porcentuales, que es como se comparan dos tasas.
+let momMetric = "vc";         // "vc" | "pct"
+let momScope  = "__TOTAL__";  // "__TOTAL__" | nombre de departamento
+const MOM_VENTA = "#2857a4", MOM_CUOTA = "#94A3B8";
+
+function momScopeObj(){
+  if (momScope === "__TOTAL__") return DATA.resumen.total;
+  return DATA.resumen.depts.find(d => d.dept === momScope) || DATA.resumen.total;
+}
+function momSeries(){
+  const o = momScopeObj(), out = [];
+  for (let i = 1; i < MESES.length; i++){
+    const mPrev = MESES[i-1], mCur = MESES[i];
+    const a = o.months[mPrev] || {}, b = o.months[mCur] || {};
+    const pv = numVal(a.venta), cv = numVal(b.venta);
+    const pq = numVal(a.cuota), cq = numVal(b.cuota);
+    const hayPct = (a.pct !== null && a.pct !== undefined && b.pct !== null && b.pct !== undefined);
+    out.push({ mes: mCur, prev: mPrev, a: a, b: b,
+      venta: pv > 0 ? (cv - pv) / pv : null,
+      cuota: pq > 0 ? (cq - pq) / pq : null,
+      pct:   hayPct ? b.pct - a.pct : null });
+  }
+  return out;
+}
+function momPct(v){ const s = v >= 0 ? "+" : "−"; return s + Math.abs(v * 100).toFixed(1) + "%"; }
+function momPp(v){  const s = v >= 0 ? "+" : "−"; return s + Math.abs(v * 100).toFixed(1) + " pp"; }
+function momFmt(v){ return momMetric === "pct" ? momPp(v) : momPct(v); }
+
+function renderMomChart(){
+  const serie = momSeries();
+  const cont = document.getElementById("chart-mom");
+  clear(cont);
+  const W = 720, padL = 54, padR = 18, padT = 30, padB = 48;
+  const H = 252, plotW = W - padL - padR, plotH = H - padT - padB;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}` });
+  const vals = [];
+  serie.forEach(s => {
+    if (momMetric === "pct"){ if (s.pct !== null) vals.push(Math.abs(s.pct)); }
+    else { if (s.venta !== null) vals.push(Math.abs(s.venta)); if (s.cuota !== null) vals.push(Math.abs(s.cuota)); }
+  });
+  // Un mes que rebota desde una base muy chica (ej. Proyectos +1346% en JUN) aplasta las demás
+  // barras. Con un valor así de dominante el eje se acota al segundo más grande y la barra se
+  // recorta con punta de flecha; la etiqueta conserva la cifra real.
+  const ordenados = vals.slice().sort((a, b) => b - a);
+  const piso = momMetric === "pct" ? 0.05 : 0.10;
+  let lim;
+  if (ordenados.length > 1 && ordenados[0] > ordenados[1] * 3) lim = ordenados[1] * 1.6;
+  else lim = (ordenados[0] || piso) * 1.25;
+  lim = Math.max(lim, piso);
+  const y0 = padT + plotH / 2;
+  const toY = v => y0 - (Math.max(-1, Math.min(1, v / lim))) * (plotH / 2);
+
+  [lim, -lim].forEach(g => {
+    svg.appendChild(el("line", { x1: padL, y1: toY(g), x2: W - padR, y2: toY(g),
+      stroke: C.track, "stroke-width": 1, "stroke-dasharray": "3 4", opacity: ".7" }));
+    const t = el("text", { x: padL - 8, y: toY(g) + 4, "text-anchor": "end", class: "axis-label", fill: C.gray });
+    t.textContent = momFmt(g); svg.appendChild(t);
+  });
+  svg.appendChild(el("line", { x1: padL - 6, y1: y0, x2: W - padR, y2: y0, stroke: "#94A3B8", "stroke-width": 1.5 }));
+  const z = el("text", { x: padL - 8, y: y0 + 4, "text-anchor": "end", class: "axis-label", "font-weight": "700", fill: C.gray });
+  z.textContent = "0"; svg.appendChild(z);
+
+  const slot = plotW / serie.length;
+  // `extra` separa el rótulo de la segunda serie para que no se encime con el de la primera
+  // cuando ambas barras caen del mismo lado del cero con valores parecidos (ej. FEB).
+  function barra(cx, val, ancho, color, etiqueta, extra, fs){
+    extra = extra || 0;
+    if (val === null){
+      const sd = el("text", { x: cx, y: y0 - 8 - extra, "text-anchor": "middle", class: "axis-label", fill: "#94A3B8" });
+      sd.textContent = "s/d"; svg.appendChild(sd); return;
+    }
+    const yv = toY(val), yTop = Math.min(y0, yv), alto = Math.max(Math.abs(y0 - yv), 2);
+    svg.appendChild(el("rect", { x: cx - ancho / 2, y: yTop, width: ancho, height: alto, rx: 3, fill: color }));
+    const recortada = Math.abs(val) > lim;
+    if (recortada){
+      const py = val >= 0 ? yTop : yTop + alto, dir = val >= 0 ? -1 : 1;
+      svg.appendChild(el("polygon", { fill: color,
+        points: `${cx - ancho / 2},${py} ${cx + ancho / 2},${py} ${cx},${py + dir * 9}` }));
+    }
+    if (!etiqueta) return;
+    const attrs = { x: cx, "text-anchor": "middle", class: "axis-label", "font-weight": "800", fill: color,
+      y: val >= 0 ? yTop - (recortada ? 15 : 7) - extra : yTop + alto + (recortada ? 23 : 15) + extra };
+    if (fs) attrs["font-size"] = fs;
+    const lbl = el("text", attrs);
+    lbl.textContent = momFmt(val); svg.appendChild(lbl);
+  }
+
+  serie.forEach((s, i) => {
+    const cx = padL + slot * i + slot / 2;
+    const mes = el("text", { x: cx, y: padT + plotH + 22, "text-anchor": "middle", class: "axis-label",
+      "font-weight": "700", fill: C.navy });
+    mes.textContent = s.mes; svg.appendChild(mes);
+    const vs = el("text", { x: cx, y: padT + plotH + 36, "text-anchor": "middle", class: "axis-label", fill: C.gray });
+    vs.textContent = "vs " + s.prev; svg.appendChild(vs);
+    if (momMetric === "pct"){
+      const col = s.pct === null ? "#94A3B8" : (s.pct >= 0 ? C.green : C.red);
+      barra(cx, s.pct, Math.min(58, slot * 0.46), col, true);
+    } else {
+      const w = Math.min(26, slot * 0.21);
+      barra(cx - w * 0.62, s.venta, w, MOM_VENTA, true, 0, 9.5);
+      barra(cx + w * 0.62, s.cuota, w, MOM_CUOTA, true, 13, 9.5);
+    }
+  });
+  cont.appendChild(svg);
+
+  const leg = document.getElementById("legend-mom");
+  leg.innerHTML = momMetric === "pct"
+    ? `<span><span class="dept-dot" style="background:${C.green}"></span>Subió</span>` +
+      `<span><span class="dept-dot" style="background:${C.red}"></span>Bajó</span>`
+    : `<span><span class="dept-dot" style="background:${MOM_VENTA}"></span>Venta real</span>` +
+      `<span><span class="dept-dot" style="background:${MOM_CUOTA}"></span>Cuota</span>`;
+}
+
+function renderMomDetail(){
+  const serie = momSeries(), cont = document.getElementById("mom-detail");
+  const ambito = momScope !== "__TOTAL__" ? momScope
+    : (DATA.resumen.depts.length === 1 ? DATA.resumen.depts[0].dept : "Total general");
+  const cls = v => v >= 0 ? "mom-up" : "mom-down";
+  if (momMetric === "pct"){
+    const con = serie.filter(s => s.pct !== null);
+    if (!con.length){ cont.innerHTML = "Sin datos suficientes para comparar meses."; return; }
+    const u = con[con.length - 1];
+    const rel = (u.a.pct > 0) ? (u.b.pct - u.a.pct) / u.a.pct : null;
+    const mejor = con.reduce((a, b) => b.pct > a.pct ? b : a);
+    const peor  = con.reduce((a, b) => b.pct < a.pct ? b : a);
+    cont.innerHTML =
+      `<b>${ambito} · ${u.mes} vs ${u.prev}:</b> ${fmtPct(u.b.pct)} de cuota contra ${fmtPct(u.a.pct)} → ` +
+      `<span class="${cls(u.pct)}">${momPp(u.pct)}</span>` +
+      (rel === null ? "" : ` (${rel >= 0 ? "+" : "−"}${Math.abs(rel * 100).toFixed(1)}% relativo)`) +
+      `<br>Mayor alza: <b>${mejor.mes}</b> <span class="${cls(mejor.pct)}">${momPp(mejor.pct)}</span> · ` +
+      `mayor caída: <b>${peor.mes}</b> <span class="${cls(peor.pct)}">${momPp(peor.pct)}</span>` +
+      `<br>pp = puntos porcentuales de cumplimiento. Se usa en vez de un % relativo porque la cuota cambia cada mes: se puede vender más y aun así cumplir menos.`;
+    return;
+  }
+  const con = serie.filter(s => s.venta !== null || s.cuota !== null);
+  if (!con.length){ cont.innerHTML = "Sin datos suficientes para comparar meses."; return; }
+  const u = con[con.length - 1];
+  let linea = `<b>${ambito} · ${u.mes} vs ${u.prev}:</b> ` +
+    `venta ${fmtMoney(u.b.venta)} contra ${fmtMoney(u.a.venta)} → ` +
+    (u.venta === null ? "s/d" : `<span class="${cls(u.venta)}">${momPct(u.venta)}</span>`) +
+    ` · cuota ${fmtMoney(u.b.cuota)} contra ${fmtMoney(u.a.cuota)} → ` +
+    (u.cuota === null ? "s/d" : `<span class="${cls(u.cuota)}">${momPct(u.cuota)}</span>`);
+  if (u.pct !== null){
+    linea += `<br>Resultado: el cumplimiento ${u.pct >= 0 ? "subió" : "bajó"} ` +
+      `<span class="${cls(u.pct)}">${momPp(u.pct)}</span> (${fmtPct(u.a.pct)} → ${fmtPct(u.b.pct)})`;
+    if (u.venta !== null && u.cuota !== null && u.venta > 0 && u.pct < 0)
+      linea += ` — se vendió más que el mes pasado, pero la cuota subió todavía más.`;
+  }
+  cont.innerHTML = linea;
+}
+
+function renderMom(){ renderMomChart(); renderMomDetail(); }
+makePills(document.getElementById("pills-mom-metric"),
+  [{value:"vc", label:"Venta y cuota"}, {value:"pct", label:"Cumplimiento"}],
+  "vc", (v)=>{ momMetric = v; renderMom(); });
+// Con un solo departamento el "Total general" es ese mismo departamento: el selector sobra.
+if (DATA.resumen.depts.length > 1){
+  makePills(document.getElementById("pills-mom-scope"),
+    [{value:"__TOTAL__", label:"Total general"}].concat(DATA.resumen.depts.map(d=>({value:d.dept, label:d.dept}))),
+    "__TOTAL__", (v)=>{ momScope = v; renderMom(); });
+} else {
+  document.getElementById("lbl-mom-scope").style.display = "none";
+  document.getElementById("pills-mom-scope").style.display = "none";
+}
+renderMom();
 
 // ================= HALLAZGOS CLAVE =================
 function renderInsights(){
@@ -570,16 +772,23 @@ function renderDeptoChart(){
   container.appendChild(svg);
 }
 function renderDeptoTabla(){
-  const depts = DATA.resumen.depts;
-  let html = '<table><thead><tr><th>Depto</th><th>Venta</th><th>Cuota</th><th>%</th></tr></thead><tbody>';
+  // Ordenada por lo que falta en el periodo mostrado, no por el orden del archivo de cuotas.
+  const depts = DATA.resumen.depts.slice().sort((a,b)=>
+    hueco(periodData(b, mesDepto)) - hueco(periodData(a, mesDepto)));
+  const tot = periodData(DATA.resumen.total, mesDepto);
+  const huecoTot = hueco(tot);
+  let html = '<table><thead><tr><th>Depto</th><th>Venta</th><th>Cuota</th><th>Falta</th><th>% del faltante</th><th>%</th></tr></thead><tbody>';
   depts.forEach(d=>{
     const pd = periodData(d, mesDepto);
+    const h = hueco(pd);
     html += `<tr><td><span class="dept-dot" style="background:${DEPT_COLORS[d.dept]}"></span>${d.dept}</td>`+
       `<td>${fmtMoney(pd.venta)}</td><td>${fmtMoney(pd.cuota)}</td>`+
+      `<td class="${h > 0 ? 'falta-cell' : ''}">${h > 0 ? fmtMoney(h) : "—"}</td>`+
+      `<td>${h > 0 && huecoTot > 0 ? (h/huecoTot*100).toFixed(1)+"%" : "—"}</td>`+
       `<td><span class="badge" style="background:${pctColor(pd.pct)}">${fmtPct(pd.pct)}</span></td></tr>`;
   });
-  const tot = periodData(DATA.resumen.total, mesDepto);
   html += `<tr class="total-row"><td>TOTAL GENERAL</td><td>${fmtMoney(tot.venta)}</td><td>${fmtMoney(tot.cuota)}</td>`+
+    `<td>${huecoTot > 0 ? fmtMoney(huecoTot) : "—"}</td><td>${huecoTot > 0 ? "100%" : "—"}</td>`+
     `<td><span class="badge" style="background:${pctColor(tot.pct)}">${fmtPct(tot.pct)}</span></td></tr></tbody></table>`;
   document.getElementById("tabla-depto").innerHTML = html;
 }
@@ -853,13 +1062,17 @@ makePills(document.getElementById("pills-tend-metric"), [{value:"pct",label:"% C
 
 // ================= VENDEDORES =================
 let deptVendFilter = "__ALL__";
-let vendMetric = "pct"; // 'pct' | 'venta' | 'unidades'
-function vendMetricLabel(){ return vendMetric==="pct" ? "% cumplimiento acumulado" : vendMetric==="venta" ? "venta $ acumulada" : "unidades desplazadas (acum.)"; }
+let vendMetric = "hueco"; // 'hueco' | 'pct' | 'venta' | 'unidades'
+function vendMetricLabel(){
+  return vendMetric==="hueco" ? "lo que falta para su cuota (acum.)"
+       : vendMetric==="pct" ? "% cumplimiento acumulado"
+       : vendMetric==="venta" ? "venta $ acumulada" : "unidades desplazadas (acum.)"; }
 function renderVendedores(){
   document.getElementById("vend-rank-title").textContent = vendMetricLabel();
   document.getElementById("vend-warn").style.display = vendMetric==="unidades" ? "block" : "none";
   let vs = DATA.vendedores.filter(v=> deptVendFilter==="__ALL__" || v.dept===deptVendFilter);
   vs = vs.slice().sort((a,b)=>{
+    if (vendMetric==="hueco") return porHueco(a,b);
     if (vendMetric==="pct"){ const pa=a.acum.pct===null?-1:a.acum.pct, pb=b.acum.pct===null?-1:b.acum.pct; return pb-pa; }
     if (vendMetric==="venta") return numVal(b.acum.venta)-numVal(a.acum.venta);
     return (b.unidades_acum||0)-(a.unidades_acum||0);
@@ -867,7 +1080,13 @@ function renderVendedores(){
   let html = "";
   vs.forEach((v,i)=>{
     let display, widthPct, barColor;
-    if (vendMetric==="pct"){ display = fmtPct(v.acum.pct); widthPct = v.acum.pct===null?0:Math.min(v.acum.pct*100,100); barColor = pctColor(v.acum.pct); }
+    if (vendMetric==="hueco"){
+      const h = hueco(v.acum);
+      display = h>0 ? fmtMoneyShort(h) : "cumplida";
+      const maxH = Math.max(...vs.map(x=>hueco(x.acum)),1);
+      widthPct = h/maxH*100; barColor = h>0 ? pctColor(v.acum.pct) : C.green;
+    }
+    else if (vendMetric==="pct"){ display = fmtPct(v.acum.pct); widthPct = v.acum.pct===null?0:Math.min(v.acum.pct*100,100); barColor = pctColor(v.acum.pct); }
     else if (vendMetric==="venta"){ display = fmtMoneyShort(v.acum.venta); const maxV = Math.max(...vs.map(x=>numVal(x.acum.venta)),1); widthPct = numVal(v.acum.venta)/maxV*100; barColor = C.accent; }
     else { display = fmtUnits(v.unidades_acum); const maxU = Math.max(...vs.map(x=>x.unidades_acum||0),1); widthPct = (v.unidades_acum||0)/maxU*100; barColor = C.teal; }
     html += `<div class="rank-item"><span class="rank-num">${i+1}</span>
@@ -911,7 +1130,7 @@ function renderVendedores(){
 }
 const deptVendOptions = [{value:"__ALL__",label:"Todos"}].concat(Object.keys(DEPT_COLORS).map(d=>({value:d,label:d})));
 makePills(document.getElementById("pills-dept-vend"), deptVendOptions, "__ALL__", (v)=>{ deptVendFilter=v; renderVendedores(); });
-makePills(document.getElementById("pills-metric-vend"), [{value:"pct",label:"% Cumplimiento"},{value:"venta",label:"Venta $"},{value:"unidades",label:"Unidades desplazadas"}], "pct", (v)=>{ vendMetric=v; renderVendedores(); });
+makePills(document.getElementById("pills-metric-vend"), [{value:"hueco",label:"Falta para cuota $"},{value:"pct",label:"% Cumplimiento"},{value:"venta",label:"Venta $"},{value:"unidades",label:"Unidades desplazadas"}], "hueco", (v)=>{ vendMetric=v; renderVendedores(); });
 
 // ================= INVENTARIO (apilado por depto; categoría o grupo primario) =================
 let mesInv = "ACUM";
